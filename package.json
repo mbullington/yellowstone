@@ -19,7 +19,8 @@
   },
   "homepage": "https://github.com/mbullington/yellowstone",
   "dependencies": {
-    "ffmpeg-static": "^1.0.0"
+    "ffmpeg-static": "^1.0.0",
+    "sdp-transform": "^1.4.0"
   },
   "devDependencies": {
     "babel": "^4.3.0",
