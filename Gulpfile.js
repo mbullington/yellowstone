@@ -1,3 +1,6 @@
+const path = require('path');
+const mkdirp = require('mkdirp');
+
 const gulp = require('gulp');
 const $ = require('gulp-load-plugins')();
 

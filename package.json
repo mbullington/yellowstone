@@ -26,6 +26,7 @@
     "gulp": "^3.8.10",
     "gulp-babel": "^4.0.0",
     "gulp-load-plugins": "^0.8.0",
-    "gulp-plumber": "^0.6.6"
-  },
+    "gulp-plumber": "^0.6.6",
+    "mkdirp": "^0.5.1"
+  }
 }
