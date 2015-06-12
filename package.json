@@ -1,10 +1,12 @@
 {
   "name": "yellowstone",
   "version": "1.0.0",
-  "description": "An RTP/RTSP client for node.js.",
-  "main": "index.js",
+  "description": "An RTSP client for node.js.",
+  "main": "dist/rtsp.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "gulp build",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -15,5 +17,15 @@
   "bugs": {
     "url": "https://github.com/mbullington/yellowstone/issues"
   },
-  "homepage": "https://github.com/mbullington/yellowstone"
+  "homepage": "https://github.com/mbullington/yellowstone",
+  "dependencies": {
+    "ffmpeg-static": "^1.0.0"
+  },
+  "devDependencies": {
+    "babel": "^4.3.0",
+    "gulp": "^3.8.10",
+    "gulp-babel": "^4.0.0",
+    "gulp-load-plugins": "^0.8.0",
+    "gulp-plumber": "^0.6.6"
+  },
 }
