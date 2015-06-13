@@ -13,13 +13,19 @@ library user itself for the time being.
 Yellowstone is written in ES6, so you'll need to use `gulp build` if you plan
 on using it with ES5, or you can use Yellowstone precompiled from npm.
 
-Contributing
-===
+Yellowstone does currently support:
 
-Please contribute features! This is a very small subset of what's possible
-with RTSP/RTP! Feel free to write and submit pull requests for easy to use
-abstractions of protocol extensions (such as lib/onvif.js), as well as core
-features and bug fixes.
+- Raw RTP/AVP over TCP
+- Basic and Digest Authentication
+- Pause, Play, and Teardown (Close)
+- Wrapper for ONVIF extensions to RTSP
+
+In the future, Yellowstone plans to support:
+
+- RTCP
+- Record and Announce Methods
+- Full Client RTSP support
+- Basic scriptable RTSP server (which also allows for unit tests)
 
 Examples
 ===
@@ -51,9 +57,15 @@ client.on('log', function(data, prefix) {
 });
 ```
 
-TODO
+Contributing
 ===
 
-- Add APIs to access RTCP.
-- Implement *RECORD* and *ANNOUNCE*.
-- Aim for better support of the entire RTSP specification.
+Please contribute features! This is a very small subset of what's possible
+with RTSP/RTP! Feel free to write and submit pull requests for easy to use
+abstractions of protocol extensions (such as lib/onvif.js), as well as core
+features and bug fixes.
+
+License
+===
+
+You can just read the LICENSE file, or npm. It's MIT.
