@@ -13,7 +13,7 @@ gulp.task('build', function() {
   mkdirp.sync(destinationFolder);
   return gulp.src('lib/*.js')
     .pipe($.plumber())
-    .pipe($.babel({ blacklist: ['useStrict'] }))
+    .pipe($.babel())
     .pipe(gulp.dest(destinationFolder));
 });
 
