@@ -1,32 +1,15 @@
 {
   "name": "yellowstone",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "An RTSP client for node.js.",
-  "main": "dist/rtsp.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "gulp build",
-    "prepublish": "npm run build"
-  },
+  "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/mbullington/yellowstone.git"
   },
-  "author": "Michael Bullington <mikebullingtn@gmail.com>",
+  "author": "Michael Bullington <michael@bullington.xyz>",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/mbullington/yellowstone/issues"
-  },
-  "homepage": "https://github.com/mbullington/yellowstone",
   "dependencies": {
     "sdp-transform": "^1.4.0"
-  },
-  "devDependencies": {
-    "babel": "^5.6.14",
-    "gulp": "^3.9.0",
-    "gulp-babel": "^5.1.0",
-    "gulp-load-plugins": "^1.0.0-rc",
-    "gulp-plumber": "^1.0.1",
-    "mkdirp": "^0.5.1"
   }
 }
