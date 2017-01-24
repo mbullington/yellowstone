@@ -11,9 +11,12 @@ client.connect('rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov
 });
 
 // data == packet.payload, just a small convenient thing
-client.on('data', function(channel, data, packet) {
-  if (channel === 0) console.log('RTP Packet', 'ID='+packet.id, 'TS='+packet.timestamp);
-  if (channel === 1) console.log('RTP Control Packet', 'TS='+packet.timestamp);
+client.on('data', function(channel, data, rtp_packet) {
+  console.log('RTP Packet', 'ID=' + rtp_packet.id, 'TS=' + rtp_packet.timestamp, 'M=' + rtp_packet.marker);
+});
+
+client.on('controlData', function(channel, rtcp_packet) {
+  console.log('RTP Control Packet', 'TS=' + rtcp_packet.timestamp, 'PT=' + rtcp_packet.packetType);
 });
 
 // allows you to optionally allow for RTSP logging
