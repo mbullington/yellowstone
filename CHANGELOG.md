@@ -1,3 +1,17 @@
+v2.1.0
+
+**Breaking changes**:
+
+- Emitted event `data` now has `channel` as first parameter (making parameters channel, data, packet).
+
+New features:
+
+- Basic parsing for RTCP, splits into the `data` and `controlData` emitted events. (both have same
+parameters, see above).
+- Improvements to RTP header parsing.
+
+Huge thanks to @RogerHardiman for the contributions!
+
 v2.0.0
 
 The `it works again!` update: 

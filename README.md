@@ -1,4 +1,4 @@
-yellowstone v2.0.0
+yellowstone v2.1.0
 ===
 
 ```
@@ -16,10 +16,10 @@ Yellowstone does currently support:
 - Basic and Digest Authentication
 - Pause, Play, and Teardown (Close)
 - Wrapper for ONVIF extensions to RTSP
+- Basic RTCP parsing
 
 In the future, Yellowstone plans to support:
 
-- RTCP
 - Record and Announce Methods
 - Full Client RTSP support
 - Basic scriptable RTSP server (which also allows for unit tests)
