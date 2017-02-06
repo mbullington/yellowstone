@@ -1,3 +1,19 @@
+v2.1.1
+
+New features:
+
+**Breaking changes**:
+
+- Parsed RTCP header decapritated the `payload` value to remove potentially confusing functionality
+, replacing it with `buffer`. For now, `payload` will still work, but will log a message to switch
+to the new key.
+
+New features:
+
+- A parsed version of the RTSP transport header is now in the returned object from connect().
+- (TODO) Test suite.
+- Changed RTSP link in example, our old link died.
+
 v2.1.0
 
 **Breaking changes**:

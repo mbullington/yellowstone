@@ -11,5 +11,11 @@
   "license": "MIT",
   "dependencies": {
     "sdp-transform": "^1.4.0"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^18.1.0"
   }
 }
