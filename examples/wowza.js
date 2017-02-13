@@ -1,4 +1,5 @@
 var RtspClient = require('../lib').RtspClient;
+var transform = require('sdp-transform');
 
 var client = new RtspClient();
 
@@ -8,6 +9,21 @@ client.connect('rtsp://mpv.cdn3.bigCDN.com:554/bigCDN/definst/mp4:bigbuckbunnyip
   client.play();
 }).catch(function(err) {
   // console.log(err.stack);
+});
+
+// mediaSource returns the portion of the SDP that goes with the video stream.
+// It is used to extract sprop-parameter-sets string contained in the 'fmtp'
+// which holds the SPS and PPS for H264 video
+// Some video formats will not have sprop-parameter-sets so use a Try/Catch
+client.on('mediaSource', function(mediaSource) {
+  //console.log("MediaSource\n",mediaSource);
+  try {
+    var fmtpConfig = transform.parseFmtpConfig(mediaSource.fmtp[0].config);
+    var splitSpropParameterSets = fmtpConfig['sprop-parameter-sets'].split(',');
+    var sps_base64 = splitSpropParameterSets[0];
+    var pps_base64 = splitSpropParameterSets[1];
+    console.log('SPS(base64) is',sps_base64,'PPS(base64) is',pps_base64);
+  } catch (err) {}
 });
 
 // data == packet.payload, just a small convenient thing
