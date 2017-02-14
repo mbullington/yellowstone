@@ -1,10 +1,23 @@
 var RtspClient = require('../lib').RtspClient;
+var transform = require('sdp-transform');
 
 var client = new RtspClient();
 
 // details is a plain Object that includes...
-// format - string
+//   format - string
+//   mediaSource - media portion of the SDP
+//   transport RTP and RTCP channels
+
 client.connect('rtsp://mpv.cdn3.bigCDN.com:554/bigCDN/definst/mp4:bigbuckbunnyiphone_400.mp4').then(function(details) {
+  console.log('Connected. Video format is', details['format']);
+  try {
+    var fmtpConfig = transform.parseFmtpConfig(details['mediaSource'].fmtp[0].config);
+    var splitSpropParameterSets = fmtpConfig['sprop-parameter-sets'].split(',');
+    var sps_base64 = splitSpropParameterSets[0];
+    var pps_base64 = splitSpropParameterSets[1];
+    console.log('SPS(base64) is',sps_base64,'PPS(base64) is',pps_base64);
+  } catch (err) {}
+  console.log('RTP and RTCP Transport channels are', details['transport']);
   client.play();
 }).catch(function(err) {
   // console.log(err.stack);
