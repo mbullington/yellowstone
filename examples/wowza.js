@@ -44,6 +44,23 @@ client.on('data', function(channel, data, packet) {
 // control data is for RTCP packets
 client.on('controlData', function(channel, rtcpPacket) {
   console.log('RTCP Control Packet', 'TS=' + rtcpPacket.timestamp, 'PT=' + rtcpPacket.packetType);
+  let rtcpReceiverReport = new Buffer(8);
+  const version = 2;
+  const padding_bit = 0;
+  const report_count = 0; // an empty packet
+  const packet_type = 201; // rtcpReceiverReport
+  const length = 1; // num 32 bit words minus 1
+  const ssrc = 12345; // unique ID
+  rtcpReceiverReport[0] = (version << 6) + (padding_bit << 5) + report_count;
+  rtcpReceiverReport[1] = packet_type;
+  rtcpReceiverReport[2] = (length >> 8) & 0xFF;
+  rtcpReceiverReport[3] = (length >> 0) & 0XFF;
+  rtcpReceiverReport[4] = (ssrc >> 24) & 0xFF;
+  rtcpReceiverReport[5] = (ssrc >> 16) & 0xFF;
+  rtcpReceiverReport[6] = (ssrc >> 8) & 0xFF;
+  rtcpReceiverReport[7] = (ssrc >> 0) & 0xFF;
+  client.sendInterleavedData(channel,rtcpReceiverReport);
+  
 });
 
 // allows you to optionally allow for RTSP logging
