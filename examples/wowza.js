@@ -13,7 +13,7 @@ const filename = 'video.264';
 const url = 'rtsp://mpv.cdn3.bigCDN.com:554/bigCDN/definst/mp4:bigbuckbunnyiphone_400.mp4';
 const header = new Buffer.from([0x00,0x00,0x00,0x01]);
 var   rtpPackets = [];
-
+var   clientSsrc = getRandomIntInclusive(1,0xffffffff);
 
 // details is a plain Object that includes...
 //   format - string
@@ -50,15 +50,14 @@ client.on('controlData', function(channel, rtcpPacket) {
   const report_count = 0; // an empty packet
   const packet_type = 201; // rtcpReceiverReport
   const length = 1; // num 32 bit words minus 1
-  const ssrc = 12345; // unique ID
   rtcpReceiverReport[0] = (version << 6) + (padding_bit << 5) + report_count;
   rtcpReceiverReport[1] = packet_type;
   rtcpReceiverReport[2] = (length >> 8) & 0xFF;
   rtcpReceiverReport[3] = (length >> 0) & 0XFF;
-  rtcpReceiverReport[4] = (ssrc >> 24) & 0xFF;
-  rtcpReceiverReport[5] = (ssrc >> 16) & 0xFF;
-  rtcpReceiverReport[6] = (ssrc >> 8) & 0xFF;
-  rtcpReceiverReport[7] = (ssrc >> 0) & 0xFF;
+  rtcpReceiverReport[4] = (clientSsrc >> 24) & 0xFF;
+  rtcpReceiverReport[5] = (clientSsrc >> 16) & 0xFF;
+  rtcpReceiverReport[6] = (clientSsrc >> 8) & 0xFF;
+  rtcpReceiverReport[7] = (clientSsrc >> 0) & 0xFF;
   client.sendInterleavedData(channel,rtcpReceiverReport);
   
 });
@@ -69,6 +68,12 @@ client.on('log', function(data, prefix) {
   console.log(prefix + ': ' + data);
 });
 
+
+function getRandomIntInclusive(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 function processConnectionDetails(details) {
   const fmtpConfig = transform.parseFmtpConfig(details['mediaSource'].fmtp[0].config);
