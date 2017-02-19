@@ -38,7 +38,7 @@ client.on('data', function(channel, data, packet) {
 
 // control data is for RTCP packets
 client.on('controlData', function(channel, rtcpPacket) {
-  console.log('RTP Control Packet', 'TS=' + rtcpPacket.timestamp, 'PT=' + rtcpPacket.packetType);
+  console.log('RTCP Control Packet', 'TS=' + rtcpPacket.timestamp, 'PT=' + rtcpPacket.packetType);
 });
 
 // allows you to optionally allow for RTSP logging
