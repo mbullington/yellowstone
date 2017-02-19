@@ -27,6 +27,11 @@ client.connect(url).then(function(details) {
   output_stream = fs.createWriteStream(filename);
   processConnectionDetails(details);
   client.play();
+
+  // Start a Timer to send OPTIONS every 20 seconds to keep stream alive
+  setInterval(function() {
+    client.request("OPTIONS");
+    },20*1000);
 });
 
 // data == packet.payload, just a small convenient thing
