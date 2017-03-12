@@ -1,37 +1,48 @@
+// Yellowstone Example.
+// Connect to the RTSP server
+// Once connected, open a file, write the SPS and PPS and then start streaming
+
 var RtspClient = require('../lib').RtspClient;
-var transform = require('sdp-transform');
+var H264Transport = require('../lib/H264Transport').H264Transport;
+
+const url = 'rtsp://mpv.cdn3.bigCDN.com:554/bigCDN/definst/mp4:bigbuckbunnyiphone_400.mp4';
+const filename = 'video.264';
 
 var client = new RtspClient();
+var h264File;
 
 // details is a plain Object that includes...
 //   format - string
 //   mediaSource - media portion of the SDP
 //   transport RTP and RTCP channels
 
-client.connect('rtsp://mpv.cdn3.bigCDN.com:554/bigCDN/definst/mp4:bigbuckbunnyiphone_400.mp4').then(function(details) {
+client.connect(url).then(function(details) {
   console.log('Connected. Video format is', details['format']);
-  try {
-    var fmtpConfig = transform.parseFmtpConfig(details['mediaSource'].fmtp[0].config);
-    var splitSpropParameterSets = fmtpConfig['sprop-parameter-sets'].split(',');
-    var sps_base64 = splitSpropParameterSets[0];
-    var pps_base64 = splitSpropParameterSets[1];
-    console.log('SPS(base64) is',sps_base64,'PPS(base64) is',pps_base64);
-  } catch (err) {}
-  console.log('RTP and RTCP Transport channels are', details['transport']);
+
+  // Open the output file
+  if (details['format'] == 'H264') {
+    h264File = new H264Transport(filename);
+    h264File.processConnectionDetails(details);
+  }
   client.play();
-}).catch(function(err) {
-  // console.log(err.stack);
+
+  // Start a Timer to send OPTIONS every 20 seconds to keep stream alive
+  setInterval(function() {
+    client.request("OPTIONS");
+    },20*1000);
 });
 
 // data == packet.payload, just a small convenient thing
 // data is for RTP packets
 client.on('data', function(channel, data, packet) {
   console.log('RTP Packet', 'ID=' + packet.id, 'TS=' + packet.timestamp, 'M=' + packet.marker);
+  if (h264File) h264File.processRTPPacket(packet);
 });
 
 // control data is for RTCP packets
 client.on('controlData', function(channel, rtcpPacket) {
-  console.log('RTP Control Packet', 'TS=' + rtcpPacket.timestamp, 'PT=' + rtcpPacket.packetType);
+  console.log('RTCP Control Packet', 'TS=' + rtcpPacket.timestamp, 'PT=' + rtcpPacket.packetType);
+  client.sendEmptyReceiverReport(channel);
 });
 
 // allows you to optionally allow for RTSP logging
@@ -39,3 +50,4 @@ client.on('controlData', function(channel, rtcpPacket) {
 client.on('log', function(data, prefix) {
   console.log(prefix + ': ' + data);
 });
+
