@@ -5,7 +5,7 @@
 const { RtspClient, H264Transport } = require('../lib');
 const fs = require('fs');
 
-const url = 'rtsp://mpv.cdn3.bigCDN.com:554/bigCDN/definst/mp4:bigbuckbunnyiphone_400.mp4';
+const url = 'rtsp://184.72.239.149/vod/mp4:BigBuckBunny_115k.mov';
 const filename = 'video.264';
 
 const client = new RtspClient();
