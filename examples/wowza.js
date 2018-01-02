@@ -5,8 +5,9 @@
 const { RtspClient, H264Transport } = require('../lib');
 const fs = require('fs');
 
-const url = 'rtsp://mpv.cdn3.bigCDN.com:554/bigCDN/definst/mp4:bigbuckbunnyiphone_400.mp4';
-const filename = 'video.264';
+// Demo stream from https://www.wowza.com/html/mobile.html
+const url = 'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov';
+const filename = 'bigbuckbunny.264';
 
 const client = new RtspClient();
 
@@ -20,7 +21,7 @@ client.connect(url, { keepAlive: true }).then((details) => {
 
   // Open the output file
   if (details.isH264) {
-    const h264 = new H264Transport(client, fs.createWriteStream("bigbuckbunny.264"), details);
+    const h264 = new H264Transport(client, fs.createWriteStream(filename), details);
   }
 
   client.play();
