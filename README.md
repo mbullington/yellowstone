@@ -27,7 +27,20 @@ In the future, Yellowstone plans to support:
 Examples
 ===
 
-An example of most of the API can be found at examples/wowza.js.
+An example of most API features can be found at examples/wowza.js, which will create
+a file named bigbuckbunny.264 in the project's root directory. To test this file with a
+video player, you either need a video player that supports raw H264 frames, or wrap it
+in a container like MP4.
+
+While yellowstone is /**not**/ dependent on ffmpeg, converting the file to an .mp4 can be easily
+accomplished with the following command.
+
+```sh
+ffmpeg -f h264 -i bigbuckbunny.264 bigbuckbunny.mp4
+```
+
+If you wish to play the H264 file directly, I've had good experience personally with the IINA
+video player for macOS.
 
 Contributing
 ===
