@@ -1,13 +1,13 @@
 {
   "name": "yellowstone",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "An RTSP client for node.js.",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/mbullington/yellowstone.git"
   },
-  "author": "Michael Bullington <michael@bullington.xyz>",
+  "author": "Michael Bullington <mikebullingtn@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "sdp-transform": "^1.4.0"
