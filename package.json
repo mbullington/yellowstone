@@ -10,6 +10,7 @@
   "author": "Michael Bullington <mikebullingtn@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "nimble": "0.0.2",
     "sdp-transform": "^1.4.0"
   },
   "scripts": {

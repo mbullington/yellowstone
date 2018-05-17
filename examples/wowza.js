@@ -7,14 +7,17 @@ const fs = require('fs');
 
 const url = 'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov';
 const filename = 'bigbuckbunny.264';
+const username = '';
+const password = '';
 
-const client = new RtspClient();
+const client = new RtspClient(username, password);
 
 // details is a plain Object that includes...
 //   format - string
 //   mediaSource - media portion of the SDP
 //   transport RTP and RTCP channels
-client.connect(url, { keepAlive: true }).then(details => {
+//   connection - Stream Video via 'udp' or a 'tcp' from the RTSP server
+client.connect(url, { keepAlive: true, connection: 'tcp' }).then(details => {
   console.log('Connected. Video format is', details.format);
 
   // Open the output file
