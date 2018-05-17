@@ -6,17 +6,21 @@ npm install yellowstone --save
 ```
 
 Yellowstone is a high-level library for receiving data from RTSP/RTP. It
-currently only supports RTSP/RTP over TCP. Yellowstone makes no attempt to parse
+currently supports RTP data via UDP and RTP data via TCP (interleaved in the RTSP connection). Yellowstone makes no attempt to parse
 or convert any of the raw data it receives, and puts that weight on the
-library user itself for the time being.
+library user itself for the time being. But it does extract H264 video frames to a .264 file that can be played with VLC or FFPLAY.
+
+Yellowstone was written by Mike Bullington with fixes and enhancements by Roger Hardiman.
 
 Yellowstone does currently support:
 
 - Raw RTP/AVP over TCP
+- Raw RTP/AVP over UDP
 - Basic and Digest Authentication
 - Pause, Play, and Teardown (Close)
 - Wrapper for ONVIF extensions to RTSP
 - Basic RTCP parsing
+- Writing of H264 Payloads to a .264 file
 
 In the future, Yellowstone plans to support:
 
