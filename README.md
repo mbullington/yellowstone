@@ -1,35 +1,36 @@
-yellowstone v2.1.0
+yellowstone v3.0.0
 ===
+
+[![NPM](https://img.shields.io/npm/v/yellowstone.svg)](https://www.npmjs.com/package/yellowstone)
+
+The RTP/RTSP client for Node.js.
 
 ```
 npm install yellowstone --save
 ```
 
-Yellowstone is a high-level library for receiving data from RTSP/RTP. It
-currently supports RTP data via UDP and RTP data via TCP (interleaved in the RTSP connection). Yellowstone makes no attempt to parse
-or convert any of the raw data it receives, and puts that weight on the
-library user itself for the time being. But it does extract H264 video frames to a .264 file that can be played with VLC or FFPLAY.
+## Getting Started
 
-Yellowstone was written by Mike Bullington with fixes and enhancements by Roger Hardiman.
+Yellowstone is a library to receive raw data from RTSP/RTP. The library (at this time) makes little attempt to parse the raw data it receives, and puts that weight on the
+library user themselves. Transports (such as for H264) may be suitable as-is or as a starting point for your own work.
 
-Yellowstone does currently support:
+Yellowstone was co-developed by Michael Bullington and Roger Hardiman.
 
-- Raw RTP/AVP over TCP
-- Raw RTP/AVP over UDP
-- Basic and Digest Authentication
-- Pause, Play, and Teardown (Close)
-- Wrapper for ONVIF extensions to RTSP
-- Basic RTCP parsing
-- Writing of H264 Payloads to a .264 file
+## Current Features
+
+- Raw RTP/AVP via UDP & TCP (interleaved)
+  * Basic and Digest Authentication
+  * Pause, Play, and Teardown (Close)
+- Simple RTCP parsing
+- Simple H264 transport parsing
+- ONVIF extensions to RTSP
 
 In the future, Yellowstone plans to support:
 
 - Record and Announce Methods
 - Full Client RTSP support
-- Basic scriptable RTSP server (which also allows for unit tests)
 
-Examples
-===
+## Examples
 
 An example of most API features can be found at examples/wowza.js, which will create
 a file named bigbuckbunny.264 in the project's root directory. To test this file with a
@@ -44,12 +45,13 @@ ffmpeg -f h264 -i bigbuckbunny.264 bigbuckbunny.mp4
 ```
 
 If you wish to play the H264 file directly, I've had good experience personally with the IINA
-video player for macOS.
+video player for macOS. VLC and FFPLAY also work.
 
-Contributing
-===
+## Contributing
 
-Please contribute features! This is a very small subset of what's possible
-with RTSP/RTP! Feel free to write and submit pull requests for easy to use
-abstractions of protocol extensions (such as lib/onvif.js), as well as core
+Please contribute features!
+
+Yellowstone covers a very small subset of what's possible
+with RTSP/RTP. Feel free to write and submit pull requests for easy to use
+abstractions of protocol extensions (such as ONVIFClient), as well as core
 features and bug fixes.

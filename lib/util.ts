@@ -1,7 +1,16 @@
-const { createHash } = require("crypto");
-const { spawn } = require("child_process");
+import { createHash } from "crypto";
+import { spawn } from "child_process";
 
-function parseRTPPacket(buffer) {
+export interface RTPPacket {
+  id: number;
+  timestamp: number;
+  marker: number;
+
+  payload: Buffer;
+  length: number;
+}
+
+export function parseRTPPacket(buffer: Buffer): RTPPacket {
   const hasExtensions = (buffer[0] >> 4) & 0x01;
   const marker = (buffer[1]) >>> 7;
   const num_csrc_identifiers = (buffer[0] & 0x0F);
@@ -18,31 +27,40 @@ function parseRTPPacket(buffer) {
   };
 }
 
-function parseRTCPPacket(buffer) {
+export interface RTCPPacket {
+  timestamp: number;
+  packetType: number;
+
+  buffer: Buffer;
+}
+
+export function parseRTCPPacket(buffer: Buffer): RTCPPacket {
   const packetType = buffer[1];
   const timestamp = buffer.readUInt32BE(16);
 
   return {
     timestamp,
     packetType,
-    buffer,
-    get payload() {
-      console.log("yellowstone: Please don't use payload. To remove confusion, this was renamed to simply 'buffer'.");
-      return buffer;
-    }
+    buffer
   };
 }
 
 // utility function for using crypto library
-function getMD5Hash(str) {
+export function getMD5Hash(str: string): string {
   const md5 = createHash("md5");
   md5.update(str);
 
   return md5.digest("hex");
 }
 
-function parseTransport(transport) {
-  const obj = {};
+interface Transport {
+  protocol: string;
+  parameters: { [key: string]: string };
+}
+
+export function parseTransport(transport: string): Transport {
+  const parameters: { [key: string]: string } = {};
+
   const parts = transport.split(";");
   const protocol = parts[0];
 
@@ -51,30 +69,22 @@ function parseTransport(transport) {
     const index = part.indexOf("=");
 
     if (index > -1 && index !== part.length - 1) {
-      obj[part.substring(0, index)] = part.substring(index + 1);
+      parameters[part.substring(0, index)] = part.substring(index + 1);
     }
   }
   
   return {
     protocol,
-    parameters: obj
+    parameters
   };
 }
 
-function generateSSRC() {
-  return getRandomIntInclusive(1,0xffffffff);
-}
-
-function getRandomIntInclusive(min, max) {
+export function randInclusive(min: number, max: number): number {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-module.exports = {
-  parseRTPPacket,
-  parseRTCPPacket,
-  getMD5Hash,
-  parseTransport,
-  generateSSRC
-};
+export function generateSSRC(): number {
+  return randInclusive(1, 0xffffffff);
+}

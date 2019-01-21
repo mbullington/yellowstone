@@ -2,19 +2,30 @@
 // De-packetize RTP packets to re-create H264 NAL Units
 // Write H264 NAL units to a .264 file
 
-const transform = require("sdp-transform");
+import RTSPClient from "../RTSPClient";
+import {RTPPacket} from "../util";
+
+import * as transform from "sdp-transform";
+import { Writable } from "stream";
 
 // .h264 file header
-const H264_HEADER = new Buffer.from([0x00,0x00,0x00,0x01]);
+const H264_HEADER = Buffer.from([0x00,0x00,0x00,0x01]);
 
-class H264Transport {
-  constructor(client, stream, details) {
+interface Details {
+  mediaSource: transform.MediaDescription
+};
+
+export default class H264Transport {
+  client: RTSPClient;
+  stream: Writable;
+
+  rtpPackets: Buffer[] = [];
+
+  _headerWritten: boolean = false;
+
+  constructor(client: RTSPClient, stream: Writable, details?: Details) {
     this.client = client;
-
     this.stream = stream;
-    this.rtpPackets = [];
-
-    this._headerWritten = false;
 
     client.on("data", (channel, data, packet) => {
       if (this._headerWritten) {
@@ -27,10 +38,16 @@ class H264Transport {
     }
   }
 
-  processConnectionDetails(details) {
+  processConnectionDetails(details: Details) {
     // Extract SPS and PPS from the MediaSource part of the SDP
-    const fmtpConfig = transform.parseFmtpConfig(details['mediaSource'].fmtp[0].config);
-    const splitSpropParameterSets = fmtpConfig['sprop-parameter-sets'].split(',');
+    const fmtp = (details.mediaSource.fmtp as any)[0];
+    
+    if (!fmtp) {
+      return;
+    }
+  
+    const fmtpConfig = transform.parseParams(fmtp.config);
+    const splitSpropParameterSets = fmtpConfig['sprop-parameter-sets'].toString().split(',');
     const sps_base64 = splitSpropParameterSets[0];
     const pps_base64 = splitSpropParameterSets[1];
     const sps = new Buffer(sps_base64, "base64");
@@ -44,7 +61,7 @@ class H264Transport {
     this._headerWritten = true;
   };
 
-  processRTPPacket(packet) {
+  processRTPPacket(packet: RTPPacket) {
     // Accumatate RTP packets
     this.rtpPackets.push(packet.payload);
     
@@ -55,7 +72,7 @@ class H264Transport {
     }
   }
 
-  processRTPFrame(rtpPackets) {
+  processRTPFrame(rtpPackets: Buffer[]) {
     const nals = [];
     let partialNal = [];
 
@@ -123,7 +140,3 @@ class H264Transport {
     }
   }
 }
-
-module.exports = {
-  H264Transport
-};
