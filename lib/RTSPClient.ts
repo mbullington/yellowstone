@@ -79,7 +79,7 @@ export default class RTSPClient extends EventEmitter {
     this.password = password;
     this.headers = {
       ...(headers || {}),
-      "User-Agent": "yellowstone/2.0.0"
+      "User-Agent": "yellowstone/3.x"
     };
   }
 

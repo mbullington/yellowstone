@@ -1,6 +1,6 @@
-v3.0.0
+# v3.0.0
 
-Huge shoutout to Roger Hardiman for co-developing this release of the library!
+Huge shoutout to @RogerHardiman for co-developing this release of the library!
 
 **Breaking changes**:
 
@@ -21,7 +21,7 @@ New features:
   * Async/await control flow helps to simplify codebase and make it more readable.
   * Hopefully, this will not alieniate potential contributors.
 
-v2.1.1
+# v2.1.1
 
 **Breaking changes**:
 
@@ -35,7 +35,7 @@ New features:
 - (TODO) Test suite.
 - Changed RTSP link in example, our old link died.
 
-v2.1.0
+# v2.1.0
 
 **Breaking changes**:
 
@@ -49,7 +49,7 @@ parameters, see above).
 
 Huge thanks to @RogerHardiman for the contributions!
 
-v2.0.0
+# v2.0.0
 
 The `it works again!` update: 
 
