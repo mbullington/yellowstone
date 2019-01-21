@@ -1,10 +1,31 @@
-v2.1.1
+v3.0.0
 
-New features:
+Huge shoutout to Roger Hardiman for co-developing this release of the library!
 
 **Breaking changes**:
 
-- Parsed RTCP header decapritated the `payload` value to remove potentially confusing functionality
+- Expected Node.js version increased to Node.js LTS (`8.11.3`).
+  * This code may still work on older Node.js versions, but they're not officially supported.
+  * If this does not work for you, rebuilding using a lower target in `tsconfig.json` should help.
+- Removed `RTCPPacket.payload` that was deprecated in `v2.1.1`
+- Renamed `RtspClient` to `RTSPClient`
+- Renamed `OnvifRtspClient` to `ONVIFClient`
+- Changed structure of `RTSPClient#request`, instead of returning a `Promise` with headers, it now returns a `Promise` of an object with a property `headers`.
+
+New features:
+
+- H264 transport!
+- UDP support!
+- Move to TypeScript & new ES2017 features
+  * **Why?** TypeScript should help improve code quality (something I've noticed in my old code the past few months through GitHub issues & pull requests). Type errors, general confusion about code, etc.
+  * Async/await control flow helps to simplify codebase and make it more readable.
+  * Hopefully, this will not alieniate potential contributors.
+
+v2.1.1
+
+**Breaking changes**:
+
+- Parsed RTCP header deprecated the `payload` value to remove potentially confusing functionality
 , replacing it with `buffer`. For now, `payload` will still work, but will log a message to switch
 to the new key.
 
