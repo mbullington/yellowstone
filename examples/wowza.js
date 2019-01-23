@@ -10,6 +10,8 @@ const filename = "bigbuckbunny.264";
 const username = "";
 const password = "";
 
+const client = new RTSPClient(username, password);
+
 // details is a plain Object that includes...
 //   format - string
 //   mediaSource - media portion of the SDP
