@@ -1,6 +1,6 @@
 {
   "name": "yellowstone",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "An RTSP client for node.js.",
   "main": "dist/index.js",
   "repository": {
