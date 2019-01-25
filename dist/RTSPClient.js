@@ -10,7 +10,7 @@ const RTP_AVP = "RTP/AVP";
 const STATUS_OK = 200;
 const STATUS_UNAUTH = 401;
 const WWW_AUTH = "WWW-Authenticate";
-const WWW_AUTH_REGEX = new RegExp('([a-z]+)=\"([^,\s]+)\"', "g");
+const WWW_AUTH_REGEX = new RegExp('([a-z]+)=\"([^,]+)\"', "g");
 var ReadStates;
 (function (ReadStates) {
     ReadStates[ReadStates["SEARCHING"] = 0] = "SEARCHING";
@@ -42,7 +42,7 @@ class RTSPClient extends events_1.EventEmitter {
         this.clientSSRC = util_1.generateSSRC();
         this.username = username;
         this.password = password;
-        this.headers = Object.assign({}, (headers || {}), { "User-Agent": "yellowstone/2.0.0" });
+        this.headers = Object.assign({}, (headers || {}), { "User-Agent": "yellowstone/3.x" });
     }
     // This manages the lifecycle for the RTSP connection
     // over TCP.
@@ -221,11 +221,11 @@ class RTSPClient extends events_1.EventEmitter {
                         let match = WWW_AUTH_REGEX.exec(authHeader);
                         while (match != null) {
                             const prop = match[1];
-                            if (prop == "realm") {
-                                realm = prop;
+                            if (prop == "realm" && match[2]) {
+                                realm = match[2];
                             }
-                            if (prop == "nonce") {
-                                nonce = prop;
+                            if (prop == "nonce" && match[2]) {
+                                nonce = match[2];
                             }
                             match = WWW_AUTH_REGEX.exec(authHeader);
                         }

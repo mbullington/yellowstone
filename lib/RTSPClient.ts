@@ -13,7 +13,7 @@ const STATUS_OK = 200;
 const STATUS_UNAUTH = 401;
 
 const WWW_AUTH = "WWW-Authenticate";
-const WWW_AUTH_REGEX = new RegExp('([a-z]+)=\"([^,\s]+)\"',"g");
+const WWW_AUTH_REGEX = new RegExp('([a-z]+)=\"([^,]+)\"',"g");
 
 enum ReadStates {
   SEARCHING,
@@ -318,12 +318,12 @@ export default class RTSPClient extends EventEmitter {
             while (match != null) {
               const prop = match[1];
 
-              if (prop == "realm") {
-                realm = prop;
+              if (prop == "realm" && match[2]) {
+                realm = match[2];
               }
 
-              if (prop == "nonce") {
-                nonce = prop;
+              if (prop == "nonce" && match[2]) {
+                nonce = match[2];
               }
 
               match = WWW_AUTH_REGEX.exec(authHeader);
