@@ -32,7 +32,7 @@ In the future, Yellowstone plans to support:
 
 ## Examples
 
-An example of most API features can be found at examples/wowza.js, which will create
+An example of most API features can be found at [examples/wowza.js](examples/wowza.js), which will create
 a file named bigbuckbunny.264 in the project's root directory. To test this file with a
 video player, you either need a video player that supports raw H264 frames, or wrap it
 in a container like MP4.
