@@ -22,7 +22,7 @@
 
 **● mediaSource**: *`MediaDescription`*
 
-*Defined in [transports/H264Transport.ts:15](https://github.com/mbullington/yellowstone/blob/4117db0/lib/transports/H264Transport.ts#L15)*
+*Defined in [transports/H264Transport.ts:15](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/transports/H264Transport.ts#L15)*
 
 ___
 

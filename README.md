@@ -47,6 +47,10 @@ ffmpeg -f h264 -i bigbuckbunny.264 bigbuckbunny.mp4
 If you wish to play the H264 file directly, I've had good experience personally with the IINA
 video player for macOS. VLC and FFPLAY also work.
 
+## Documentation
+
+You can find auto-generated documentation in the [docs](docs/README.md) folder.
+
 ## Contributing
 
 Please contribute features!

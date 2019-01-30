@@ -35,7 +35,7 @@
 
 ⊕ **new H264Transport**(client: *[RTSPClient](_rtspclient_.rtspclient.md)*, stream: *`Writable`*, details?: *[Details](../interfaces/_transports_h264transport_.details.md)*): [H264Transport](_transports_h264transport_.h264transport.md)
 
-*Defined in [transports/H264Transport.ts:24](https://github.com/mbullington/yellowstone/blob/4117db0/lib/transports/H264Transport.ts#L24)*
+*Defined in [transports/H264Transport.ts:24](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/transports/H264Transport.ts#L24)*
 
 **Parameters:**
 
@@ -57,7 +57,7 @@ ___
 
 **● _headerWritten**: *`boolean`* = false
 
-*Defined in [transports/H264Transport.ts:24](https://github.com/mbullington/yellowstone/blob/4117db0/lib/transports/H264Transport.ts#L24)*
+*Defined in [transports/H264Transport.ts:24](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/transports/H264Transport.ts#L24)*
 
 ___
 <a id="client"></a>
@@ -66,7 +66,7 @@ ___
 
 **● client**: *[RTSPClient](_rtspclient_.rtspclient.md)*
 
-*Defined in [transports/H264Transport.ts:19](https://github.com/mbullington/yellowstone/blob/4117db0/lib/transports/H264Transport.ts#L19)*
+*Defined in [transports/H264Transport.ts:19](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/transports/H264Transport.ts#L19)*
 
 ___
 <a id="rtppackets"></a>
@@ -75,7 +75,7 @@ ___
 
 **● rtpPackets**: *`Buffer`[]* =  []
 
-*Defined in [transports/H264Transport.ts:22](https://github.com/mbullington/yellowstone/blob/4117db0/lib/transports/H264Transport.ts#L22)*
+*Defined in [transports/H264Transport.ts:22](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/transports/H264Transport.ts#L22)*
 
 ___
 <a id="stream"></a>
@@ -84,7 +84,7 @@ ___
 
 **● stream**: *`Writable`*
 
-*Defined in [transports/H264Transport.ts:20](https://github.com/mbullington/yellowstone/blob/4117db0/lib/transports/H264Transport.ts#L20)*
+*Defined in [transports/H264Transport.ts:20](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/transports/H264Transport.ts#L20)*
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 ▸ **processConnectionDetails**(details: *[Details](../interfaces/_transports_h264transport_.details.md)*): `void`
 
-*Defined in [transports/H264Transport.ts:41](https://github.com/mbullington/yellowstone/blob/4117db0/lib/transports/H264Transport.ts#L41)*
+*Defined in [transports/H264Transport.ts:41](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/transports/H264Transport.ts#L41)*
 
 **Parameters:**
 
@@ -113,7 +113,7 @@ ___
 
 ▸ **processRTPFrame**(rtpPackets: *`Buffer`[]*): `void`
 
-*Defined in [transports/H264Transport.ts:75](https://github.com/mbullington/yellowstone/blob/4117db0/lib/transports/H264Transport.ts#L75)*
+*Defined in [transports/H264Transport.ts:75](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/transports/H264Transport.ts#L75)*
 
 **Parameters:**
 
@@ -130,7 +130,7 @@ ___
 
 ▸ **processRTPPacket**(packet: *[RTPPacket](../interfaces/_util_.rtppacket.md)*): `void`
 
-*Defined in [transports/H264Transport.ts:64](https://github.com/mbullington/yellowstone/blob/4117db0/lib/transports/H264Transport.ts#L64)*
+*Defined in [transports/H264Transport.ts:64](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/transports/H264Transport.ts#L64)*
 
 **Parameters:**
 

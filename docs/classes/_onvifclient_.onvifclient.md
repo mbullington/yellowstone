@@ -81,7 +81,7 @@
 
 *Overrides [RTSPClient](_rtspclient_.rtspclient.md).[constructor](_rtspclient_.rtspclient.md#constructor)*
 
-*Defined in [ONVIFClient.ts:4](https://github.com/mbullington/yellowstone/blob/4117db0/lib/ONVIFClient.ts#L4)*
+*Defined in [ONVIFClient.ts:4](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/ONVIFClient.ts#L4)*
 
 **Parameters:**
 
@@ -104,7 +104,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_cSeq](_rtspclient_.rtspclient.md#_cseq)*
 
-*Defined in [RTSPClient.ts:49](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L49)*
+*Defined in [RTSPClient.ts:49](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L49)*
 
 ___
 <a id="_client"></a>
@@ -115,7 +115,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_client](_rtspclient_.rtspclient.md#_client)*
 
-*Defined in [RTSPClient.ts:48](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L48)*
+*Defined in [RTSPClient.ts:48](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L48)*
 
 ___
 <a id="_keepaliveid"></a>
@@ -126,7 +126,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_keepAliveID](_rtspclient_.rtspclient.md#_keepaliveid)*
 
-*Defined in [RTSPClient.ts:53](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L53)*
+*Defined in [RTSPClient.ts:53](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L53)*
 
 ___
 <a id="_session"></a>
@@ -137,7 +137,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_session](_rtspclient_.rtspclient.md#_session)*
 
-*Defined in [RTSPClient.ts:52](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L52)*
+*Defined in [RTSPClient.ts:52](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L52)*
 
 ___
 <a id="_unsupportedextensions"></a>
@@ -148,7 +148,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_unsupportedExtensions](_rtspclient_.rtspclient.md#_unsupportedextensions)*
 
-*Defined in [RTSPClient.ts:50](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L50)*
+*Defined in [RTSPClient.ts:50](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L50)*
 
 ___
 <a id="_url"></a>
@@ -159,7 +159,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_url](_rtspclient_.rtspclient.md#_url)*
 
-*Defined in [RTSPClient.ts:47](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L47)*
+*Defined in [RTSPClient.ts:47](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L47)*
 
 ___
 <a id="clientssrc"></a>
@@ -170,7 +170,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[clientSSRC](_rtspclient_.rtspclient.md#clientssrc)*
 
-*Defined in [RTSPClient.ts:75](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L75)*
+*Defined in [RTSPClient.ts:75](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L75)*
 
 ___
 <a id="headers"></a>
@@ -181,7 +181,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[headers](_rtspclient_.rtspclient.md#headers)*
 
-*Defined in [RTSPClient.ts:41](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L41)*
+*Defined in [RTSPClient.ts:41](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L41)*
 
 #### Type declaration
 
@@ -196,7 +196,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[isConnected](_rtspclient_.rtspclient.md#isconnected)*
 
-*Defined in [RTSPClient.ts:43](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L43)*
+*Defined in [RTSPClient.ts:43](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L43)*
 
 ___
 <a id="messagebytes"></a>
@@ -207,7 +207,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[messageBytes](_rtspclient_.rtspclient.md#messagebytes)*
 
-*Defined in [RTSPClient.ts:59](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L59)*
+*Defined in [RTSPClient.ts:59](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L59)*
 
 ___
 <a id="password"></a>
@@ -218,7 +218,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[password](_rtspclient_.rtspclient.md#password)*
 
-*Defined in [RTSPClient.ts:40](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L40)*
+*Defined in [RTSPClient.ts:40](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L40)*
 
 ___
 <a id="readstate"></a>
@@ -229,7 +229,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[readState](_rtspclient_.rtspclient.md#readstate)*
 
-*Defined in [RTSPClient.ts:55](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L55)*
+*Defined in [RTSPClient.ts:55](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L55)*
 
 ___
 <a id="rtspcontentlength"></a>
@@ -240,7 +240,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[rtspContentLength](_rtspclient_.rtspclient.md#rtspcontentlength)*
 
-*Defined in [RTSPClient.ts:64](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L64)*
+*Defined in [RTSPClient.ts:64](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L64)*
 
 ___
 <a id="rtspheaders"></a>
@@ -251,7 +251,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[rtspHeaders](_rtspclient_.rtspclient.md#rtspheaders)*
 
-*Defined in [RTSPClient.ts:66](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L66)*
+*Defined in [RTSPClient.ts:66](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L66)*
 
 ___
 <a id="rtsppacket"></a>
@@ -262,7 +262,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[rtspPacket](_rtspclient_.rtspclient.md#rtsppacket)*
 
-*Defined in [RTSPClient.ts:71](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L71)*
+*Defined in [RTSPClient.ts:71](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L71)*
 
 ___
 <a id="rtsppacketlength"></a>
@@ -273,7 +273,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[rtspPacketLength](_rtspclient_.rtspclient.md#rtsppacketlength)*
 
-*Defined in [RTSPClient.ts:70](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L70)*
+*Defined in [RTSPClient.ts:70](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L70)*
 
 ___
 <a id="rtsppacketpointer"></a>
@@ -284,7 +284,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[rtspPacketPointer](_rtspclient_.rtspclient.md#rtsppacketpointer)*
 
-*Defined in [RTSPClient.ts:72](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L72)*
+*Defined in [RTSPClient.ts:72](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L72)*
 
 ___
 <a id="rtspstatusline"></a>
@@ -295,7 +295,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[rtspStatusLine](_rtspclient_.rtspclient.md#rtspstatusline)*
 
-*Defined in [RTSPClient.ts:65](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L65)*
+*Defined in [RTSPClient.ts:65](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L65)*
 
 ___
 <a id="username"></a>
@@ -306,7 +306,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[username](_rtspclient_.rtspclient.md#username)*
 
-*Defined in [RTSPClient.ts:39](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L39)*
+*Defined in [RTSPClient.ts:39](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L39)*
 
 ___
 <a id="defaultmaxlisteners"></a>
@@ -331,7 +331,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_emptyReceiverReport](_rtspclient_.rtspclient.md#_emptyreceiverreport)*
 
-*Defined in [RTSPClient.ts:603](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L603)*
+*Defined in [RTSPClient.ts:603](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L603)*
 
 **Returns:** `Buffer`
 
@@ -344,7 +344,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_netConnect](_rtspclient_.rtspclient.md#_netconnect)*
 
-*Defined in [RTSPClient.ts:95](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L95)*
+*Defined in [RTSPClient.ts:95](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L95)*
 
 **Parameters:**
 
@@ -364,7 +364,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_onData](_rtspclient_.rtspclient.md#_ondata)*
 
-*Defined in [RTSPClient.ts:435](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L435)*
+*Defined in [RTSPClient.ts:435](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L435)*
 
 **Parameters:**
 
@@ -383,7 +383,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_sendInterleavedData](_rtspclient_.rtspclient.md#_sendinterleaveddata)*
 
-*Defined in [RTSPClient.ts:577](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L577)*
+*Defined in [RTSPClient.ts:577](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L577)*
 
 **Parameters:**
 
@@ -403,7 +403,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_sendUDPData](_rtspclient_.rtspclient.md#_sendudpdata)*
 
-*Defined in [RTSPClient.ts:595](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L595)*
+*Defined in [RTSPClient.ts:595](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L595)*
 
 **Parameters:**
 
@@ -446,7 +446,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[close](_rtspclient_.rtspclient.md#close)*
 
-*Defined in [RTSPClient.ts:410](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L410)*
+*Defined in [RTSPClient.ts:410](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L410)*
 
 **Parameters:**
 
@@ -465,7 +465,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[connect](_rtspclient_.rtspclient.md#connect)*
 
-*Defined in [RTSPClient.ts:143](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L143)*
+*Defined in [RTSPClient.ts:143](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L143)*
 
 **Parameters:**
 
@@ -649,7 +649,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[pause](_rtspclient_.rtspclient.md#pause)*
 
-*Defined in [RTSPClient.ts:401](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L401)*
+*Defined in [RTSPClient.ts:401](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L401)*
 
 **Returns:** `Promise`<`this`>
 
@@ -662,7 +662,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[play](_rtspclient_.rtspclient.md#play)*
 
-*Defined in [RTSPClient.ts:392](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L392)*
+*Defined in [RTSPClient.ts:392](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L392)*
 
 **Returns:** `Promise`<`this`>
 
@@ -673,7 +673,7 @@ ___
 
 ▸ **playFrom**(from: *`Date`*, to?: *`Date`*): `Promise`<`this`>
 
-*Defined in [ONVIFClient.ts:9](https://github.com/mbullington/yellowstone/blob/4117db0/lib/ONVIFClient.ts#L9)*
+*Defined in [ONVIFClient.ts:9](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/ONVIFClient.ts#L9)*
 
 **Parameters:**
 
@@ -691,7 +691,7 @@ ___
 
 ▸ **playReverse**(from?: *`Date`*, to?: *`Date`*): `Promise`<`this`>
 
-*Defined in [ONVIFClient.ts:24](https://github.com/mbullington/yellowstone/blob/4117db0/lib/ONVIFClient.ts#L24)*
+*Defined in [ONVIFClient.ts:24](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/ONVIFClient.ts#L24)*
 
 **Parameters:**
 
@@ -819,7 +819,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[request](_rtspclient_.rtspclient.md#request)*
 
-*Defined in [RTSPClient.ts:267](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L267)*
+*Defined in [RTSPClient.ts:267](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L267)*
 
 **Parameters:**
 
@@ -840,7 +840,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[respond](_rtspclient_.rtspclient.md#respond)*
 
-*Defined in [RTSPClient.ts:371](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L371)*
+*Defined in [RTSPClient.ts:371](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L371)*
 
 **Parameters:**
 

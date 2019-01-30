@@ -79,7 +79,7 @@
 
 ⊕ **new RTSPClient**(username: *`string`*, password: *`string`*, headers: *`object`*): [RTSPClient](_rtspclient_.rtspclient.md)
 
-*Defined in [RTSPClient.ts:75](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L75)*
+*Defined in [RTSPClient.ts:75](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L75)*
 
 **Parameters:**
 
@@ -101,7 +101,7 @@ ___
 
 **● _cSeq**: *`number`* = 0
 
-*Defined in [RTSPClient.ts:49](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L49)*
+*Defined in [RTSPClient.ts:49](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L49)*
 
 ___
 <a id="_client"></a>
@@ -110,7 +110,7 @@ ___
 
 **● _client**: *`net.Socket`*
 
-*Defined in [RTSPClient.ts:48](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L48)*
+*Defined in [RTSPClient.ts:48](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L48)*
 
 ___
 <a id="_keepaliveid"></a>
@@ -119,7 +119,7 @@ ___
 
 **● _keepAliveID**: *`any`*
 
-*Defined in [RTSPClient.ts:53](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L53)*
+*Defined in [RTSPClient.ts:53](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L53)*
 
 ___
 <a id="_session"></a>
@@ -128,7 +128,7 @@ ___
 
 **● _session**: *`undefined` \| `string`*
 
-*Defined in [RTSPClient.ts:52](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L52)*
+*Defined in [RTSPClient.ts:52](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L52)*
 
 ___
 <a id="_unsupportedextensions"></a>
@@ -137,7 +137,7 @@ ___
 
 **● _unsupportedExtensions**: *`string`[]*
 
-*Defined in [RTSPClient.ts:50](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L50)*
+*Defined in [RTSPClient.ts:50](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L50)*
 
 ___
 <a id="_url"></a>
@@ -146,7 +146,7 @@ ___
 
 **● _url**: *`undefined` \| `string`*
 
-*Defined in [RTSPClient.ts:47](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L47)*
+*Defined in [RTSPClient.ts:47](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L47)*
 
 ___
 <a id="clientssrc"></a>
@@ -155,7 +155,7 @@ ___
 
 **● clientSSRC**: *`number`* =  generateSSRC()
 
-*Defined in [RTSPClient.ts:75](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L75)*
+*Defined in [RTSPClient.ts:75](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L75)*
 
 ___
 <a id="headers"></a>
@@ -164,7 +164,7 @@ ___
 
 **● headers**: *`object`*
 
-*Defined in [RTSPClient.ts:41](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L41)*
+*Defined in [RTSPClient.ts:41](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L41)*
 
 #### Type declaration
 
@@ -177,7 +177,7 @@ ___
 
 **● isConnected**: *`boolean`* = false
 
-*Defined in [RTSPClient.ts:43](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L43)*
+*Defined in [RTSPClient.ts:43](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L43)*
 
 ___
 <a id="messagebytes"></a>
@@ -186,7 +186,7 @@ ___
 
 **● messageBytes**: *`number`[]* =  []
 
-*Defined in [RTSPClient.ts:59](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L59)*
+*Defined in [RTSPClient.ts:59](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L59)*
 
 ___
 <a id="password"></a>
@@ -195,7 +195,7 @@ ___
 
 **● password**: *`string`*
 
-*Defined in [RTSPClient.ts:40](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L40)*
+*Defined in [RTSPClient.ts:40](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L40)*
 
 ___
 <a id="readstate"></a>
@@ -204,7 +204,7 @@ ___
 
 **● readState**: *[ReadStates](../enums/_rtspclient_.readstates.md)* =  ReadStates.SEARCHING
 
-*Defined in [RTSPClient.ts:55](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L55)*
+*Defined in [RTSPClient.ts:55](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L55)*
 
 ___
 <a id="rtspcontentlength"></a>
@@ -213,7 +213,7 @@ ___
 
 **● rtspContentLength**: *`number`* = 0
 
-*Defined in [RTSPClient.ts:64](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L64)*
+*Defined in [RTSPClient.ts:64](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L64)*
 
 ___
 <a id="rtspheaders"></a>
@@ -222,7 +222,7 @@ ___
 
 **● rtspHeaders**: *[Headers](../modules/_rtspclient_.md#headers)*
 
-*Defined in [RTSPClient.ts:66](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L66)*
+*Defined in [RTSPClient.ts:66](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L66)*
 
 ___
 <a id="rtsppacket"></a>
@@ -231,7 +231,7 @@ ___
 
 **● rtspPacket**: *`Buffer`* =  new Buffer("")
 
-*Defined in [RTSPClient.ts:71](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L71)*
+*Defined in [RTSPClient.ts:71](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L71)*
 
 ___
 <a id="rtsppacketlength"></a>
@@ -240,7 +240,7 @@ ___
 
 **● rtspPacketLength**: *`number`* = 0
 
-*Defined in [RTSPClient.ts:70](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L70)*
+*Defined in [RTSPClient.ts:70](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L70)*
 
 ___
 <a id="rtsppacketpointer"></a>
@@ -249,7 +249,7 @@ ___
 
 **● rtspPacketPointer**: *`number`* = 0
 
-*Defined in [RTSPClient.ts:72](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L72)*
+*Defined in [RTSPClient.ts:72](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L72)*
 
 ___
 <a id="rtspstatusline"></a>
@@ -258,7 +258,7 @@ ___
 
 **● rtspStatusLine**: *`string`* = ""
 
-*Defined in [RTSPClient.ts:65](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L65)*
+*Defined in [RTSPClient.ts:65](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L65)*
 
 ___
 <a id="username"></a>
@@ -267,7 +267,7 @@ ___
 
 **● username**: *`string`*
 
-*Defined in [RTSPClient.ts:39](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L39)*
+*Defined in [RTSPClient.ts:39](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L39)*
 
 ___
 <a id="defaultmaxlisteners"></a>
@@ -290,7 +290,7 @@ ___
 
 ▸ **_emptyReceiverReport**(): `Buffer`
 
-*Defined in [RTSPClient.ts:603](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L603)*
+*Defined in [RTSPClient.ts:603](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L603)*
 
 **Returns:** `Buffer`
 
@@ -301,7 +301,7 @@ ___
 
 ▸ **_netConnect**(hostname: *`string`*, port: *`number`*): `Promise`<`Object`>
 
-*Defined in [RTSPClient.ts:95](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L95)*
+*Defined in [RTSPClient.ts:95](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L95)*
 
 **Parameters:**
 
@@ -319,7 +319,7 @@ ___
 
 ▸ **_onData**(data: *`Buffer`*): `void`
 
-*Defined in [RTSPClient.ts:435](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L435)*
+*Defined in [RTSPClient.ts:435](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L435)*
 
 **Parameters:**
 
@@ -336,7 +336,7 @@ ___
 
 ▸ **_sendInterleavedData**(channel: *`number`*, buffer: *`Buffer`*): `void`
 
-*Defined in [RTSPClient.ts:577](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L577)*
+*Defined in [RTSPClient.ts:577](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L577)*
 
 **Parameters:**
 
@@ -354,7 +354,7 @@ ___
 
 ▸ **_sendUDPData**(host: *`string`*, port: *`number`*, buffer: *`Buffer`*): `void`
 
-*Defined in [RTSPClient.ts:595](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L595)*
+*Defined in [RTSPClient.ts:595](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L595)*
 
 **Parameters:**
 
@@ -395,7 +395,7 @@ ___
 
 ▸ **close**(isImmediate?: *`boolean`*): `Promise`<`this`>
 
-*Defined in [RTSPClient.ts:410](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L410)*
+*Defined in [RTSPClient.ts:410](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L410)*
 
 **Parameters:**
 
@@ -412,7 +412,7 @@ ___
 
 ▸ **connect**(url: *`string`*, options?: *`object`*): `Promise`<`object`>
 
-*Defined in [RTSPClient.ts:143](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L143)*
+*Defined in [RTSPClient.ts:143](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L143)*
 
 **Parameters:**
 
@@ -594,7 +594,7 @@ ___
 
 ▸ **pause**(): `Promise`<`this`>
 
-*Defined in [RTSPClient.ts:401](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L401)*
+*Defined in [RTSPClient.ts:401](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L401)*
 
 **Returns:** `Promise`<`this`>
 
@@ -605,7 +605,7 @@ ___
 
 ▸ **play**(): `Promise`<`this`>
 
-*Defined in [RTSPClient.ts:392](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L392)*
+*Defined in [RTSPClient.ts:392](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L392)*
 
 **Returns:** `Promise`<`this`>
 
@@ -724,7 +724,7 @@ ___
 
 ▸ **request**(requestName: *`string`*, headersParam?: *[Headers](../modules/_rtspclient_.md#headers)*, url?: *`undefined` \| `string`*): `Promise`<`object` \| `void`>
 
-*Defined in [RTSPClient.ts:267](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L267)*
+*Defined in [RTSPClient.ts:267](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L267)*
 
 **Parameters:**
 
@@ -743,7 +743,7 @@ ___
 
 ▸ **respond**(status: *`string`*, headersParam?: *[Headers](../modules/_rtspclient_.md#headers)*): `void`
 
-*Defined in [RTSPClient.ts:371](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L371)*
+*Defined in [RTSPClient.ts:371](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L371)*
 
 **Parameters:**
 

@@ -29,7 +29,7 @@
 
 ▸ **generateSSRC**(): `number`
 
-*Defined in [util.ts:88](https://github.com/mbullington/yellowstone/blob/4117db0/lib/util.ts#L88)*
+*Defined in [util.ts:88](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L88)*
 
 **Returns:** `number`
 
@@ -40,7 +40,7 @@ ___
 
 ▸ **getMD5Hash**(str: *`string`*): `string`
 
-*Defined in [util.ts:49](https://github.com/mbullington/yellowstone/blob/4117db0/lib/util.ts#L49)*
+*Defined in [util.ts:49](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L49)*
 
 **Parameters:**
 
@@ -57,7 +57,7 @@ ___
 
 ▸ **parseRTCPPacket**(buffer: *`Buffer`*): [RTCPPacket](../interfaces/_util_.rtcppacket.md)
 
-*Defined in [util.ts:37](https://github.com/mbullington/yellowstone/blob/4117db0/lib/util.ts#L37)*
+*Defined in [util.ts:37](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L37)*
 
 **Parameters:**
 
@@ -74,7 +74,7 @@ ___
 
 ▸ **parseRTPPacket**(buffer: *`Buffer`*): [RTPPacket](../interfaces/_util_.rtppacket.md)
 
-*Defined in [util.ts:13](https://github.com/mbullington/yellowstone/blob/4117db0/lib/util.ts#L13)*
+*Defined in [util.ts:13](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L13)*
 
 **Parameters:**
 
@@ -91,7 +91,7 @@ ___
 
 ▸ **parseTransport**(transport: *`string`*): [Transport](../interfaces/_util_.transport.md)
 
-*Defined in [util.ts:61](https://github.com/mbullington/yellowstone/blob/4117db0/lib/util.ts#L61)*
+*Defined in [util.ts:61](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L61)*
 
 **Parameters:**
 
@@ -108,7 +108,7 @@ ___
 
 ▸ **randInclusive**(min: *`number`*, max: *`number`*): `number`
 
-*Defined in [util.ts:82](https://github.com/mbullington/yellowstone/blob/4117db0/lib/util.ts#L82)*
+*Defined in [util.ts:82](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L82)*
 
 **Parameters:**
 

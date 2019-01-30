@@ -24,7 +24,7 @@
 
 **● buffer**: *`Buffer`*
 
-*Defined in [util.ts:34](https://github.com/mbullington/yellowstone/blob/4117db0/lib/util.ts#L34)*
+*Defined in [util.ts:34](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L34)*
 
 ___
 <a id="packettype"></a>
@@ -33,7 +33,7 @@ ___
 
 **● packetType**: *`number`*
 
-*Defined in [util.ts:32](https://github.com/mbullington/yellowstone/blob/4117db0/lib/util.ts#L32)*
+*Defined in [util.ts:32](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L32)*
 
 ___
 <a id="timestamp"></a>
@@ -42,7 +42,7 @@ ___
 
 **● timestamp**: *`number`*
 
-*Defined in [util.ts:31](https://github.com/mbullington/yellowstone/blob/4117db0/lib/util.ts#L31)*
+*Defined in [util.ts:31](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L31)*
 
 ___
 

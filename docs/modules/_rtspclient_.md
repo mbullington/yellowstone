@@ -35,7 +35,7 @@
 
 **Ƭ Connection**: *"udp" \| "tcp"*
 
-*Defined in [RTSPClient.ts:26](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L26)*
+*Defined in [RTSPClient.ts:26](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L26)*
 
 ___
 <a id="headers"></a>
@@ -44,7 +44,7 @@ ___
 
 **Ƭ Headers**: *`object`*
 
-*Defined in [RTSPClient.ts:28](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L28)*
+*Defined in [RTSPClient.ts:28](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L28)*
 
 #### Type declaration
 
@@ -72,7 +72,7 @@ ___
 
 **● RTP_AVP**: *"RTP/AVP"* = "RTP/AVP"
 
-*Defined in [RTSPClient.ts:10](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L10)*
+*Defined in [RTSPClient.ts:10](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L10)*
 
 ___
 <a id="status_ok"></a>
@@ -81,7 +81,7 @@ ___
 
 **● STATUS_OK**: *`200`* = 200
 
-*Defined in [RTSPClient.ts:12](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L12)*
+*Defined in [RTSPClient.ts:12](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L12)*
 
 ___
 <a id="status_unauth"></a>
@@ -90,7 +90,7 @@ ___
 
 **● STATUS_UNAUTH**: *`401`* = 401
 
-*Defined in [RTSPClient.ts:13](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L13)*
+*Defined in [RTSPClient.ts:13](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L13)*
 
 ___
 <a id="www_auth"></a>
@@ -99,7 +99,7 @@ ___
 
 **● WWW_AUTH**: *"WWW-Authenticate"* = "WWW-Authenticate"
 
-*Defined in [RTSPClient.ts:15](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L15)*
+*Defined in [RTSPClient.ts:15](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L15)*
 
 ___
 <a id="www_auth_regex"></a>
@@ -108,7 +108,7 @@ ___
 
 **● WWW_AUTH_REGEX**: *`RegExp`* =  new RegExp('([a-zA-Z]+)\s*=\s*"?((?<=").*?(?=")|.*?(?=,?\s*[a-zA-Z]+\s*\=)|.+[^=])', "g")
 
-*Defined in [RTSPClient.ts:16](https://github.com/mbullington/yellowstone/blob/4117db0/lib/RTSPClient.ts#L16)*
+*Defined in [RTSPClient.ts:16](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L16)*
 
 ___
 

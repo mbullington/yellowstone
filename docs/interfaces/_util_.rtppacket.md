@@ -26,7 +26,7 @@
 
 **● id**: *`number`*
 
-*Defined in [util.ts:5](https://github.com/mbullington/yellowstone/blob/4117db0/lib/util.ts#L5)*
+*Defined in [util.ts:5](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L5)*
 
 ___
 <a id="length"></a>
@@ -35,7 +35,7 @@ ___
 
 **● length**: *`number`*
 
-*Defined in [util.ts:10](https://github.com/mbullington/yellowstone/blob/4117db0/lib/util.ts#L10)*
+*Defined in [util.ts:10](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L10)*
 
 ___
 <a id="marker"></a>
@@ -44,7 +44,7 @@ ___
 
 **● marker**: *`number`*
 
-*Defined in [util.ts:7](https://github.com/mbullington/yellowstone/blob/4117db0/lib/util.ts#L7)*
+*Defined in [util.ts:7](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L7)*
 
 ___
 <a id="payload"></a>
@@ -53,7 +53,7 @@ ___
 
 **● payload**: *`Buffer`*
 
-*Defined in [util.ts:9](https://github.com/mbullington/yellowstone/blob/4117db0/lib/util.ts#L9)*
+*Defined in [util.ts:9](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L9)*
 
 ___
 <a id="timestamp"></a>
@@ -62,7 +62,7 @@ ___
 
 **● timestamp**: *`number`*
 
-*Defined in [util.ts:6](https://github.com/mbullington/yellowstone/blob/4117db0/lib/util.ts#L6)*
+*Defined in [util.ts:6](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L6)*
 
 ___
 
