@@ -13,7 +13,7 @@ const STATUS_OK = 200;
 const STATUS_UNAUTH = 401;
 
 const WWW_AUTH = "WWW-Authenticate";
-const WWW_AUTH_REGEX = new RegExp('([a-z]+)=\"([^,]+)\"',"g");
+const WWW_AUTH_REGEX = new RegExp('([a-zA-Z]+)\s*=\s*"?((?<=").*?(?=")|.*?(?=,?\s*[a-zA-Z]+\s*\=)|.+[^=])', "g");
 
 enum ReadStates {
   SEARCHING,
