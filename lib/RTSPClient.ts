@@ -23,6 +23,8 @@ enum ReadStates {
   READING_RAW_PACKET
 };
 
+type Connection = 'udp' | 'tcp';
+
 type Headers = {
   [key: string]: string | number | undefined,
   Session?: string,
@@ -138,8 +140,8 @@ export default class RTSPClient extends EventEmitter {
     });
   }
 
-  async connect(url: string, options: {keepAlive: boolean, udp: boolean} = {keepAlive: true, udp: true}) {
-    const { keepAlive, udp } = options;
+  async connect(url: string, options: {keepAlive: boolean, connection: Connection} = {keepAlive: true, connection: 'udp'}) {
+    const { keepAlive, connection } = options;
 
     const { hostname, port } = urlParse(this._url = url);
     if (!hostname) {
@@ -174,7 +176,7 @@ export default class RTSPClient extends EventEmitter {
     // or with 'tcp' RTP/TCP packets which are interleaved into the TCP based RTSP socket
     let setupRes;
 
-    if (udp) {
+    if (connection === "udp") {
       // Create a pair of UDP listeners, even numbered port for RTP
       // and odd numbered port for RTCP
 
@@ -210,10 +212,12 @@ export default class RTSPClient extends EventEmitter {
       setupRes = await this.request("SETUP", {
         Transport: `RTP/AVP;unicast;client_port=${rtpPort}-${rtcpPort}`
       });
-    } else {
+    } else if (connection === "tcp") {
       // channel 0, RTP
       // channel 1, RTCP
       setupRes = await this.request("SETUP", { Transport: `RTP/AVP/TCP;interleaved=0-1` });
+    } else {
+      throw new Error(`Connection parameter to RTSPClient#connect is ${connection}, not udp or tcp!`);
     }
 
     if (!setupRes) {

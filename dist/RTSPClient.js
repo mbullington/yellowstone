@@ -88,8 +88,8 @@ class RTSPClient extends events_1.EventEmitter {
             client.on("close", closeListener);
         });
     }
-    async connect(url, options = { keepAlive: true, udp: true }) {
-        const { keepAlive, udp } = options;
+    async connect(url, options = { keepAlive: true, connection: 'udp' }) {
+        const { keepAlive, connection } = options;
         const { hostname, port } = url_1.parse(this._url = url);
         if (!hostname) {
             throw new Error('URL parsing error in connect method.');
@@ -114,7 +114,7 @@ class RTSPClient extends events_1.EventEmitter {
         // either 'udp' RTP/RTCP packets
         // or with 'tcp' RTP/TCP packets which are interleaved into the TCP based RTSP socket
         let setupRes;
-        if (udp) {
+        if (connection === "udp") {
             // Create a pair of UDP listeners, even numbered port for RTP
             // and odd numbered port for RTCP
             const rtpPort = 5000;
@@ -142,10 +142,13 @@ class RTSPClient extends events_1.EventEmitter {
                 Transport: `RTP/AVP;unicast;client_port=${rtpPort}-${rtcpPort}`
             });
         }
-        else {
+        else if (connection === "tcp") {
             // channel 0, RTP
             // channel 1, RTCP
             setupRes = await this.request("SETUP", { Transport: `RTP/AVP/TCP;interleaved=0-1` });
+        }
+        else {
+            throw new Error(`Connection parameter to RTSPClient#connect is ${connection}, not udp or tcp!`);
         }
         if (!setupRes) {
             throw new Error('No SETUP response; RTSP server is broken (sanity check)');

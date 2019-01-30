@@ -1,3 +1,9 @@
+# v3.0.1
+
+**Bug fixes**:
+
+- Fixed Digest authentication thanks to @oleaasbo
+
 # v3.0.0
 
 Huge shoutout to @RogerHardiman for co-developing this release of the library!

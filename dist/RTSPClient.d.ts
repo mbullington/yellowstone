@@ -9,6 +9,7 @@ declare enum ReadStates {
     READING_RAW_PACKET_SIZE = 3,
     READING_RAW_PACKET = 4
 }
+declare type Connection = 'udp' | 'tcp';
 declare type Headers = {
     [key: string]: string | number | undefined;
     Session?: string;
@@ -46,7 +47,7 @@ export default class RTSPClient extends EventEmitter {
     _netConnect(hostname: string, port: number): Promise<{}>;
     connect(url: string, options?: {
         keepAlive: boolean;
-        udp: boolean;
+        connection: Connection;
     }): Promise<{
         codec: any;
         mediaSource: {
