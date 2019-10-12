@@ -8,8 +8,10 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceFolder}/examples/wowza.js"
+            "name": "Wowza Example",
+            "program": "${workspaceFolder}/examples/wowza.js",
+            "preLaunchTask": "tsc: build - tsconfig.json",
+            "outFiles": ["${workspaceFolder}/dist/**/*.js"]
         }
     ]
 }
