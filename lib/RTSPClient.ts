@@ -49,6 +49,7 @@ export default class RTSPClient extends EventEmitter {
   _cSeq: number = 0;
   _unsupportedExtensions?: string[];
   // Example: 'SessionId'[';timeout=seconds']
+  _streamurl?: string;
   _session?: string;
   _keepAliveID?: any;
 
@@ -167,8 +168,15 @@ export default class RTSPClient extends EventEmitter {
       );
     }
 
+    // The 'control' in the SDP can be a relative or absolute uri
     if (mediaSource.control) {
-      this._url += `/${mediaSource.control}`;
+      if (mediaSource.control.toLowerCase().startsWith('rtsp://')) {
+        // absolute path
+        this._streamurl = mediaSource.control;
+      } else {
+        // relative path
+        this._streamurl = this._url + '/' + mediaSource.control
+      }
     }
 
     // Perform a SETUP with
@@ -211,11 +219,11 @@ export default class RTSPClient extends EventEmitter {
 
       setupRes = await this.request("SETUP", {
         Transport: `RTP/AVP;unicast;client_port=${rtpPort}-${rtcpPort}`
-      });
+      }, this._streamurl);
     } else if (connection === "tcp") {
       // channel 0, RTP
       // channel 1, RTCP
-      setupRes = await this.request("SETUP", { Transport: `RTP/AVP/TCP;interleaved=0-1` });
+      setupRes = await this.request("SETUP", { Transport: `RTP/AVP/TCP;interleaved=0-1` }, this._streamurl);
     } else {
       throw new Error(`Connection parameter to RTSPClient#connect is ${connection}, not udp or tcp!`);
     }

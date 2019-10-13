@@ -30,6 +30,7 @@ export default class RTSPClient extends EventEmitter {
     _client?: net.Socket;
     _cSeq: number;
     _unsupportedExtensions?: string[];
+    _streamurl?: string;
     _session?: string;
     _keepAliveID?: any;
     readState: ReadStates;
@@ -44,7 +45,7 @@ export default class RTSPClient extends EventEmitter {
     constructor(username: string, password: string, headers: {
         [key: string]: string;
     });
-    _netConnect(hostname: string, port: number): Promise<{}>;
+    _netConnect(hostname: string, port: number): Promise<unknown>;
     connect(url: string, options?: {
         keepAlive: boolean;
         connection: Connection;

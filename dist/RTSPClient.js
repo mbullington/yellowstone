@@ -42,7 +42,7 @@ class RTSPClient extends events_1.EventEmitter {
         this.clientSSRC = util_1.generateSSRC();
         this.username = username;
         this.password = password;
-        this.headers = Object.assign({}, (headers || {}), { "User-Agent": "yellowstone/3.x" });
+        this.headers = Object.assign(Object.assign({}, (headers || {})), { "User-Agent": "yellowstone/3.x" });
     }
     // This manages the lifecycle for the RTSP connection
     // over TCP.
@@ -107,8 +107,16 @@ class RTSPClient extends events_1.EventEmitter {
         if (!mediaSource || !mediaSource.rtp) {
             throw new Error(`Only video sources using the ${RTP_AVP} protocol are supported at this time.`);
         }
+        // The 'control' in the SDP can be a relative or absolute uri
         if (mediaSource.control) {
-            this._url += `/${mediaSource.control}`;
+            if (mediaSource.control.toLowerCase().startsWith('rtsp://')) {
+                // absolute path
+                this._streamurl = mediaSource.control;
+            }
+            else {
+                // relative path
+                this._streamurl = this._url + '/' + mediaSource.control;
+            }
         }
         // Perform a SETUP with
         // either 'udp' RTP/RTCP packets
@@ -140,12 +148,12 @@ class RTSPClient extends events_1.EventEmitter {
             });
             setupRes = await this.request("SETUP", {
                 Transport: `RTP/AVP;unicast;client_port=${rtpPort}-${rtcpPort}`
-            });
+            }, this._streamurl);
         }
         else if (connection === "tcp") {
             // channel 0, RTP
             // channel 1, RTCP
-            setupRes = await this.request("SETUP", { Transport: `RTP/AVP/TCP;interleaved=0-1` });
+            setupRes = await this.request("SETUP", { Transport: `RTP/AVP/TCP;interleaved=0-1` }, this._streamurl);
         }
         else {
             throw new Error(`Connection parameter to RTSPClient#connect is ${connection}, not udp or tcp!`);
@@ -186,7 +194,7 @@ class RTSPClient extends events_1.EventEmitter {
         const id = ++this._cSeq;
         // mutable via string addition
         let req = `${requestName} ${url || this._url} RTSP/1.0\r\nCSeq: ${id}\r\n`;
-        const headers = Object.assign({}, this.headers, headersParam);
+        const headers = Object.assign(Object.assign({}, this.headers), headersParam);
         req += Object.entries(headers)
             .map(([key, value]) => `${key}: ${value}\r\n`)
             .join("");
@@ -266,7 +274,7 @@ class RTSPClient extends events_1.EventEmitter {
         }
         // mutable via string addition
         let res = `RTSP/1.0 ${status}\r\n`;
-        const headers = Object.assign({}, this.headers, headersParam);
+        const headers = Object.assign(Object.assign({}, this.headers), headersParam);
         res += Object.entries(headers)
             .map(([key, value]) => `${key}: ${value}\r\n`)
             .join("");
