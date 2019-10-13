@@ -1,7 +1,6 @@
 /// <reference types="node" />
 import * as net from "net";
 import { EventEmitter } from "events";
-import * as transform from "sdp-transform";
 declare enum ReadStates {
     SEARCHING = 0,
     READING_RTSP_HEADER = 1,
@@ -30,9 +29,10 @@ export default class RTSPClient extends EventEmitter {
     _client?: net.Socket;
     _cSeq: number;
     _unsupportedExtensions?: string[];
-    _streamurl?: string;
     _session?: string;
     _keepAliveID?: any;
+    _nextFreeInterleavedChannel: number;
+    _nextFreeUDPPort: number;
     readState: ReadStates;
     messageBytes: number[];
     rtspContentLength: number;
@@ -46,22 +46,10 @@ export default class RTSPClient extends EventEmitter {
         [key: string]: string;
     });
     _netConnect(hostname: string, port: number): Promise<unknown>;
-    connect(url: string, options?: {
+    connect(url: string, { keepAlive, connection }?: {
         keepAlive: boolean;
         connection: Connection;
-    }): Promise<{
-        codec: any;
-        mediaSource: {
-            type: string;
-            port: number;
-            protocol: string;
-            payloads?: string | undefined;
-        } & transform.MediaDescription;
-        transport: {
-            [key: string]: string;
-        };
-        isH264: boolean;
-    }>;
+    }): Promise<any>;
     request(requestName: string, headersParam?: Headers, url?: string): Promise<{
         headers: Headers;
         mediaHeaders?: string[];

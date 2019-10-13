@@ -5,6 +5,7 @@ export interface RTPPacket {
     marker: number;
     payload: Buffer;
     length: number;
+    payloadType: number;
 }
 export declare function parseRTPPacket(buffer: Buffer): RTPPacket;
 export interface RTCPPacket {
@@ -23,4 +24,12 @@ interface Transport {
 export declare function parseTransport(transport: string): Transport;
 export declare function randInclusive(min: number, max: number): number;
 export declare function generateSSRC(): number;
+export declare class BitStream {
+    data: number[];
+    constructor();
+    AddValue(value: number, num_bits: number): void;
+    AddHexString(hex_string: string): void;
+    Read(num_bits: number): number;
+    ToArray(): Buffer;
+}
 export {};

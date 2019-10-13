@@ -9,14 +9,13 @@ interface Details {
     rtpChannel: number;
     rtcpChannel: number;
 }
-export default class H264Transport {
+export default class AACTransport {
     client: RTSPClient;
     stream: Writable;
-    rtpPackets: Buffer[];
-    _headerWritten: boolean;
+    ObjectType: number;
+    FrequencyIndex: number;
+    ChannelConfiguration: number;
     constructor(client: RTSPClient, stream: Writable, details: Details);
-    processConnectionDetails(details: Details): void;
     processRTPPacket(packet: RTPPacket): void;
-    processRTPFrame(rtpPackets: Buffer[]): void;
 }
 export {};

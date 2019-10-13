@@ -49,9 +49,10 @@ export default class RTSPClient extends EventEmitter {
   _cSeq: number = 0;
   _unsupportedExtensions?: string[];
   // Example: 'SessionId'[';timeout=seconds']
-  _streamurl?: string;
   _session?: string;
   _keepAliveID?: any;
+  _nextFreeInterleavedChannel: number = 0;
+  _nextFreeUDPPort: number = 5000;
 
   readState: ReadStates = ReadStates.SEARCHING;
 
@@ -141,13 +142,15 @@ export default class RTSPClient extends EventEmitter {
     });
   }
 
-  async connect(url: string, options: {keepAlive: boolean, connection: Connection} = {keepAlive: true, connection: 'udp'}) {
-    const { keepAlive, connection } = options;
+  async connect(url: string, {keepAlive = true, connection = 'udp'}: {keepAlive: boolean, connection: Connection} = {keepAlive: true, connection: 'udp'}) {
+
 
     const { hostname, port } = urlParse(this._url = url);
     if (!hostname) {
       throw new Error('URL parsing error in connect method.');
     }
+
+    let details: any = [];
 
     await this._netConnect(hostname, parseInt(port || "554"));
     await this.request("OPTIONS");
@@ -160,116 +163,173 @@ export default class RTSPClient extends EventEmitter {
     // For now, only RTP/AVP is supported.
     const {media} = transform.parse(describeRes.mediaHeaders.join("\r\n"));
 
-    // From parsed SDP.
-    const mediaSource = media.find(source => source.type === "video" && source.protocol === RTP_AVP);
-    if (!mediaSource || !mediaSource.rtp) {
-      throw new Error(
-        `Only video sources using the ${RTP_AVP} protocol are supported at this time.`
-      );
-    }
+    // Loop over the Media Streams in the SDP looking for Video or Audio
+    // In theory the SDP can contain multiple Video and Audio Streams. We only want one of each type
+    let hasVideo = false;
+    let hasAudio = false;
+    let hasMetaData = false;
 
-    // The 'control' in the SDP can be a relative or absolute uri
-    if (mediaSource.control) {
-      if (mediaSource.control.toLowerCase().startsWith('rtsp://')) {
-        // absolute path
-        this._streamurl = mediaSource.control;
-      } else {
-        // relative path
-        this._streamurl = this._url + '/' + mediaSource.control
+    for (let x = 0; x < media.length; x++) {
+      let needSetup = false;
+      let codec = "";
+      let mediaSource = media[x];
+      if (mediaSource.type === "video" && mediaSource.protocol === RTP_AVP && mediaSource.rtp[0].codec === "H264") {
+        this.emit("log", "H264 Video Stream Found in SDP", "");
+        if (hasVideo == false) {
+          needSetup = true;
+          hasVideo = true;
+          codec = "H264"
+        }
       }
-    }
 
-    // Perform a SETUP with
-    // either 'udp' RTP/RTCP packets
-    // or with 'tcp' RTP/TCP packets which are interleaved into the TCP based RTSP socket
-    let setupRes;
+      if (mediaSource.type === "audio" && mediaSource.protocol === RTP_AVP && mediaSource.rtp[0].codec === "mpeg4-generic" && mediaSource.fmtp[0].config.includes('AAC')) {
+        this.emit("log", "AAC Audio Stream Found in SDP", "");
+        if (hasAudio == false) {
+          needSetup = true;
+          hasAudio = true;
+          codec = "AAC"
+        }
+      }
 
-    if (connection === "udp") {
-      // Create a pair of UDP listeners, even numbered port for RTP
-      // and odd numbered port for RTCP
+      if (mediaSource.type === "appliction" && mediaSource.protocol === RTP_AVP && mediaSource.rtp[0].codec === "VND.ONVIF.METADATA") {
+        this.emit("log", "ONVIF Meta Data Found in SDP", "");
+        if (hasMetaData == false) {
+          needSetup = true;
+          hasMetaData = true;
+          codec = "VND.ONVIF.METADATA"
+        }
+      }
 
-      const rtpPort = 5000;
-      const rtpReceiver = dgram.createSocket("udp4");
+      if (needSetup) {
+        let streamurl = '';
+        // The 'control' in the SDP can be a relative or absolute uri
+        if (mediaSource.control) {
+          if (mediaSource.control.toLowerCase().startsWith('rtsp://')) {
+           // absolute path
+            streamurl = mediaSource.control;
+          } else {
+            // relative path
+            streamurl = this._url + '/' + mediaSource.control
+          }
+        }
 
-      rtpReceiver.on("message", (buf, remote) => {
-        const packet = parseRTPPacket(buf);
-        this.emit("data", 0, packet.payload, packet);
-      });
+        // Perform a SETUP on the streamurl
+        // either 'udp' RTP/RTCP packets
+        // or with 'tcp' RTP/TCP packets which are interleaved into the TCP based RTSP socket
+        let setupRes;
+        let rtpChannel;
+        let rtcpChannel;
 
-      const rtcpPort = rtpPort + 1;
-      const rtcpReceiver = dgram.createSocket("udp4");
+        if (connection === "udp") {
+          // Create a pair of UDP listeners, even numbered port for RTP
+          // and odd numbered port for RTCP
 
-      rtcpReceiver.on("message", (buf, remote) => {
-        const packet = parseRTCPPacket(buf);
-        this.emit("controlData", 1, packet);
+          rtpChannel = this._nextFreeUDPPort;
+          rtcpChannel = this._nextFreeUDPPort+1;
+          this._nextFreeUDPPort += 2;
 
-        const receiver_report = this._emptyReceiverReport();
-        this._sendUDPData(remote.address, remote.port, receiver_report);
-      });
+          const rtpPort = rtpChannel;
+          const rtpReceiver = dgram.createSocket("udp4");
 
-      // Block until both UDP sockets are open.
+          rtpReceiver.on("message", (buf, remote) => {
+            const packet = parseRTPPacket(buf);
+            this.emit("data", rtpPort, packet.payload, packet);
+          });
 
-      await new Promise(resolve => {
-        rtpReceiver.bind(rtpPort, () => resolve());
-      });
+          const rtcpPort = rtcpChannel;
+          const rtcpReceiver = dgram.createSocket("udp4");
 
-      await new Promise(resolve => {
-        rtcpReceiver.bind(rtcpPort + 1, () => resolve());
-      });
+          rtcpReceiver.on("message", (buf, remote) => {
+            const packet = parseRTCPPacket(buf);
+            this.emit("controlData", rtcpPort, packet);
 
-      setupRes = await this.request("SETUP", {
-        Transport: `RTP/AVP;unicast;client_port=${rtpPort}-${rtcpPort}`
-      }, this._streamurl);
-    } else if (connection === "tcp") {
-      // channel 0, RTP
-      // channel 1, RTCP
-      setupRes = await this.request("SETUP", { Transport: `RTP/AVP/TCP;interleaved=0-1` }, this._streamurl);
-    } else {
-      throw new Error(`Connection parameter to RTSPClient#connect is ${connection}, not udp or tcp!`);
-    }
+            const receiver_report = this._emptyReceiverReport();
+            this._sendUDPData(remote.address, remote.port, receiver_report);
+          });
 
-    if (!setupRes) {
-      throw new Error(
-        'No SETUP response; RTSP server is broken (sanity check)'
-      );
-    }
+          // Block until both UDP sockets are open.
 
-    const {headers} = setupRes;
-    
-    if (!headers.Transport) {
-      throw new Error(
-        'No Transport header on SETUP; RTSP server is broken (sanity check)'
-      );
-    }
+          await new Promise(resolve => {
+            rtpReceiver.bind(rtpPort, () => resolve());
+          });
 
-    const transport = parseTransport(headers.Transport);
-    if (transport.protocol !== 'RTP/AVP/TCP' && transport.protocol !== 'RTP/AVP') {
-      throw new Error(
-        'Only RTSP servers supporting RTP/AVP(unicast) or RTP/ACP/TCP are supported at this time.'
-      );
-    }
+          await new Promise(resolve => {
+            rtcpReceiver.bind(rtcpPort, () => resolve());
+          });
 
-    if (headers.Unsupported) {
-      this._unsupportedExtensions = headers.Unsupported.split(",");
-    }
+          let setupHeader = {Transport: `RTP/AVP;unicast;client_port=${rtpPort}-${rtcpPort}`};
+          if (this._session) Object.assign(setupHeader, {Session: this._session});
+          setupRes = await this.request("SETUP", setupHeader,streamurl);
+        } else if (connection === "tcp") {
+          // channel 0, RTP
+          // channel 1, RTCP
 
-    if (headers.Session) {
-      this._session = headers.Session.split(";")[0];
-    }
+          rtpChannel = this._nextFreeInterleavedChannel;
+          rtcpChannel = this._nextFreeInterleavedChannel+1;
+          this._nextFreeInterleavedChannel += 2;
+
+          let setupHeader = {Transport: `RTP/AVP/TCP;interleaved=${rtpChannel}-${rtcpChannel}`};
+          if (this._session) Object.assign(setupHeader, {Session: this._session}); // not used on first SETUP
+          setupRes = await this.request("SETUP", setupHeader, streamurl);
+        } else {
+          throw new Error(`Connection parameter to RTSPClient#connect is ${connection}, not udp or tcp!`);
+        }
+
+        if (!setupRes) {
+          throw new Error(
+            'No SETUP response; RTSP server is broken (sanity check)'
+          );
+        }
+
+        const {headers} = setupRes;
+      
+        if (!headers.Transport) {
+          throw new Error(
+            'No Transport header on SETUP; RTSP server is broken (sanity check)'
+          );
+        }
+
+        const transport = parseTransport(headers.Transport);
+        if (transport.protocol !== 'RTP/AVP/TCP' && transport.protocol !== 'RTP/AVP') {
+          throw new Error(
+            'Only RTSP servers supporting RTP/AVP(unicast) or RTP/ACP/TCP are supported at this time.'
+          );
+        }
+
+        if (headers.Unsupported) {
+          this._unsupportedExtensions = headers.Unsupported.split(",");
+        }
+
+        if (headers.Session) {
+          this._session = headers.Session.split(";")[0];
+        }
+
+        let detail = {
+          codec,
+          mediaSource,
+          transport: transport.parameters,
+          isH264: codec === "H264",
+          rtpChannel,
+          rtcpChannel
+        };
+  
+        details.push(detail)
+      } // end if (needSetup)
+    } // end for loop, looping over each media stream
+
 
     if (keepAlive) {
       // Start a Timer to send OPTIONS every 20 seconds to keep stream alive
-      this._keepAliveID = setInterval(() => this.request("OPTIONS"), 20 * 1000);
+      // using the Session ID
+      this._keepAliveID = setInterval(() => {
+        this.request("OPTIONS", { Session: this._session });
+//        this.request("OPTIONS");
+      }
+      , 20 * 1000);
     }
 
-    const codec = (mediaSource.rtp as any)[0].codec;
 
-    return {
-      codec,
-      mediaSource,
-      transport: transport.parameters,
-      isH264: codec === "H264"
-    };
+    return details;
   }
 
   request(requestName: string, headersParam: Headers = {}, url?: string): Promise<{headers: Headers, mediaHeaders?: string[]} | void> {
@@ -479,11 +539,11 @@ export default class RTSPClient extends EventEmitter {
 
         if (this.rtspPacketPointer == this.rtspPacketLength) {
           const packetChannel = this.messageBytes[1];
-          if (packetChannel === 0) {
+          if ((packetChannel &0x01) === 0) { // even number
             const packet = parseRTPPacket(this.rtspPacket);
             this.emit("data", packetChannel, packet.payload, packet);
           }
-          if (packetChannel === 1) {
+          if ((packetChannel &0x01) === 1) { // odd number
             const packet = parseRTCPPacket(this.rtspPacket);
             this.emit("controlData", packetChannel, packet);
             const receiver_report = this._emptyReceiverReport();

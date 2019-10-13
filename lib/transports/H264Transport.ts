@@ -12,7 +12,10 @@ import { Writable } from "stream";
 const H264_HEADER = Buffer.from([0x00,0x00,0x00,0x01]);
 
 interface Details {
+  codec: string
   mediaSource: transform.MediaDescription
+  rtpChannel: number,
+  rtcpChannel: number
 };
 
 export default class H264Transport {
@@ -23,19 +26,19 @@ export default class H264Transport {
 
   _headerWritten: boolean = false;
 
-  constructor(client: RTSPClient, stream: Writable, details?: Details) {
+  constructor(client: RTSPClient, stream: Writable, details: Details) {
     this.client = client;
     this.stream = stream;
 
     client.on("data", (channel, data, packet) => {
-      if (this._headerWritten) {
-        this.processRTPPacket(packet);
+      if (channel == details.rtpChannel) {
+        if (this._headerWritten) {
+          this.processRTPPacket(packet);
+        }
       }
     });
 
-    if (details != null) {
-      this.processConnectionDetails(details);
-    }
+    this.processConnectionDetails(details);
   }
 
   processConnectionDetails(details: Details) {

@@ -14,13 +14,13 @@ class H264Transport {
         this.client = client;
         this.stream = stream;
         client.on("data", (channel, data, packet) => {
-            if (this._headerWritten) {
-                this.processRTPPacket(packet);
+            if (channel == details.rtpChannel) {
+                if (this._headerWritten) {
+                    this.processRTPPacket(packet);
+                }
             }
         });
-        if (details != null) {
-            this.processConnectionDetails(details);
-        }
+        this.processConnectionDetails(details);
     }
     processConnectionDetails(details) {
         // Extract SPS and PPS from the MediaSource part of the SDP

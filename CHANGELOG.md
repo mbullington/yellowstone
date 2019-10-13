@@ -1,3 +1,13 @@
+# v3.0.2
+
+**Bug fixes**:
+Fix parsing of SDP for relative media stream URLs
+Fixed OPTIONS keepalive by sending Session ID
+
+**New features**:
+Output AAC Audio as well as H264 video
+
+
 # v3.0.1
 
 **Bug fixes**:
