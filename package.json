@@ -16,8 +16,7 @@
   "scripts": {
     "build": "tsc --project ./tsconfig.json",
     "test": "jest",
-    "typedoc": "typedoc --out docs --name Yellowstone --theme markdown lib --readme none",
-    "run-example": "ts-node rtsp.ts"
+    "typedoc": "typedoc --out docs --name Yellowstone --theme markdown lib --readme none"
   },
   "devDependencies": {
     "@types/jest": "^23.3.13",
