@@ -28,6 +28,7 @@
     "eslint": "^7.30.0",
     "eslint-config-prettier": "^8.3.0",
     "jest": "^18.1.0",
+    "prettier": "^2.3.2",
     "ts-node": "^10.0.0",
     "typedoc": "^0.14.2",
     "typedoc-plugin-markdown": "^1.1.25",
