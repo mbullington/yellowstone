@@ -16,15 +16,20 @@
   "scripts": {
     "build": "tsc --project ./tsconfig.json",
     "test": "jest",
-    "typedoc": "typedoc --out docs --name Yellowstone --theme markdown lib --readme none"
+    "typedoc": "typedoc --out docs --name Yellowstone --theme markdown lib --readme none",
+    "lint": "eslint . --ext .ts"
   },
   "devDependencies": {
     "@types/jest": "^23.3.13",
     "@types/node": "^10.12.18",
     "@types/sdp-transform": "^2.4.0",
+    "@typescript-eslint/eslint-plugin": "^4.28.2",
+    "@typescript-eslint/parser": "^4.28.2",
+    "eslint": "^7.30.0",
+    "eslint-config-prettier": "^8.3.0",
     "jest": "^18.1.0",
     "typedoc": "^0.14.2",
     "typedoc-plugin-markdown": "^1.1.25",
-    "typescript": "^3.2.4"
+    "typescript": "^4.3.5"
   }
 }
