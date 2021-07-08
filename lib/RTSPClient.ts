@@ -414,8 +414,8 @@ export default class RTSPClient extends EventEmitter {
         mediaHeaders: string[]
       ) => {
         const firstAnswer: string = String(resHeaders[""]) || "";
-        if (firstAnswer.endsWith("Unauthorized") && id > 2) {
-          reject(new Error(`Bad RTSP credentails status code Unauthorized!`));
+        if (firstAnswer.indexOf("401") >= 0 && id > 2) {
+          reject(new Error(`Bad RTSP credentials!`));
           return;
         }
         if (resHeaders.CSeq !== id) {
