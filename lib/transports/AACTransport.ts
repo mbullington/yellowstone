@@ -37,7 +37,6 @@ export default class AACTransport {
 
     // Process the SDP to get the parameters for the AAC audio
     // "profile-level-id=1;mode=AAC-hbr;sizelength=13;indexlength=3;indexdeltalength=3;config=1490"
-    // @ts-ignore
     let fmtp = details.mediaSource.fmtp[0];
     const fmtpConfig = transform.parseParams(fmtp.config);
 
