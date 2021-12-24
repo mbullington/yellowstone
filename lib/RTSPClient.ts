@@ -225,16 +225,16 @@ export default class RTSPClient extends EventEmitter {
       }
 
       if (
-        mediaSource.type === "appliction" &&
+        mediaSource.type === "application" &&
         mediaSource.protocol === RTP_AVP &&
         // @ts-ignore
-        mediaSource.rtp[0].codec === "VND.ONVIF.METADATA"
+        mediaSource.rtp[0].codec.toLowerCase() === "vnd.onvif.metadata"
       ) {
         this.emit("log", "ONVIF Meta Data Found in SDP", "");
         if (hasMetaData == false) {
           needSetup = true;
           hasMetaData = true;
-          codec = "VND.ONVIF.METADATA";
+          codec = "vnd.onvif.metadata";
         }
       }
 
