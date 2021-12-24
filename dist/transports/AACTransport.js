@@ -5,7 +5,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const util_1 = require("../util");
 const transform = require("sdp-transform");
-;
 class AACTransport {
     constructor(client, stream, details) {
         this.ObjectType = 0;
@@ -20,10 +19,11 @@ class AACTransport {
         });
         // Process the SDP to get the parameters for the AAC audio
         // "profile-level-id=1;mode=AAC-hbr;sizelength=13;indexlength=3;indexdeltalength=3;config=1490"
+        // @ts-ignore
         let fmtp = details.mediaSource.fmtp[0];
         const fmtpConfig = transform.parseParams(fmtp.config);
         let bs = new util_1.BitStream();
-        bs.AddHexString(fmtpConfig['config'].toString());
+        bs.AddHexString(fmtpConfig["config"].toString());
         /***
         5 bits: object type
             if (object type == 31)
@@ -54,11 +54,11 @@ class AACTransport {
             if (ptr + 4 > rtp_payload.length)
                 break; // 2 bytes for AU Header Length, 2 bytes of AU Header payload
             // Get Size of the AU Header
-            let au_headers_length_bits = (((rtp_payload[ptr] << 8) + (rtp_payload[ptr + 1] << 0))); // 16 bits
+            let au_headers_length_bits = (rtp_payload[ptr] << 8) + (rtp_payload[ptr + 1] << 0); // 16 bits
             let au_headers_length = Math.ceil(au_headers_length_bits / 8.0);
             ptr += 2;
             // Examine the AU Header. Get the size of the AAC data
-            let aac_frame_size = (((rtp_payload[ptr] << 8) + (rtp_payload[ptr + 1] << 0)) >> 3); // 13 bits
+            let aac_frame_size = ((rtp_payload[ptr] << 8) + (rtp_payload[ptr + 1] << 0)) >> 3; // 13 bits
             let aac_index_delta = rtp_payload[ptr + 1] & 0x03; // 3 bits
             ptr += au_headers_length;
             // extract the AAC block
@@ -72,7 +72,7 @@ class AACTransport {
         for (let x = 0; x < audio_data.length; x++) {
             let data = audio_data[x];
             let bs = new util_1.BitStream(); //TODO - we could cache the header bitstream
-            bs.AddValue(0xFFF, 12); // (a) Start of data
+            bs.AddValue(0xfff, 12); // (a) Start of data
             bs.AddValue(0, 1); // (b) Version ID, 0 = MPEG4
             bs.AddValue(0, 2); // (c) Layer always 2 bits set to 0
             let protection_absent = 1;
@@ -91,7 +91,7 @@ class AACTransport {
             bs.AddValue(num_acc_frames - 1, 1); // (o) num of AAC Frames, minus 1
             // If Protection was On [value=0], there would be a 16 bit CRC here
             if (protection_absent == 0)
-                bs.AddValue(0xABCD /*Calc CRC()*/, 16); // (p)
+                bs.AddValue(0xabcd /*Calc CRC()*/, 16); // (p)
             let header = bs.ToArray();
             // write to the aac file
             this.stream.write(header);
