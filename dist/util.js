@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.BitStream = exports.generateSSRC = exports.randInclusive = exports.parseTransport = exports.getMD5Hash = exports.parseRTCPPacket = exports.parseRTPPacket = void 0;
 const crypto_1 = require("crypto");
 function parseRTPPacket(buffer) {
     const padding = (buffer[0] >> 5) & 0x01;
@@ -31,7 +32,7 @@ function parseRTCPPacket(buffer) {
 exports.parseRTCPPacket = parseRTCPPacket;
 // utility function for using crypto library
 function getMD5Hash(str) {
-    const md5 = crypto_1.createHash("md5");
+    const md5 = (0, crypto_1.createHash)("md5");
     md5.update(str);
     return md5.digest("hex");
 }

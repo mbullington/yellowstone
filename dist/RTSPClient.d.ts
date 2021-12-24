@@ -42,13 +42,13 @@ export default class RTSPClient extends EventEmitter {
     rtspPacket: Buffer;
     rtspPacketPointer: number;
     clientSSRC: number;
-    constructor(username: string, password: string, headers: {
+    constructor(username: string, password: string, headers?: {
         [key: string]: string;
     });
-    _netConnect(hostname: string, port: number): Promise<{}>;
+    _netConnect(hostname: string, port: number): Promise<unknown>;
     connect(url: string, { keepAlive, connection, }?: {
         keepAlive: boolean;
-        connection: Connection;
+        connection?: Connection;
     }): Promise<any>;
     request(requestName: string, headersParam?: Headers, url?: string): Promise<{
         headers: Headers;
