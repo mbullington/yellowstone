@@ -1,3 +1,11 @@
+# v3.0.3
+
+**Bug fixes**:
+Fix parsing of SDP for relative ONVIF Metadata
+
+**New features**:
+Write the XML ONVIF Metadata to a file
+
 # v3.0.2
 
 **Bug fixes**:
