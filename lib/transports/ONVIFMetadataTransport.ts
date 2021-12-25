@@ -3,7 +3,7 @@
 // By Roger Hardiman, December 2021
 
 import RTSPClient from "../RTSPClient";
-import { RTPPacket, BitStream } from "../util";
+import { RTPPacket } from "../util";
 
 import * as transform from "sdp-transform";
 import { Writable } from "stream";
@@ -33,7 +33,7 @@ export default class ONVIFMetadataTransport {
     });
   }
 
-  processRTPPacket(packet: RTPPacket) {
+  processRTPPacket(packet: RTPPacket): void {
     // RTP Payload for ONVIF Metadata
 
     // Accumulate payload
