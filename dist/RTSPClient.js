@@ -120,6 +120,17 @@ class RTSPClient extends events_1.EventEmitter {
             if (mediaSource.type === "video" &&
                 mediaSource.protocol === RTP_AVP &&
                 // @ts-ignore
+                mediaSource.rtp[0].codec === "JPEG") {
+                this.emit("log", "JPEG Video Stream Found in SDP", "");
+                if (hasVideo == false) {
+                    needSetup = true;
+                    hasVideo = true;
+                    codec = "JPEG";
+                }
+            }
+            if (mediaSource.type === "video" &&
+                mediaSource.protocol === RTP_AVP &&
+                // @ts-ignore
                 mediaSource.rtp[0].codec === "H264") {
                 this.emit("log", "H264 Video Stream Found in SDP", "");
                 if (hasVideo == false) {
@@ -272,12 +283,14 @@ class RTSPClient extends events_1.EventEmitter {
             .map(([key, value]) => `${key}: ${value}\r\n`)
             .join("");
         this.emit("log", req, "C->S");
+        // Send command to the RTSP Server via the open TCP Socket
         // Make sure to add an empty line after the request.
         this._client.write(`${req}\r\n`);
         return new Promise((resolve, reject) => {
             const responseHandler = (responseName, resHeaders, mediaHeaders) => {
                 const firstAnswer = String(resHeaders[""]) || "";
-                if (firstAnswer.indexOf("401") >= 0 && id > 2) {
+                if (firstAnswer.indexOf("401") >= 0 && ('Authorization' in headers)) {
+                    // We have a 401 Unauthorised reply, and the RTSP command we sent out included an Authorization header
                     reject(new Error(`Bad RTSP credentials!`));
                     return;
                 }

@@ -6,11 +6,14 @@
 // Yellowstone is written in TypeScript. This example uses Javascript and
 // the typescript compiled files in the ./dist folder
 
-const { RTSPClient, H264Transport, AACTransport } = require("../dist");
+const { RTSPClient, H264Transport, JPEGTransport, AACTransport, ONVIFMetadataTransport } = require("../dist");
 const fs = require("fs");
 
 // User-specified details here.
 const url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov";
+//const url = "rtsp://192.168.1.201/rtsp_tunnel?p=0&h26x=4&vcd=2";
+//const url = "rtsp://192.168.1.15/onvif-media/media.amp?profile=profile_1_jpeg&sessiontimeout=60&streamtype=unicast"
+//const url = "rtsp://192.168.1.15/onvif-media/media.amp?profile=profile_1_h264&sessiontimeout=60&streamtype=unicast"
 const filename = "bigbuckbunny";
 const username = "";
 const password = "";
@@ -22,31 +25,48 @@ const client = new RTSPClient(username, password);
 //
 // "keepAlive" option is set to true by default
 // "connection" option is set to "udp" by default. 
-client.connect(url, { connection: "udp" })
+client.connect(url, { connection: "tcp" })
   .then((detailsArray) => {
     console.log("Connected");
+
+    let sendPlayCmd = false;
 
     for (let x = 0; x < detailsArray.length; x++) {
       let details = detailsArray[x];
       console.log(`Stream ${x}. Codec is`, details.codec);
 
       // Step 3: Open the output file
+      if (details.codec == "JPEG") {
+        sendPlayCmd = true;
+        // This class subscribes to the 'data' event, looking for the video payload
+        // and writes JPEGs to a file
+        const jpeg = new JPEGTransport(client, filename, details);
+      }
       if (details.codec == "H264") {
+        sendPlayCmd = true;
         const videoFile = fs.createWriteStream(filename + '.264');
         // Step 4: Create H264Transport passing in the client, file, and details
         // This class subscribes to the 'data' event, looking for the video payload
         const h264 = new H264Transport(client, videoFile, details);
       }
       if (details.codec == "AAC") {
+        sendPlayCmd = true;
         const audioFile = fs.createWriteStream(filename + '.aac');
         // Add AAC Transport
         // This class subscribes to the 'data' event, looking for the audio payload
         const aac = new AACTransport(client, audioFile, details);
       }
+      if (details.codec == "vnd.onvif.metadata") {
+        sendPlayCmd = true;
+        const metadataFile = fs.createWriteStream(filename + "_metadata.txt");
+        // This class subscribes to the 'data' event, looking for the metadata payload
+        const metadata = new ONVIFMetadataTransport(client, metadataFile, details);
+      }
     }
 
     // Step 5: Start streaming!
-    client.play();
+    if (sendPlayCmd)
+      client.play();
   })
   .catch(e => console.log(e));
 

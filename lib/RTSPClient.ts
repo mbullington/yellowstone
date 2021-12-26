@@ -194,6 +194,19 @@ export default class RTSPClient extends EventEmitter {
       let needSetup = false;
       let codec = "";
       let mediaSource = media[x];
+
+      if (mediaSource.type === "video" &&
+        mediaSource.protocol === RTP_AVP &&
+        // @ts-ignore
+        mediaSource.rtp[0].codec === "JPEG") {
+        this.emit("log", "JPEG Video Stream Found in SDP", "");
+        if (hasVideo == false) {
+            needSetup = true;
+            hasVideo = true;
+            codec = "JPEG";
+        }
+      }
+
       if (
         mediaSource.type === "video" &&
         mediaSource.protocol === RTP_AVP &&
@@ -412,7 +425,7 @@ export default class RTSPClient extends EventEmitter {
         mediaHeaders: string[]
       ) => {
         const firstAnswer: string = String(resHeaders[""]) || "";
-        if (firstAnswer.indexOf("401") >= 0 && "Authorization" in headers) {
+        if (firstAnswer.indexOf("401") >= 0 && ('Authorization' in headers)) {
           // We have a 401 Unauthorised reply, and the RTSP command we sent out included an Authorization header
           reject(new Error(`Bad RTSP credentials!`));
           return;
