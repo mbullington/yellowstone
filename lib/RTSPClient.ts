@@ -401,6 +401,7 @@ export default class RTSPClient extends EventEmitter {
       .join("");
 
     this.emit("log", req, "C->S");
+    // Send command to the RTSP Server via the open TCP Socket
     // Make sure to add an empty line after the request.
     this._client.write(`${req}\r\n`);
 
@@ -411,7 +412,8 @@ export default class RTSPClient extends EventEmitter {
         mediaHeaders: string[]
       ) => {
         const firstAnswer: string = String(resHeaders[""]) || "";
-        if (firstAnswer.indexOf("401") >= 0 && id > 2) {
+        if (firstAnswer.indexOf("401") >= 0 && "Authorization" in headers) {
+          // We have a 401 Unauthorised reply, and the RTSP command we sent out included an Authorization header
           reject(new Error(`Bad RTSP credentials!`));
           return;
         }
