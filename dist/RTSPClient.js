@@ -6,6 +6,7 @@ const url_1 = require("url");
 const events_1 = require("events");
 const util_1 = require("./util");
 const transform = require("sdp-transform");
+const RTPPacket_1 = require("./transports/RTPPacket");
 const RTP_AVP = "RTP/AVP";
 const STATUS_OK = 200;
 const STATUS_UNAUTH = 401;
@@ -41,6 +42,8 @@ class RTSPClient extends events_1.EventEmitter {
         this.rtspPacketPointer = 0;
         // Used in #_emptyReceiverReport.
         this.clientSSRC = (0, util_1.generateSSRC)();
+        this.tcpSocket = new net.Socket();
+        this.setupResult = [];
         this.username = username;
         this.password = password;
         this.headers = Object.assign(Object.assign({}, (headers || {})), { "User-Agent": "yellowstone/3.x" });
@@ -87,6 +90,7 @@ class RTSPClient extends events_1.EventEmitter {
             client.on("data", this._onData.bind(this));
             client.on("error", errorListener);
             client.on("close", closeListener);
+            this.tcpSocket = client;
         });
     }
     async connect(url, { keepAlive = true, connection = "udp", } = {
@@ -113,6 +117,7 @@ class RTSPClient extends events_1.EventEmitter {
         let hasVideo = false;
         let hasAudio = false;
         let hasMetaData = false;
+        let hasBackchannel = false;
         for (let x = 0; x < media.length; x++) {
             let needSetup = false;
             let codec = "";
@@ -129,6 +134,7 @@ class RTSPClient extends events_1.EventEmitter {
                 }
             }
             if (mediaSource.type === "audio" &&
+                mediaSource.direction === "recvonly" &&
                 mediaSource.protocol === RTP_AVP &&
                 // @ts-ignore
                 mediaSource.rtp[0].codec === "mpeg4-generic" &&
@@ -139,6 +145,16 @@ class RTSPClient extends events_1.EventEmitter {
                     needSetup = true;
                     hasAudio = true;
                     codec = "AAC";
+                }
+            }
+            if (mediaSource.type === "audio" &&
+                mediaSource.direction === "sendonly" &&
+                mediaSource.protocol === RTP_AVP) {
+                this.emit("log", "Audio backchannel Found in SDP", "");
+                if (hasBackchannel == false) {
+                    needSetup = true;
+                    hasBackchannel = true;
+                    codec = mediaSource.rtp[0].codec;
                 }
             }
             if (mediaSource.type === "application" &&
@@ -258,6 +274,7 @@ class RTSPClient extends events_1.EventEmitter {
                 //        this.request("OPTIONS");
             }, 20 * 1000);
         }
+        this.setupResult = details;
         return details;
     }
     request(requestName, headersParam = {}, url) {
@@ -372,6 +389,47 @@ class RTSPClient extends events_1.EventEmitter {
         }
         await this.request("PAUSE", { Session: this._session });
         return this;
+    }
+    async sendAudioBackChannel(audioChunk) {
+        console.log("sendAudioBackChannel");
+        let rtp, buf;
+        let bufSize = 160;
+        while (audioChunk.length > 0) {
+            if (audioChunk.length > bufSize) {
+                buf = audioChunk.slice(0, bufSize);
+                audioChunk = audioChunk.slice(bufSize, audioChunk.length);
+            }
+            else {
+                buf = audioChunk.slice(0, audioChunk.length);
+                audioChunk = Buffer.from([]);
+            }
+            if (!rtp)
+                rtp = new RTPPacket_1.default(buf);
+            else
+                rtp.payload = buf;
+            // rtp.type = 8;// set động
+            console.log("start set time");
+            rtp.time += buf.length;
+            console.log("end set time");
+            rtp.seq++;
+            let bufferLength = Buffer.alloc(2);
+            bufferLength.writeUInt16BE(rtp.packet.length, 0);
+            let channelInterleaved = this.setupResult.filter((value) => {
+                return value.mediaSource.type === 'audio' && value.mediaSource.direction === 'sendonly';
+            })[0].transport.interleaved;
+            /* RTSP Interleaved Frame structure
+            |dollar sign|channel identifier|data length|
+            |1 Byte     |1 Byte            |2 Bytes    |
+            */
+            channelInterleaved = channelInterleaved.split('-')[0];
+            channelInterleaved = Buffer.from([channelInterleaved]);
+            let interleavedHeader = Buffer.from([0x24]); // set động
+            interleavedHeader = Buffer.concat([interleavedHeader, channelInterleaved]);
+            interleavedHeader = Buffer.concat([interleavedHeader, bufferLength]);
+            let dataToSend = Buffer.concat([interleavedHeader, rtp.packet]);
+            await this._socketWrite(this.tcpSocket, dataToSend);
+        }
+        return;
     }
     async close(isImmediate = false) {
         if (!this._client) {
@@ -557,6 +615,20 @@ class RTSPClient extends events_1.EventEmitter {
         report[6] = (this.clientSSRC >> 8) & 0xff;
         report[7] = (this.clientSSRC >> 0) & 0xff;
         return report;
+    }
+    async _socketWrite(socket, data) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                socket.write(data, (error) => {
+                    if (error) {
+                        reject(error);
+                    }
+                    else {
+                        resolve(null);
+                    }
+                });
+            }, 20);
+        });
     }
 }
 exports.default = RTSPClient;
