@@ -391,7 +391,6 @@ class RTSPClient extends events_1.EventEmitter {
         return this;
     }
     async sendAudioBackChannel(audioChunk) {
-        console.log("sendAudioBackChannel");
         let rtp, buf;
         let bufSize = 160;
         while (audioChunk.length > 0) {
@@ -408,9 +407,7 @@ class RTSPClient extends events_1.EventEmitter {
             else
                 rtp.payload = buf;
             // rtp.type = 8;// set động
-            console.log("start set time");
             rtp.time += buf.length;
-            console.log("end set time");
             rtp.seq++;
             let bufferLength = Buffer.alloc(2);
             bufferLength.writeUInt16BE(rtp.packet.length, 0);

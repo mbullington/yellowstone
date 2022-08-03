@@ -9,7 +9,6 @@ function toUnsigned(val) {
 ;
 class RTPPacket {
     constructor(bufpayload) {
-        console.log("CONSTRUCTOR");
         /* See RFC3550 for more details: http://www.ietf.org/rfc/rfc3550.txt
         V = 2, // version. always 2 for this RFC (2 bits)
         P = 0, // padding. not supported yet, so always 0 (1 bit)
@@ -99,7 +98,6 @@ Object.defineProperty(RTPPacket.prototype, 'seq', {
 Object.defineProperty(RTPPacket.prototype, 'time', {
     get: function () { return (this._bufpkt[4] << 24 | this._bufpkt[5] << 16 | this._bufpkt[6] << 8 | this._bufpkt[7]); },
     set: function (val) {
-        console.log("SET TIME");
         val = toUnsigned(val);
         if (val <= 4294967295) {
             this._bufpkt[4] = (val >>> 24);
