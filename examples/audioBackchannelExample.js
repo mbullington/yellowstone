@@ -1,18 +1,24 @@
 // Yellowstone Example.
 //
-// Connects to the specified RTSP server url,
-// Once connected, opens a file and streams H264 and AAC to the files
+// Connects to the specified RTSP server url with ONVIF Audio Bachchannel required.
+// Once connected it sends 'audio.alaw' to the ONVIF Camera
 //
 // Yellowstone is written in TypeScript. This example uses Javascript and
 // the typescript compiled files in the ./dist folder
+//
 const { RTSPClient, H264Transport, AACTransport } = require("../dist");
 const fs = require("fs");
-const { exec, spawn } = require("child_process");
+const { exit } = require("process");
+
 // User-specified details here.
+//const url = "rtsp://192.168.26.86/onvif-media/media.amp?profile=profile_1_h264&sessiontimeout=60&streamtype=unicast"; // Axis
 const url = "rtsp://10.61.185.18/Streaming/Channels/101/?transportmode=unicast&profile=Profile_1";
 const username = "admin";
 const password = "Admin123";
+
+// Add the ONVIF Audio Backchannel Header
 const header = { "Require": "www.onvif.org/ver20/backchannel" };
+
 // Step 1: Create an RTSPClient instance
 const client = new RTSPClient(username, password, header);
 
@@ -26,10 +32,15 @@ client.connect(url, { connection: "tcp" })
 
     // Step 5: Start streaming!
     await client.play();
+
     // Step 6: Send audio backchannel
     // Edit audio encoding config of camera to ALAW because test file is alaw file 
     // this run when: camera is supported ONVIF backchannel
     fs.readFile("./examples/audio.alaw", (error, data) => {
+      if (error) {
+        console.log("ERROR - unable to open audio file")
+        exit();
+      }
       client.sendAudioBackChannel(data);
     });
   })
