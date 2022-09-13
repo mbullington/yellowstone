@@ -18,12 +18,15 @@ Yellowstone was co-developed by Michael Bullington and Roger Hardiman.
 
 ## Current Features
 
-- Raw RTP/AVP via UDP & TCP (interleaved)
+- Receive Raw RTP/AVP via UDP & TCP (interleaved)
   * Basic and Digest Authentication
   * Pause, Play, and Teardown (Close)
 - Simple RTCP parsing
-- Simple H264 transport parsing
+- H264 transport parsing (and writing video to a .264 file)
+- AAC transport paring (and writing audio to an .aac file)
+- ONVIF Metadata parsing (and writing to an output file)
 - ONVIF extensions to RTSP
+- ONVIF Audio Backchannel, sending ALaw audio to an IP Camera
 
 In the future, Yellowstone plans to support:
 
@@ -36,6 +39,11 @@ An example of most API features can be found at [examples/wowza.js](examples/wow
 a file named bigbuckbunny.264 in the project's root directory. To test this file with a
 video player, you either need a video player that supports raw H264 frames, or wrap it
 in a container like MP4.
+
+The audio backchannel example from vietelle-solutions can connect to an ONVIF camera and send a .alaw audio file to the camera
+It plays a clip from the Monty Python's Holy Grail.
+An alaw file can be played with
+```ffplay -f alaw -ar 8k -ac 1 audio.alaw```
 
 While yellowstone is /**not**/ dependent on ffmpeg, converting the file to an .mp4 can be easily
 accomplished with the following command.
@@ -50,6 +58,12 @@ video player for macOS. VLC and FFPLAY also work.
 ## Documentation
 
 You can find auto-generated documentation in the [docs](docs/README.md) folder.
+
+## Building from source
+Compile the Typescript source code to Javascrip (in the dist folder) using these commands:-
+```npm install
+   npm run build
+```
 
 ## Contributing
 
