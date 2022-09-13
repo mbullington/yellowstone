@@ -408,10 +408,15 @@ export default class RTSPClient extends EventEmitter {
     // mutable via string addition
     let req = `${requestName} ${url || this._url} RTSP/1.0\r\nCSeq: ${id}\r\n`;
 
-    const headers = {
+    let headers = {
       ...this.headers,
       ...headersParam,
     };
+
+    // NOTE:
+    // If we cache the Authenitcation Type (Direct or Basic) then we could
+    // re-compute an Authorization Header here and include in the RTSP Command
+    // This would make connections a faster with fewer round-trips to the RTSP Server
 
     req += Object.entries(headers)
       .map(([key, value]) => `${key}: ${value}\r\n`)
@@ -428,7 +433,8 @@ export default class RTSPClient extends EventEmitter {
         mediaHeaders: string[]
       ) => {
         const firstAnswer: string = String(resHeaders[""]) || "";
-        if (firstAnswer.indexOf("401") >= 0 && id > 2) {
+        if (firstAnswer.indexOf("401") >= 0 && 'Authorization' in headers) {
+          // If the RTSP Command we sent included an Authorization and we have 401 error, then reject()
           reject(new Error(`Bad RTSP credentials!`));
           return;
         }
@@ -503,7 +509,7 @@ export default class RTSPClient extends EventEmitter {
               Authorization: authString,
             });
 
-            resolve(this.request(requestName, headers, url));
+            resolve(this.request(requestName, headers, url)); // Call this.request with Authorized request
             return;
           }
 
