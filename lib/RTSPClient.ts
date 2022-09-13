@@ -12,7 +12,7 @@ import {
 } from "./util";
 
 import * as transform from "sdp-transform";
-
+import RTPPacket from "./transports/RTPPacket";
 const RTP_AVP = "RTP/AVP";
 
 const STATUS_OK = 200;
@@ -82,6 +82,8 @@ export default class RTSPClient extends EventEmitter {
   // Used in #_emptyReceiverReport.
   clientSSRC = generateSSRC();
 
+  tcpSocket: net.Socket = new net.Socket();
+  setupResult: Array<any> = [];
   constructor(
     username: string,
     password: string,
@@ -149,6 +151,7 @@ export default class RTSPClient extends EventEmitter {
       client.on("data", this._onData.bind(this));
       client.on("error", errorListener);
       client.on("close", closeListener);
+      this.tcpSocket = client;
     });
   }
 
@@ -158,9 +161,9 @@ export default class RTSPClient extends EventEmitter {
       keepAlive = true,
       connection = "udp",
     }: { keepAlive: boolean; connection?: Connection } = {
-      keepAlive: true,
-      connection: "udp",
-    }
+        keepAlive: true,
+        connection: "udp",
+      }
   ) {
     const { hostname, port } = urlParse((this._url = url));
     if (!hostname) {
@@ -189,6 +192,7 @@ export default class RTSPClient extends EventEmitter {
     let hasVideo = false;
     let hasAudio = false;
     let hasMetaData = false;
+    let hasBackchannel = false;
 
     for (let x = 0; x < media.length; x++) {
       let needSetup = false;
@@ -210,6 +214,7 @@ export default class RTSPClient extends EventEmitter {
 
       if (
         mediaSource.type === "audio" &&
+        mediaSource.direction === "recvonly" &&
         mediaSource.protocol === RTP_AVP &&
         // @ts-ignore
         mediaSource.rtp[0].codec === "mpeg4-generic" &&
@@ -221,6 +226,17 @@ export default class RTSPClient extends EventEmitter {
           needSetup = true;
           hasAudio = true;
           codec = "AAC";
+        }
+      }
+
+      if (mediaSource.type === "audio" &&
+        mediaSource.direction === "sendonly" &&
+        mediaSource.protocol === RTP_AVP) {
+        this.emit("log", "Audio backchannel Found in SDP", "");
+        if (hasBackchannel == false) {
+          needSetup = true;
+          hasBackchannel = true;
+          codec = mediaSource.rtp[0].codec;
         }
       }
 
@@ -375,6 +391,7 @@ export default class RTSPClient extends EventEmitter {
       }, 20 * 1000);
     }
 
+    this.setupResult = details;
     return details;
   }
 
@@ -536,6 +553,44 @@ export default class RTSPClient extends EventEmitter {
 
     await this.request("PAUSE", { Session: this._session });
     return this;
+  }
+
+  async sendAudioBackChannel(audioChunk: Buffer) {
+    let rtp, buf;
+    let bufSize = 160;
+    while (audioChunk.length > 0) {
+      if (audioChunk.length > bufSize) {
+        buf = audioChunk.slice(0, bufSize);
+        audioChunk = audioChunk.slice(bufSize, audioChunk.length);
+      } else {
+        buf = audioChunk.slice(0, audioChunk.length);
+        audioChunk = Buffer.from([]);
+      }
+      if (!rtp)
+        rtp = new RTPPacket(buf);
+      else
+        rtp.payload = buf;
+      // rtp.type = 8;// set động
+      rtp.time += buf.length;
+      rtp.seq++;
+      let bufferLength = Buffer.alloc(2);
+      bufferLength.writeUInt16BE(rtp.packet.length, 0);
+      let channelInterleaved = this.setupResult.filter((value) => {
+        return value.mediaSource.type === 'audio' && value.mediaSource.direction === 'sendonly';
+      })[0].transport.interleaved;
+      /* RTSP Interleaved Frame structure
+      |dollar sign|channel identifier|data length|
+      |1 Byte     |1 Byte            |2 Bytes    |
+      */
+      channelInterleaved = channelInterleaved.split('-')[0];
+      channelInterleaved = Buffer.from([channelInterleaved]);
+      let interleavedHeader = Buffer.from([0x24]);// set động
+      interleavedHeader = Buffer.concat([interleavedHeader, channelInterleaved]);
+      interleavedHeader = Buffer.concat([interleavedHeader, bufferLength]);
+      let dataToSend = Buffer.concat([interleavedHeader, rtp.packet]);
+      await this._socketWrite(this.tcpSocket, dataToSend);
+    }
+    return;
   }
 
   async close(isImmediate: boolean = false) {
@@ -766,6 +821,20 @@ export default class RTSPClient extends EventEmitter {
     report[7] = (this.clientSSRC >> 0) & 0xff;
 
     return report;
+  }
+
+  async _socketWrite(socket: net.Socket, data: Buffer): Promise<any> {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        socket.write(data, (error: any) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(null);
+          }
+        })
+      }, 20);
+    })
   }
 }
 

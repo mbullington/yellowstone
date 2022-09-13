@@ -42,6 +42,8 @@ export default class RTSPClient extends EventEmitter {
     rtspPacket: Buffer;
     rtspPacketPointer: number;
     clientSSRC: number;
+    tcpSocket: net.Socket;
+    setupResult: Array<any>;
     constructor(username: string, password: string, headers?: {
         [key: string]: string;
     });
@@ -57,10 +59,12 @@ export default class RTSPClient extends EventEmitter {
     respond(status: string, headersParam?: Headers): void;
     play(): Promise<this>;
     pause(): Promise<this>;
+    sendAudioBackChannel(audioChunk: Buffer): Promise<void>;
     close(isImmediate?: boolean): Promise<this>;
     _onData(data: Buffer): void;
     _sendInterleavedData(channel: number, buffer: Buffer): void;
     _sendUDPData(host: string, port: number, buffer: Buffer): void;
     _emptyReceiverReport(): Buffer;
+    _socketWrite(socket: net.Socket, data: Buffer): Promise<any>;
 }
 export { RTPPacket, RTCPPacket } from "./util";
