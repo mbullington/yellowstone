@@ -60,7 +60,7 @@ class RTPPacket {
             bufpkt[11] = (SSRC & 0xFF);*/
             this._bufpkt[0] = 0x80;
             this._bufpkt[1] = 0;
-            var SN = Math.floor(1000 * Math.random());
+            const SN = Math.floor(1000 * Math.random());
             this._bufpkt[2] = (SN >>> 8)
             this._bufpkt[3] = (SN & 0xFF);
             this._bufpkt[4] = 0;
@@ -134,11 +134,11 @@ Object.defineProperty(RTPPacket.prototype, 'payload', {
     get: function () { return (this._bufpkt.slice(12, this._bufpkt.length)); },
     set: function (val) {
         if (Buffer.isBuffer(val) && val.length <= 512) {
-            var newsize = 12 + val.length;
+            const newsize = 12 + val.length;
             if (this._bufpkt.length == newsize)
                 val.copy(this._bufpkt, 12, 0);
             else {
-                var newbuf = new Buffer(newsize);
+                const newbuf = new Buffer(newsize);
                 this._bufpkt.copy(newbuf, 0, 0, 12);
                 val.copy(newbuf, 12, 0);
                 this._bufpkt = newbuf;

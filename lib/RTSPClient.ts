@@ -198,6 +198,12 @@ export default class RTSPClient extends EventEmitter {
       let needSetup = false;
       let codec = "";
       let mediaSource = media[x];
+
+
+      // RFC says "If none of the direction attributes ("sendonly", "recvonly", "inactive", and "sendrecv") are present,
+      // the "sendrecv" SHOULD be assumed
+      if (mediaSource.direction == undefined) mediaSource.direction = "sendrecv"; //  Wowza does not send 'direction'
+
       if (
         mediaSource.type === "video" &&
         mediaSource.protocol === RTP_AVP &&
@@ -214,10 +220,10 @@ export default class RTSPClient extends EventEmitter {
 
       if (
         mediaSource.type === "audio" &&
-        mediaSource.direction === "recvonly" &&
+        (mediaSource.direction === "recvonly" || mediaSource.direction === "sendrecv") &&
         mediaSource.protocol === RTP_AVP &&
         // @ts-ignore
-        mediaSource.rtp[0].codec === "mpeg4-generic" &&
+        mediaSource.rtp[0].codec.toLowerCase() === "mpeg4-generic" && // (RFC examples are lower case. Axis cameras use upper case)
         // @ts-ignore
         mediaSource.fmtp[0].config.includes("AAC")
       ) {
