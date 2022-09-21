@@ -24,7 +24,7 @@ class H264Transport {
     }
     processConnectionDetails(details) {
         // Extract SPS and PPS from the MediaSource part of the SDP
-        const fmtp = details.mediaSource.fmtp[0];
+        const fmtp = (details.mediaSource.fmtp)[0];
         if (!fmtp) {
             return;
         }
@@ -65,7 +65,7 @@ class H264Transport {
                 let ptr = 1; // start after the nal_header_type which was '24'
                 // if we have at least 2 more bytes (the 16 bit size) then consume more data
                 while (ptr + 2 < (packet.length - 1)) {
-                    let size = (packet[ptr] << 8) + (packet[ptr + 1] << 0);
+                    const size = (packet[ptr] << 8) + (packet[ptr + 1] << 0);
                     ptr = ptr + 2;
                     nals.push(packet.slice(ptr, ptr + size));
                     ptr = ptr + size;

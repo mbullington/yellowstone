@@ -64,7 +64,7 @@ function generateSSRC() {
     return randInclusive(1, 0xffffffff);
 }
 exports.generateSSRC = generateSSRC;
-// BitStream classse by 2018 Roger Hardiman, RJH Technical Consultancy Ltd
+// BitStream classsea by 2018 Roger Hardiman, RJH Technical Consultancy Ltd
 // Write to a bitstream and read back as an array
 class BitStream {
     // not very efficienet on memory
@@ -80,9 +80,9 @@ class BitStream {
         }
     }
     AddHexString(hex_string) {
-        let hex_chars = hex_string.toUpperCase();
+        const hex_chars = hex_string.toUpperCase();
         for (let x = 0; x < hex_chars.length; x++) {
-            let c = hex_chars.charAt(x);
+            const c = hex_chars.charAt(x);
             if (c == '0')
                 this.AddValue(0, 4);
             else if (c == '1')
@@ -130,8 +130,8 @@ class BitStream {
         return result;
     }
     ToArray() {
-        let num_bytes = Math.ceil(this.data.length / 8.0);
-        let array = new Buffer(num_bytes);
+        const num_bytes = Math.ceil(this.data.length / 8.0);
+        const array = Buffer.alloc(num_bytes);
         let ptr = 0;
         let shift = 7;
         for (let i = 0; i < this.data.length; i++) {

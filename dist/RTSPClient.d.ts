@@ -18,6 +18,14 @@ declare type Headers = {
     Transport?: string;
     Unsupported?: string;
 };
+declare type Detail = {
+    codec: string;
+    mediaSource: any;
+    transport: any;
+    isH264: boolean;
+    rtpChannel: any;
+    rtcpChannel: any;
+};
 export default class RTSPClient extends EventEmitter {
     username: string;
     password: string;
@@ -30,7 +38,7 @@ export default class RTSPClient extends EventEmitter {
     _cSeq: number;
     _unsupportedExtensions?: string[];
     _session?: string;
-    _keepAliveID?: any;
+    _keepAliveID?: NodeJS.Timeout;
     _nextFreeInterleavedChannel: number;
     _nextFreeUDPPort: number;
     readState: ReadStates;
@@ -47,11 +55,11 @@ export default class RTSPClient extends EventEmitter {
     constructor(username: string, password: string, headers?: {
         [key: string]: string;
     });
-    _netConnect(hostname: string, port: number): Promise<unknown>;
+    _netConnect(hostname: string, port: number): Promise<this>;
     connect(url: string, { keepAlive, connection, }?: {
         keepAlive: boolean;
         connection?: Connection;
-    }): Promise<any>;
+    }): Promise<Detail[]>;
     request(requestName: string, headersParam?: Headers, url?: string): Promise<{
         headers: Headers;
         mediaHeaders?: string[];

@@ -6,15 +6,16 @@
 // Yellowstone is written in TypeScript. This example uses Javascript and
 // the typescript compiled files in the ./dist folder
 
-const { RTSPClient, H264Transport, AACTransport } = require("../dist");
+const { RTSPClient, H264Transport, H265Transport, AACTransport } = require("../dist");
 const fs = require("fs");
 const { exit } = require("process");
 
 // User-specified details here.
-const url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4"
+//const url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4"
+const url = "rtsp://192.168.26.145/onvif-media/media.amp?profile=profile_1_h265&sessiontimeout=60&streamtype=unicast"
 const filename = "bigbuckbunny";
-const username = "";
-const password = "";
+const username = "onvifuser";
+const password = "PASS99pass";
 
 // Step 1: Create an RTSPClient instance
 const client = new RTSPClient(username, password);
@@ -40,13 +41,19 @@ client.connect(url, { connection: "udp" })
       if (details.codec == "H264") {
         const videoFile = fs.createWriteStream(filename + '.264');
         // Step 4: Create H264Transport passing in the client, file, and details
-        // This class subscribes to the 'data' event, looking for the video payload
+        // This class subscribes to the client 'data' event, looking for the video payload
         const h264 = new H264Transport(client, videoFile, details);
+      }
+      if (details.codec == "H265") {
+        const videoFile = fs.createWriteStream(filename + '.265');
+        // Step 4: Create H265Transport passing in the client, file, and details
+        // This class subscribes to the client 'data' event, looking for the video payload
+        const h265 = new H265Transport(client, videoFile, details);
       }
       if (details.codec == "AAC") {
         const audioFile = fs.createWriteStream(filename + '.aac');
         // Add AAC Transport
-        // This class subscribes to the 'data' event, looking for the audio payload
+        // This class subscribes to the client 'data' event, looking for the audio payload
         const aac = new AACTransport(client, audioFile, details);
       }
     }

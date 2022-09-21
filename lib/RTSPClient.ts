@@ -45,7 +45,7 @@ type Detail = {
   codec: string;
   mediaSource: any;
   transport: any;
-  isH264: boolean;
+  isH264: boolean; // legacy API
   rtpChannel: any;
   rtcpChannel: any;
 };
@@ -225,6 +225,20 @@ export default class RTSPClient extends EventEmitter {
           codec = "H264";
         }
       }
+
+      if (
+        mediaSource.type === "video" &&
+        mediaSource.protocol === RTP_AVP &&
+        mediaSource.rtp[0].codec === "H265"
+      ) {
+        this.emit("log", "H265 Video Stream Found in SDP", "");
+        if (hasVideo == false) {
+          needSetup = true;
+          hasVideo = true;
+          codec = "H265";
+        }
+      }
+
 
       if (
         mediaSource.type === "audio" &&

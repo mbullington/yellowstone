@@ -101,7 +101,7 @@ class RTSPClient extends events_1.EventEmitter {
         if (!hostname) {
             throw new Error("URL parsing error in connect method.");
         }
-        let details = [];
+        const details = [];
         await this._netConnect(hostname, parseInt(port || "554"));
         await this.request("OPTIONS");
         const describeRes = await this.request("DESCRIBE", {
@@ -121,10 +121,13 @@ class RTSPClient extends events_1.EventEmitter {
         for (let x = 0; x < media.length; x++) {
             let needSetup = false;
             let codec = "";
-            let mediaSource = media[x];
+            const mediaSource = media[x];
+            // RFC says "If none of the direction attributes ("sendonly", "recvonly", "inactive", and "sendrecv") are present,
+            // the "sendrecv" SHOULD be assumed
+            if (mediaSource.direction == undefined)
+                mediaSource.direction = "sendrecv"; //  Wowza does not send 'direction'
             if (mediaSource.type === "video" &&
                 mediaSource.protocol === RTP_AVP &&
-                // @ts-ignore
                 mediaSource.rtp[0].codec === "H264") {
                 this.emit("log", "H264 Video Stream Found in SDP", "");
                 if (hasVideo == false) {
@@ -133,12 +136,20 @@ class RTSPClient extends events_1.EventEmitter {
                     codec = "H264";
                 }
             }
-            if (mediaSource.type === "audio" &&
-                mediaSource.direction === "recvonly" &&
+            if (mediaSource.type === "video" &&
                 mediaSource.protocol === RTP_AVP &&
-                // @ts-ignore
-                mediaSource.rtp[0].codec === "mpeg4-generic" &&
-                // @ts-ignore
+                mediaSource.rtp[0].codec === "H265") {
+                this.emit("log", "H265 Video Stream Found in SDP", "");
+                if (hasVideo == false) {
+                    needSetup = true;
+                    hasVideo = true;
+                    codec = "H265";
+                }
+            }
+            if (mediaSource.type === "audio" &&
+                (mediaSource.direction === "recvonly" || mediaSource.direction === "sendrecv") &&
+                mediaSource.protocol === RTP_AVP &&
+                mediaSource.rtp[0].codec.toLowerCase() === "mpeg4-generic" && // (RFC examples are lower case. Axis cameras use upper case)
                 mediaSource.fmtp[0].config.includes("AAC")) {
                 this.emit("log", "AAC Audio Stream Found in SDP", "");
                 if (hasAudio == false) {
@@ -159,7 +170,6 @@ class RTSPClient extends events_1.EventEmitter {
             }
             if (mediaSource.type === "application" &&
                 mediaSource.protocol === RTP_AVP &&
-                // @ts-ignore
                 mediaSource.rtp[0].codec.toLowerCase() === "vnd.onvif.metadata") {
                 this.emit("log", "ONVIF Meta Data Found in SDP", "");
                 if (hasMetaData == false) {
@@ -214,7 +224,7 @@ class RTSPClient extends events_1.EventEmitter {
                     await new Promise((resolve) => {
                         rtcpReceiver.bind(rtcpPort, () => resolve({}));
                     });
-                    let setupHeader = {
+                    const setupHeader = {
                         Transport: `RTP/AVP;unicast;client_port=${rtpPort}-${rtcpPort}`,
                     };
                     if (this._session)
@@ -227,7 +237,7 @@ class RTSPClient extends events_1.EventEmitter {
                     rtpChannel = this._nextFreeInterleavedChannel;
                     rtcpChannel = this._nextFreeInterleavedChannel + 1;
                     this._nextFreeInterleavedChannel += 2;
-                    let setupHeader = {
+                    const setupHeader = {
                         Transport: `RTP/AVP/TCP;interleaved=${rtpChannel}-${rtcpChannel}`,
                     };
                     if (this._session)
@@ -255,7 +265,7 @@ class RTSPClient extends events_1.EventEmitter {
                 if (headers.Session) {
                     this._session = headers.Session.split(";")[0];
                 }
-                let detail = {
+                const detail = {
                     codec,
                     mediaSource,
                     transport: transport.parameters,
@@ -284,7 +294,7 @@ class RTSPClient extends events_1.EventEmitter {
         const id = ++this._cSeq;
         // mutable via string addition
         let req = `${requestName} ${url || this._url} RTSP/1.0\r\nCSeq: ${id}\r\n`;
-        let headers = Object.assign(Object.assign({}, this.headers), headersParam);
+        const headers = Object.assign(Object.assign({}, this.headers), headersParam);
         // NOTE:
         // If we cache the Authenitcation Type (Direct or Basic) then we could
         // re-compute an Authorization Header here and include in the RTSP Command
@@ -386,18 +396,18 @@ class RTSPClient extends events_1.EventEmitter {
             throw new Error("Client is not connected.");
         }
         await this.request("PLAY", { Session: this._session });
-        return this;
+        return this; // Is this a bug? async functions need to return a Promise
     }
     async pause() {
         if (!this.isConnected) {
             throw new Error("Client is not connected.");
         }
         await this.request("PAUSE", { Session: this._session });
-        return this;
+        return this; // Is this a bug? async functions need to return a Promise
     }
     async sendAudioBackChannel(audioChunk) {
         let rtp, buf;
-        let bufSize = 160;
+        const bufSize = 160;
         while (audioChunk.length > 0) {
             if (audioChunk.length > bufSize) {
                 buf = audioChunk.slice(0, bufSize);
@@ -414,7 +424,7 @@ class RTSPClient extends events_1.EventEmitter {
             // rtp.type = 8;// set động
             rtp.time += buf.length;
             rtp.seq++;
-            let bufferLength = Buffer.alloc(2);
+            const bufferLength = Buffer.alloc(2);
             bufferLength.writeUInt16BE(rtp.packet.length, 0);
             let channelInterleaved = this.setupResult.filter((value) => {
                 return value.mediaSource.type === 'audio' && value.mediaSource.direction === 'sendonly';
@@ -428,7 +438,7 @@ class RTSPClient extends events_1.EventEmitter {
             let interleavedHeader = Buffer.from([0x24]); // set động
             interleavedHeader = Buffer.concat([interleavedHeader, channelInterleaved]);
             interleavedHeader = Buffer.concat([interleavedHeader, bufferLength]);
-            let dataToSend = Buffer.concat([interleavedHeader, rtp.packet]);
+            const dataToSend = Buffer.concat([interleavedHeader, rtp.packet]);
             await this._socketWrite(this.tcpSocket, dataToSend);
         }
         return;
@@ -444,9 +454,9 @@ class RTSPClient extends events_1.EventEmitter {
         }
         this._client.end();
         this.removeAllListeners("response");
-        if (this._keepAliveID) {
+        if (this._keepAliveID != undefined) {
             clearInterval(this._keepAliveID);
-            this._keepAliveID = 0;
+            this._keepAliveID = undefined;
         }
         this.isConnected = false;
         this._cSeq = 0;
@@ -595,7 +605,7 @@ class RTSPClient extends events_1.EventEmitter {
         this._client.write(data);
     }
     _sendUDPData(host, port, buffer) {
-        var udp = dgram.createSocket("udp4");
+        let udp = dgram.createSocket("udp4");
         udp.send(buffer, 0, buffer.length, port, host, (err, bytes) => {
             // TODO: Don't ignore errors.
             udp.close();
