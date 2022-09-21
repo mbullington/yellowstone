@@ -3,8 +3,12 @@ export interface RTPPacket {
     id: number;
     timestamp: number;
     marker: number;
+    padding: number;
+    hasExtensions: number;
     payload: Buffer;
     length: number;
+    paddingLength: number;
+    dataLength: number;
     payloadType: number;
 }
 export declare function parseRTPPacket(buffer: Buffer): RTPPacket;

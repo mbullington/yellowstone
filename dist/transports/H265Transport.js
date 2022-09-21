@@ -94,6 +94,11 @@ class H265Transport {
             // Fragmentation Unit
             else if (payload_header_type == 49) {
                 //Console.WriteLine("Fragmentation Unit");
+                //    0 1 2 3 4 5 6 7
+                //   +-+-+-+-+-+-+-+-+
+                //   |S|E|  FuType   |
+                //   +---------------+
+                //
                 // Parse Fragmentation Unit Header
                 const fu_header_s = (packet[2] >> 7) & 0x01; // start marker
                 const fu_header_e = (packet[2] >> 6) & 0x01; // end marker

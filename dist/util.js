@@ -4,19 +4,29 @@ exports.BitStream = exports.generateSSRC = exports.randInclusive = exports.parse
 const crypto_1 = require("crypto");
 function parseRTPPacket(buffer) {
     const padding = (buffer[0] >> 5) & 0x01;
+    let paddingLength = 0;
+    if (padding == 1) {
+        // padding size is the last byte of the RTP data
+        paddingLength = buffer[buffer.length - 1];
+    }
     const hasExtensions = (buffer[0] >> 4) & 0x01;
     const marker = (buffer[1]) >>> 7;
     const payloadType = buffer[1] & 0x7f;
     const num_csrc_identifiers = (buffer[0] & 0x0F);
-    const payload = buffer.slice((num_csrc_identifiers * 4) + (hasExtensions ? 16 : 12));
-    const { length } = payload;
+    const payload = buffer.slice((num_csrc_identifiers * 4) + (hasExtensions ? 16 : 12)); // includes padding
+    const length = payload.length;
+    const dataLength = payload.length - paddingLength;
     return {
         id: buffer.readUInt16BE(2),
         timestamp: buffer.readUInt32BE(4),
         marker,
+        padding,
+        payloadType,
+        hasExtensions,
         payload,
         length,
-        payloadType
+        paddingLength,
+        dataLength
     };
 }
 exports.parseRTPPacket = parseRTPPacket;
@@ -32,7 +42,7 @@ function parseRTCPPacket(buffer) {
 exports.parseRTCPPacket = parseRTCPPacket;
 // utility function for using crypto library
 function getMD5Hash(str) {
-    const md5 = (0, crypto_1.createHash)("md5");
+    const md5 = crypto_1.createHash("md5");
     md5.update(str);
     return md5.digest("hex");
 }
