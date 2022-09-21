@@ -11,7 +11,7 @@
   "license": "MIT",
   "typings": "dist/index.d.ts",
   "dependencies": {
-    "sdp-transform": "^2.7.0"
+    "sdp-transform": "^2.14.1"
   },
   "scripts": {
     "build": "tsc --project ./tsconfig.json",
@@ -22,7 +22,7 @@
   "devDependencies": {
     "@types/jest": "^23.3.13",
     "@types/node": "^10.12.18",
-    "@types/sdp-transform": "^2.4.0",
+    "@types/sdp-transform": "^2.4.5",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.28.2",
     "eslint": "^7.30.0",
