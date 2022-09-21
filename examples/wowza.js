@@ -8,9 +8,10 @@
 
 const { RTSPClient, H264Transport, AACTransport } = require("../dist");
 const fs = require("fs");
+const { exit } = require("process");
 
 // User-specified details here.
-const url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov";
+const url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4"
 const filename = "bigbuckbunny";
 const username = "";
 const password = "";
@@ -25,6 +26,11 @@ const client = new RTSPClient(username, password);
 client.connect(url, { connection: "udp" })
   .then((detailsArray) => {
     console.log("Connected");
+
+    if (detailsArray.length == 0) {
+      console.log("ERROR: There are no compatible RTP payloads to save to disk");
+      exit();
+    }
 
     for (let x = 0; x < detailsArray.length; x++) {
       let details = detailsArray[x];
@@ -62,8 +68,8 @@ client.on("controlData", (channel, rtcpPacket) => {
 
 // The "log" event allows you to optionally log any output from the library.
 // You can hook this into your own logging system super easily.
-/*
+
 client.on("log", (data, prefix) => {
   console.log(prefix + ": " + data);
 });
-*/
+
