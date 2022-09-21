@@ -24,7 +24,7 @@ export default class H264Transport {
 
   rtpPackets: Buffer[] = [];
 
-  _headerWritten: boolean = false;
+  _headerWritten = false;
 
   constructor(client: RTSPClient, stream: Writable, details: Details) {
     this.client = client;
@@ -41,9 +41,9 @@ export default class H264Transport {
     this.processConnectionDetails(details);
   }
 
-  processConnectionDetails(details: Details) {
+  processConnectionDetails(details: Details): void {
     // Extract SPS and PPS from the MediaSource part of the SDP
-    const fmtp = (details.mediaSource.fmtp as any)[0];
+    const fmtp = (details.mediaSource.fmtp)[0];
     
     if (!fmtp) {
       return;
@@ -64,7 +64,7 @@ export default class H264Transport {
     this._headerWritten = true;
   };
 
-  processRTPPacket(packet: RTPPacket) {
+  processRTPPacket(packet: RTPPacket): void {
     // Accumatate RTP packets
     this.rtpPackets.push(packet.payload);
     
@@ -75,7 +75,7 @@ export default class H264Transport {
     }
   }
 
-  processRTPFrame(rtpPackets: Buffer[]) {
+  processRTPFrame(rtpPackets: Buffer[]): void {
     const nals = [];
     let partialNal = [];
 
@@ -91,7 +91,7 @@ export default class H264Transport {
         let ptr = 1; // start after the nal_header_type which was '24'
         // if we have at least 2 more bytes (the 16 bit size) then consume more data
         while (ptr + 2 < (packet.length - 1)) {
-          let size = (packet[ptr] << 8) + (packet[ptr + 1] << 0);
+          const size = (packet[ptr] << 8) + (packet[ptr + 1] << 0);
           ptr = ptr + 2;
           nals.push(packet.slice(ptr,ptr+size));
           ptr = ptr + size;
