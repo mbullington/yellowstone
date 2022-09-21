@@ -4,30 +4,43 @@ export interface RTPPacket {
   id: number;
   timestamp: number;
   marker: number;
+  padding: number;
+  hasExtensions: number;
 
   payload: Buffer;
+
   length: number;
+  paddingLength: number;
 
   payloadType: number;
 }
 
 export function parseRTPPacket(buffer: Buffer): RTPPacket {
   const padding = (buffer[0] >> 5) & 0x01
+  let paddingLength = 0;
+  if (padding == 1) {
+    // padding size is the last byte of the RTP data
+    paddingLength = buffer[buffer.length - 1];
+  }
   const hasExtensions = (buffer[0] >> 4) & 0x01;
   const marker = (buffer[1]) >>> 7;
   const payloadType = buffer[1] & 0x7f;
   const num_csrc_identifiers = (buffer[0] & 0x0F);
 
-  const payload = buffer.slice((num_csrc_identifiers * 4) + (hasExtensions ? 16 : 12));
-  const { length } = payload;
+  const payload = buffer.slice((num_csrc_identifiers * 4) + (hasExtensions ? 16 : 12)); // includes padding
+  const length = payload.length;
+
 
   return {
     id: buffer.readUInt16BE(2),
     timestamp: buffer.readUInt32BE(4),
     marker,
+    padding,
+    payloadType,
+    hasExtensions,
     payload,
     length,
-    payloadType
+    paddingLength,
   };
 }
 
