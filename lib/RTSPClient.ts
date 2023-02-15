@@ -861,7 +861,7 @@ export default class RTSPClient extends EventEmitter {
           if (error) {
             reject(error);
           } else {
-            resolve(null);
+            resolve(undefined);
           }
         })
       }, 20);
