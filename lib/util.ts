@@ -121,13 +121,13 @@ export function generateSSRC(): number {
   return randInclusive(1, 0xffffffff);
 }
 
-// BitStream classsea by 2018 Roger Hardiman, RJH Technical Consultancy Ltd
+// BitStream classes by 2018 Roger Hardiman, RJH Technical Consultancy Ltd
 // Write to a bitstream and read back as an array
 
 export class BitStream {
 
   data: number[] = []; // Array only stores 0 or 1 (one 'bit' per buffer item)
-  // not very efficienet on memory
+  // not very efficient on memory
 
   // Constructor
   constructor() {
