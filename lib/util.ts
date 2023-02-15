@@ -52,8 +52,23 @@ export interface RTCPPacket {
 }
 
 export function parseRTCPPacket(buffer: Buffer): RTCPPacket {
+
+  // Packet Types
+  // SR         Sender Report                200
+  // RR         Receiver Report              201
+  // SDES       Source Description           202
+  // BYE        Goodbye                      203
+  // APP        Application-Defined          204
+  // RTPFB      Generic RTP feedback         205
+  // PSFB       Payload-specific feedback    206
+  // XR         RTCP Extension               207
   const packetType = buffer[1];
-  const timestamp = buffer.readUInt32BE(16);
+  let timestamp = 0;
+
+  // Parse the 200 - SR - Sender Report payload
+  if (packetType == 200) {
+    timestamp = buffer.readUInt32BE(16);
+  }
 
   return {
     timestamp,
