@@ -23,7 +23,7 @@
 
 **● parameters**: *`object`*
 
-*Defined in [util.ts:58](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L58)*
+*Defined in [util.ts:75](https://github.com/mbullington/yellowstone/blob/ac27865/lib/util.ts#L75)*
 
 #### Type declaration
 
@@ -36,7 +36,7 @@ ___
 
 **● protocol**: *`string`*
 
-*Defined in [util.ts:57](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L57)*
+*Defined in [util.ts:74](https://github.com/mbullington/yellowstone/blob/ac27865/lib/util.ts#L74)*
 
 ___
 

@@ -8,7 +8,6 @@ export interface RTPPacket {
     payload: Buffer;
     length: number;
     paddingLength: number;
-    dataLength: number;
     payloadType: number;
 }
 export declare function parseRTPPacket(buffer: Buffer): RTPPacket;

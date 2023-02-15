@@ -22,7 +22,7 @@
 
 **READING_RAW_PACKET**: 
 
-*Defined in [RTSPClient.ts:23](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L23)*
+*Defined in [RTSPClient.ts:29](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L29)*
 
 ___
 <a id="reading_raw_packet_size"></a>
@@ -31,7 +31,7 @@ ___
 
 **READING_RAW_PACKET_SIZE**: 
 
-*Defined in [RTSPClient.ts:22](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L22)*
+*Defined in [RTSPClient.ts:28](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L28)*
 
 ___
 <a id="reading_rtsp_header"></a>
@@ -40,7 +40,7 @@ ___
 
 **READING_RTSP_HEADER**: 
 
-*Defined in [RTSPClient.ts:20](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L20)*
+*Defined in [RTSPClient.ts:26](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L26)*
 
 ___
 <a id="reading_rtsp_payload"></a>
@@ -49,7 +49,7 @@ ___
 
 **READING_RTSP_PAYLOAD**: 
 
-*Defined in [RTSPClient.ts:21](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L21)*
+*Defined in [RTSPClient.ts:27](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L27)*
 
 ___
 <a id="searching"></a>
@@ -58,7 +58,7 @@ ___
 
 **SEARCHING**: 
 
-*Defined in [RTSPClient.ts:19](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L19)*
+*Defined in [RTSPClient.ts:25](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L25)*
 
 ___
 

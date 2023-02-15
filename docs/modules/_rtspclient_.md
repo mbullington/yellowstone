@@ -15,6 +15,7 @@
 ### Type aliases
 
 * [Connection](_rtspclient_.md#connection)
+* [Detail](_rtspclient_.md#detail)
 * [Headers](_rtspclient_.md#headers)
 
 ### Variables
@@ -35,7 +36,30 @@
 
 **Ƭ Connection**: *"udp" \| "tcp"*
 
-*Defined in [RTSPClient.ts:26](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L26)*
+*Defined in [RTSPClient.ts:32](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L32)*
+
+___
+<a id="detail"></a>
+
+###  Detail
+
+**Ƭ Detail**: *`object`*
+
+*Defined in [RTSPClient.ts:44](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L44)*
+
+#### Type declaration
+
+ codec: `string`
+
+ isH264: `boolean`
+
+ mediaSource: `any`
+
+ rtcpChannel: `any`
+
+ rtpChannel: `any`
+
+ transport: `any`
 
 ___
 <a id="headers"></a>
@@ -44,7 +68,7 @@ ___
 
 **Ƭ Headers**: *`object`*
 
-*Defined in [RTSPClient.ts:28](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L28)*
+*Defined in [RTSPClient.ts:34](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L34)*
 
 #### Type declaration
 
@@ -72,7 +96,7 @@ ___
 
 **● RTP_AVP**: *"RTP/AVP"* = "RTP/AVP"
 
-*Defined in [RTSPClient.ts:10](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L10)*
+*Defined in [RTSPClient.ts:16](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L16)*
 
 ___
 <a id="status_ok"></a>
@@ -81,7 +105,7 @@ ___
 
 **● STATUS_OK**: *`200`* = 200
 
-*Defined in [RTSPClient.ts:12](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L12)*
+*Defined in [RTSPClient.ts:18](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L18)*
 
 ___
 <a id="status_unauth"></a>
@@ -90,7 +114,7 @@ ___
 
 **● STATUS_UNAUTH**: *`401`* = 401
 
-*Defined in [RTSPClient.ts:13](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L13)*
+*Defined in [RTSPClient.ts:19](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L19)*
 
 ___
 <a id="www_auth"></a>
@@ -99,7 +123,7 @@ ___
 
 **● WWW_AUTH**: *"WWW-Authenticate"* = "WWW-Authenticate"
 
-*Defined in [RTSPClient.ts:15](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L15)*
+*Defined in [RTSPClient.ts:21](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L21)*
 
 ___
 <a id="www_auth_regex"></a>
@@ -108,7 +132,7 @@ ___
 
 **● WWW_AUTH_REGEX**: *`RegExp`* =  new RegExp('([a-zA-Z]+)\s*=\s*"?((?<=").*?(?=")|.*?(?=,?\s*[a-zA-Z]+\s*\=)|.+[^=])', "g")
 
-*Defined in [RTSPClient.ts:16](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L16)*
+*Defined in [RTSPClient.ts:22](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L22)*
 
 ___
 

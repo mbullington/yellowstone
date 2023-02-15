@@ -19,6 +19,8 @@
 * [_cSeq](_onvifclient_.onvifclient.md#_cseq)
 * [_client](_onvifclient_.onvifclient.md#_client)
 * [_keepAliveID](_onvifclient_.onvifclient.md#_keepaliveid)
+* [_nextFreeInterleavedChannel](_onvifclient_.onvifclient.md#_nextfreeinterleavedchannel)
+* [_nextFreeUDPPort](_onvifclient_.onvifclient.md#_nextfreeudpport)
 * [_session](_onvifclient_.onvifclient.md#_session)
 * [_unsupportedExtensions](_onvifclient_.onvifclient.md#_unsupportedextensions)
 * [_url](_onvifclient_.onvifclient.md#_url)
@@ -34,6 +36,8 @@
 * [rtspPacketLength](_onvifclient_.onvifclient.md#rtsppacketlength)
 * [rtspPacketPointer](_onvifclient_.onvifclient.md#rtsppacketpointer)
 * [rtspStatusLine](_onvifclient_.onvifclient.md#rtspstatusline)
+* [setupResult](_onvifclient_.onvifclient.md#setupresult)
+* [tcpSocket](_onvifclient_.onvifclient.md#tcpsocket)
 * [username](_onvifclient_.onvifclient.md#username)
 * [defaultMaxListeners](_onvifclient_.onvifclient.md#defaultmaxlisteners)
 
@@ -44,6 +48,7 @@
 * [_onData](_onvifclient_.onvifclient.md#_ondata)
 * [_sendInterleavedData](_onvifclient_.onvifclient.md#_sendinterleaveddata)
 * [_sendUDPData](_onvifclient_.onvifclient.md#_sendudpdata)
+* [_socketWrite](_onvifclient_.onvifclient.md#_socketwrite)
 * [addListener](_onvifclient_.onvifclient.md#addlistener)
 * [close](_onvifclient_.onvifclient.md#close)
 * [connect](_onvifclient_.onvifclient.md#connect)
@@ -66,8 +71,10 @@
 * [removeListener](_onvifclient_.onvifclient.md#removelistener)
 * [request](_onvifclient_.onvifclient.md#request)
 * [respond](_onvifclient_.onvifclient.md#respond)
+* [sendAudioBackChannel](_onvifclient_.onvifclient.md#sendaudiobackchannel)
 * [setMaxListeners](_onvifclient_.onvifclient.md#setmaxlisteners)
 * [listenerCount](_onvifclient_.onvifclient.md#listenercount-1)
+* [once](_onvifclient_.onvifclient.md#once-1)
 
 ---
 
@@ -81,7 +88,7 @@
 
 *Overrides [RTSPClient](_rtspclient_.rtspclient.md).[constructor](_rtspclient_.rtspclient.md#constructor)*
 
-*Defined in [ONVIFClient.ts:4](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/ONVIFClient.ts#L4)*
+*Defined in [ONVIFClient.ts:4](https://github.com/mbullington/yellowstone/blob/ac27865/lib/ONVIFClient.ts#L4)*
 
 **Parameters:**
 
@@ -104,7 +111,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_cSeq](_rtspclient_.rtspclient.md#_cseq)*
 
-*Defined in [RTSPClient.ts:49](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L49)*
+*Defined in [RTSPClient.ts:64](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L64)*
 
 ___
 <a id="_client"></a>
@@ -115,18 +122,40 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_client](_rtspclient_.rtspclient.md#_client)*
 
-*Defined in [RTSPClient.ts:48](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L48)*
+*Defined in [RTSPClient.ts:63](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L63)*
 
 ___
 <a id="_keepaliveid"></a>
 
 ### `<Optional>` _keepAliveID
 
-**● _keepAliveID**: *`any`*
+**● _keepAliveID**: *`NodeJS.Timeout`*
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_keepAliveID](_rtspclient_.rtspclient.md#_keepaliveid)*
 
-*Defined in [RTSPClient.ts:53](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L53)*
+*Defined in [RTSPClient.ts:68](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L68)*
+
+___
+<a id="_nextfreeinterleavedchannel"></a>
+
+###  _nextFreeInterleavedChannel
+
+**● _nextFreeInterleavedChannel**: *`number`* = 0
+
+*Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_nextFreeInterleavedChannel](_rtspclient_.rtspclient.md#_nextfreeinterleavedchannel)*
+
+*Defined in [RTSPClient.ts:69](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L69)*
+
+___
+<a id="_nextfreeudpport"></a>
+
+###  _nextFreeUDPPort
+
+**● _nextFreeUDPPort**: *`number`* = 5000
+
+*Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_nextFreeUDPPort](_rtspclient_.rtspclient.md#_nextfreeudpport)*
+
+*Defined in [RTSPClient.ts:70](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L70)*
 
 ___
 <a id="_session"></a>
@@ -137,7 +166,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_session](_rtspclient_.rtspclient.md#_session)*
 
-*Defined in [RTSPClient.ts:52](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L52)*
+*Defined in [RTSPClient.ts:67](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L67)*
 
 ___
 <a id="_unsupportedextensions"></a>
@@ -148,7 +177,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_unsupportedExtensions](_rtspclient_.rtspclient.md#_unsupportedextensions)*
 
-*Defined in [RTSPClient.ts:50](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L50)*
+*Defined in [RTSPClient.ts:65](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L65)*
 
 ___
 <a id="_url"></a>
@@ -159,7 +188,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_url](_rtspclient_.rtspclient.md#_url)*
 
-*Defined in [RTSPClient.ts:47](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L47)*
+*Defined in [RTSPClient.ts:62](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L62)*
 
 ___
 <a id="clientssrc"></a>
@@ -170,7 +199,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[clientSSRC](_rtspclient_.rtspclient.md#clientssrc)*
 
-*Defined in [RTSPClient.ts:75](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L75)*
+*Defined in [RTSPClient.ts:92](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L92)*
 
 ___
 <a id="headers"></a>
@@ -181,7 +210,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[headers](_rtspclient_.rtspclient.md#headers)*
 
-*Defined in [RTSPClient.ts:41](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L41)*
+*Defined in [RTSPClient.ts:56](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L56)*
 
 #### Type declaration
 
@@ -196,7 +225,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[isConnected](_rtspclient_.rtspclient.md#isconnected)*
 
-*Defined in [RTSPClient.ts:43](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L43)*
+*Defined in [RTSPClient.ts:58](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L58)*
 
 ___
 <a id="messagebytes"></a>
@@ -207,7 +236,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[messageBytes](_rtspclient_.rtspclient.md#messagebytes)*
 
-*Defined in [RTSPClient.ts:59](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L59)*
+*Defined in [RTSPClient.ts:76](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L76)*
 
 ___
 <a id="password"></a>
@@ -218,7 +247,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[password](_rtspclient_.rtspclient.md#password)*
 
-*Defined in [RTSPClient.ts:40](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L40)*
+*Defined in [RTSPClient.ts:55](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L55)*
 
 ___
 <a id="readstate"></a>
@@ -229,7 +258,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[readState](_rtspclient_.rtspclient.md#readstate)*
 
-*Defined in [RTSPClient.ts:55](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L55)*
+*Defined in [RTSPClient.ts:72](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L72)*
 
 ___
 <a id="rtspcontentlength"></a>
@@ -240,7 +269,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[rtspContentLength](_rtspclient_.rtspclient.md#rtspcontentlength)*
 
-*Defined in [RTSPClient.ts:64](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L64)*
+*Defined in [RTSPClient.ts:81](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L81)*
 
 ___
 <a id="rtspheaders"></a>
@@ -251,7 +280,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[rtspHeaders](_rtspclient_.rtspclient.md#rtspheaders)*
 
-*Defined in [RTSPClient.ts:66](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L66)*
+*Defined in [RTSPClient.ts:83](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L83)*
 
 ___
 <a id="rtsppacket"></a>
@@ -262,7 +291,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[rtspPacket](_rtspclient_.rtspclient.md#rtsppacket)*
 
-*Defined in [RTSPClient.ts:71](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L71)*
+*Defined in [RTSPClient.ts:88](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L88)*
 
 ___
 <a id="rtsppacketlength"></a>
@@ -273,7 +302,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[rtspPacketLength](_rtspclient_.rtspclient.md#rtsppacketlength)*
 
-*Defined in [RTSPClient.ts:70](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L70)*
+*Defined in [RTSPClient.ts:87](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L87)*
 
 ___
 <a id="rtsppacketpointer"></a>
@@ -284,7 +313,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[rtspPacketPointer](_rtspclient_.rtspclient.md#rtsppacketpointer)*
 
-*Defined in [RTSPClient.ts:72](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L72)*
+*Defined in [RTSPClient.ts:89](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L89)*
 
 ___
 <a id="rtspstatusline"></a>
@@ -295,7 +324,29 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[rtspStatusLine](_rtspclient_.rtspclient.md#rtspstatusline)*
 
-*Defined in [RTSPClient.ts:65](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L65)*
+*Defined in [RTSPClient.ts:82](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L82)*
+
+___
+<a id="setupresult"></a>
+
+###  setupResult
+
+**● setupResult**: *`Array`<`any`>* =  []
+
+*Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[setupResult](_rtspclient_.rtspclient.md#setupresult)*
+
+*Defined in [RTSPClient.ts:95](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L95)*
+
+___
+<a id="tcpsocket"></a>
+
+###  tcpSocket
+
+**● tcpSocket**: *`Socket`* =  new net.Socket()
+
+*Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[tcpSocket](_rtspclient_.rtspclient.md#tcpsocket)*
+
+*Defined in [RTSPClient.ts:94](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L94)*
 
 ___
 <a id="username"></a>
@@ -306,7 +357,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[username](_rtspclient_.rtspclient.md#username)*
 
-*Defined in [RTSPClient.ts:39](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L39)*
+*Defined in [RTSPClient.ts:54](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L54)*
 
 ___
 <a id="defaultmaxlisteners"></a>
@@ -317,7 +368,7 @@ ___
 
 *Inherited from EventEmitter.defaultMaxListeners*
 
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1110*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/events.d.ts:20*
 
 ___
 
@@ -331,7 +382,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_emptyReceiverReport](_rtspclient_.rtspclient.md#_emptyreceiverreport)*
 
-*Defined in [RTSPClient.ts:603](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L603)*
+*Defined in [RTSPClient.ts:837](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L837)*
 
 **Returns:** `Buffer`
 
@@ -340,11 +391,11 @@ ___
 
 ###  _netConnect
 
-▸ **_netConnect**(hostname: *`string`*, port: *`number`*): `Promise`<`Object`>
+▸ **_netConnect**(hostname: *`string`*, port: *`number`*): `Promise`<`this`>
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_netConnect](_rtspclient_.rtspclient.md#_netconnect)*
 
-*Defined in [RTSPClient.ts:95](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L95)*
+*Defined in [RTSPClient.ts:118](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L118)*
 
 **Parameters:**
 
@@ -353,7 +404,7 @@ ___
 | hostname | `string` |
 | port | `number` |
 
-**Returns:** `Promise`<`Object`>
+**Returns:** `Promise`<`this`>
 
 ___
 <a id="_ondata"></a>
@@ -364,7 +415,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_onData](_rtspclient_.rtspclient.md#_ondata)*
 
-*Defined in [RTSPClient.ts:435](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L435)*
+*Defined in [RTSPClient.ts:652](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L652)*
 
 **Parameters:**
 
@@ -383,7 +434,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_sendInterleavedData](_rtspclient_.rtspclient.md#_sendinterleaveddata)*
 
-*Defined in [RTSPClient.ts:577](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L577)*
+*Defined in [RTSPClient.ts:812](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L812)*
 
 **Parameters:**
 
@@ -403,7 +454,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_sendUDPData](_rtspclient_.rtspclient.md#_sendudpdata)*
 
-*Defined in [RTSPClient.ts:595](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L595)*
+*Defined in [RTSPClient.ts:830](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L830)*
 
 **Parameters:**
 
@@ -416,6 +467,26 @@ ___
 **Returns:** `void`
 
 ___
+<a id="_socketwrite"></a>
+
+###  _socketWrite
+
+▸ **_socketWrite**(socket: *`Socket`*, data: *`Buffer`*): `Promise`<`any`>
+
+*Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[_socketWrite](_rtspclient_.rtspclient.md#_socketwrite)*
+
+*Defined in [RTSPClient.ts:856](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L856)*
+
+**Parameters:**
+
+| Name | Type |
+| ------ | ------ |
+| socket | `Socket` |
+| data | `Buffer` |
+
+**Returns:** `Promise`<`any`>
+
+___
 <a id="addlistener"></a>
 
 ###  addListener
@@ -424,9 +495,7 @@ ___
 
 *Inherited from EventEmitter.addListener*
 
-*Overrides EventEmitter.addListener*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1112*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:554*
 
 **Parameters:**
 
@@ -446,7 +515,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[close](_rtspclient_.rtspclient.md#close)*
 
-*Defined in [RTSPClient.ts:410](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L410)*
+*Defined in [RTSPClient.ts:627](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L627)*
 
 **Parameters:**
 
@@ -461,37 +530,35 @@ ___
 
 ###  connect
 
-▸ **connect**(url: *`string`*, options?: *`object`*): `Promise`<`object`>
+▸ **connect**(url: *`string`*, __namedParameters?: *`object`*): `Promise`<`object`[]>
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[connect](_rtspclient_.rtspclient.md#connect)*
 
-*Defined in [RTSPClient.ts:143](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L143)*
+*Defined in [RTSPClient.ts:167](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L167)*
 
 **Parameters:**
 
 **url: `string`**
 
-**`Default value` options: `object`**
+**`Default value` __namedParameters: `object`**
 
-| Name | Type |
-| ------ | ------ |
-| connection | [Connection](../modules/_rtspclient_.md#connection) |
-| keepAlive | `boolean` |
+| Name | Type | Default value |
+| ------ | ------ | ------ |
+| connection | "udp" \| "tcp" | &quot;udp&quot; |
+| keepAlive | `boolean` | true |
 
-**Returns:** `Promise`<`object`>
+**Returns:** `Promise`<`object`[]>
 
 ___
 <a id="emit"></a>
 
 ###  emit
 
-▸ **emit**(event: *`string` \| `symbol`*, ...args: *`any`[]*): `boolean`
+▸ **emit**(event: *`string` \| `symbol`*, args: *`any`[]*): `boolean`
 
 *Inherited from EventEmitter.emit*
 
-*Overrides EventEmitter.emit*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1124*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:564*
 
 **Parameters:**
 
@@ -511,9 +578,7 @@ ___
 
 *Inherited from EventEmitter.eventNames*
 
-*Overrides EventEmitter.eventNames*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1125*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:569*
 
 **Returns:** `Array`<`string` \| `symbol`>
 
@@ -526,9 +591,7 @@ ___
 
 *Inherited from EventEmitter.getMaxListeners*
 
-*Overrides EventEmitter.getMaxListeners*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1121*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:561*
 
 **Returns:** `number`
 
@@ -541,9 +604,7 @@ ___
 
 *Inherited from EventEmitter.listenerCount*
 
-*Overrides EventEmitter.listenerCount*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1126*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:565*
 
 **Parameters:**
 
@@ -562,9 +623,7 @@ ___
 
 *Inherited from EventEmitter.listeners*
 
-*Overrides EventEmitter.listeners*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1122*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:562*
 
 **Parameters:**
 
@@ -583,9 +642,7 @@ ___
 
 *Inherited from EventEmitter.off*
 
-*Overrides EventEmitter.off*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1118*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:558*
 
 **Parameters:**
 
@@ -605,9 +662,7 @@ ___
 
 *Inherited from EventEmitter.on*
 
-*Overrides EventEmitter.on*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1113*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:555*
 
 **Parameters:**
 
@@ -627,9 +682,7 @@ ___
 
 *Inherited from EventEmitter.once*
 
-*Overrides EventEmitter.once*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1114*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:556*
 
 **Parameters:**
 
@@ -649,7 +702,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[pause](_rtspclient_.rtspclient.md#pause)*
 
-*Defined in [RTSPClient.ts:401](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L401)*
+*Defined in [RTSPClient.ts:580](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L580)*
 
 **Returns:** `Promise`<`this`>
 
@@ -662,7 +715,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[play](_rtspclient_.rtspclient.md#play)*
 
-*Defined in [RTSPClient.ts:392](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L392)*
+*Defined in [RTSPClient.ts:571](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L571)*
 
 **Returns:** `Promise`<`this`>
 
@@ -671,9 +724,9 @@ ___
 
 ###  playFrom
 
-▸ **playFrom**(from: *`Date`*, to?: *`Date`*): `Promise`<`this`>
+▸ **playFrom**(from: *`Date`*, to: *`Date`*): `Promise`<`this`>
 
-*Defined in [ONVIFClient.ts:9](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/ONVIFClient.ts#L9)*
+*Defined in [ONVIFClient.ts:9](https://github.com/mbullington/yellowstone/blob/ac27865/lib/ONVIFClient.ts#L9)*
 
 **Parameters:**
 
@@ -689,9 +742,9 @@ ___
 
 ###  playReverse
 
-▸ **playReverse**(from?: *`Date`*, to?: *`Date`*): `Promise`<`this`>
+▸ **playReverse**(from: *`Date`*, to: *`Date`*): `Promise`<`this`>
 
-*Defined in [ONVIFClient.ts:24](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/ONVIFClient.ts#L24)*
+*Defined in [ONVIFClient.ts:24](https://github.com/mbullington/yellowstone/blob/ac27865/lib/ONVIFClient.ts#L24)*
 
 **Parameters:**
 
@@ -711,9 +764,7 @@ ___
 
 *Inherited from EventEmitter.prependListener*
 
-*Overrides EventEmitter.prependListener*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1115*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:567*
 
 **Parameters:**
 
@@ -733,9 +784,7 @@ ___
 
 *Inherited from EventEmitter.prependOnceListener*
 
-*Overrides EventEmitter.prependOnceListener*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1116*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:568*
 
 **Parameters:**
 
@@ -755,9 +804,7 @@ ___
 
 *Inherited from EventEmitter.rawListeners*
 
-*Overrides EventEmitter.rawListeners*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1123*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:563*
 
 **Parameters:**
 
@@ -772,13 +819,11 @@ ___
 
 ###  removeAllListeners
 
-▸ **removeAllListeners**(event?: *`string` \| `symbol`*): `this`
+▸ **removeAllListeners**(event: *`string` \| `symbol`*): `this`
 
 *Inherited from EventEmitter.removeAllListeners*
 
-*Overrides EventEmitter.removeAllListeners*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1119*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:559*
 
 **Parameters:**
 
@@ -797,9 +842,7 @@ ___
 
 *Inherited from EventEmitter.removeListener*
 
-*Overrides EventEmitter.removeListener*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1117*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:557*
 
 **Parameters:**
 
@@ -815,11 +858,11 @@ ___
 
 ###  request
 
-▸ **request**(requestName: *`string`*, headersParam?: *[Headers](../modules/_rtspclient_.md#headers)*, url?: *`undefined` \| `string`*): `Promise`<`object` \| `void`>
+▸ **request**(requestName: *`string`*, headersParam?: *[Headers](../modules/_rtspclient_.md#headers)*, url: *`undefined` \| `string`*): `Promise`<`object` \| `void`>
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[request](_rtspclient_.rtspclient.md#request)*
 
-*Defined in [RTSPClient.ts:267](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L267)*
+*Defined in [RTSPClient.ts:423](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L423)*
 
 **Parameters:**
 
@@ -840,7 +883,7 @@ ___
 
 *Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[respond](_rtspclient_.rtspclient.md#respond)*
 
-*Defined in [RTSPClient.ts:371](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/RTSPClient.ts#L371)*
+*Defined in [RTSPClient.ts:550](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L550)*
 
 **Parameters:**
 
@@ -852,6 +895,25 @@ ___
 **Returns:** `void`
 
 ___
+<a id="sendaudiobackchannel"></a>
+
+###  sendAudioBackChannel
+
+▸ **sendAudioBackChannel**(audioChunk: *`Buffer`*): `Promise`<`void`>
+
+*Inherited from [RTSPClient](_rtspclient_.rtspclient.md).[sendAudioBackChannel](_rtspclient_.rtspclient.md#sendaudiobackchannel)*
+
+*Defined in [RTSPClient.ts:589](https://github.com/mbullington/yellowstone/blob/ac27865/lib/RTSPClient.ts#L589)*
+
+**Parameters:**
+
+| Name | Type |
+| ------ | ------ |
+| audioChunk | `Buffer` |
+
+**Returns:** `Promise`<`void`>
+
+___
 <a id="setmaxlisteners"></a>
 
 ###  setMaxListeners
@@ -860,9 +922,7 @@ ___
 
 *Inherited from EventEmitter.setMaxListeners*
 
-*Overrides EventEmitter.setMaxListeners*
-
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1120*
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/globals.d.ts:560*
 
 **Parameters:**
 
@@ -881,10 +941,7 @@ ___
 
 *Inherited from EventEmitter.listenerCount*
 
-*Defined in /home/michael/Projects/yellowstone/node_modules/@types/node/index.d.ts:1109*
-
-*__deprecated__*:
- since v4.0.0
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/events.d.ts:17*
 
 **Parameters:**
 
@@ -894,6 +951,41 @@ ___
 | event | `string` \| `symbol` |
 
 **Returns:** `number`
+
+___
+<a id="once-1"></a>
+
+### `<Static>` once
+
+▸ **once**(emitter: *`NodeEventTarget`*, event: *`string` \| `symbol`*): `Promise`<`any`[]>
+
+▸ **once**(emitter: *`DOMEventTarget`*, event: *`string`*): `Promise`<`any`[]>
+
+*Inherited from EventEmitter.once*
+
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/events.d.ts:13*
+
+**Parameters:**
+
+| Name | Type |
+| ------ | ------ |
+| emitter | `NodeEventTarget` |
+| event | `string` \| `symbol` |
+
+**Returns:** `Promise`<`any`[]>
+
+*Inherited from EventEmitter.once*
+
+*Defined in C:/Users/roger/source/yellowstone/node_modules/@types/node/events.d.ts:14*
+
+**Parameters:**
+
+| Name | Type |
+| ------ | ------ |
+| emitter | `DOMEventTarget` |
+| event | `string` |
+
+**Returns:** `Promise`<`any`[]>
 
 ___
 

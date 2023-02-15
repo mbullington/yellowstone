@@ -4,6 +4,10 @@
 
 ## Index
 
+### Classes
+
+* [BitStream](../classes/_util_.bitstream.md)
+
 ### Interfaces
 
 * [RTCPPacket](../interfaces/_util_.rtcppacket.md)
@@ -29,7 +33,7 @@
 
 ▸ **generateSSRC**(): `number`
 
-*Defined in [util.ts:88](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L88)*
+*Defined in [util.ts:105](https://github.com/mbullington/yellowstone/blob/ac27865/lib/util.ts#L105)*
 
 **Returns:** `number`
 
@@ -40,7 +44,7 @@ ___
 
 ▸ **getMD5Hash**(str: *`string`*): `string`
 
-*Defined in [util.ts:49](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L49)*
+*Defined in [util.ts:66](https://github.com/mbullington/yellowstone/blob/ac27865/lib/util.ts#L66)*
 
 **Parameters:**
 
@@ -57,7 +61,7 @@ ___
 
 ▸ **parseRTCPPacket**(buffer: *`Buffer`*): [RTCPPacket](../interfaces/_util_.rtcppacket.md)
 
-*Defined in [util.ts:37](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L37)*
+*Defined in [util.ts:54](https://github.com/mbullington/yellowstone/blob/ac27865/lib/util.ts#L54)*
 
 **Parameters:**
 
@@ -74,7 +78,7 @@ ___
 
 ▸ **parseRTPPacket**(buffer: *`Buffer`*): [RTPPacket](../interfaces/_util_.rtppacket.md)
 
-*Defined in [util.ts:13](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L13)*
+*Defined in [util.ts:18](https://github.com/mbullington/yellowstone/blob/ac27865/lib/util.ts#L18)*
 
 **Parameters:**
 
@@ -91,7 +95,7 @@ ___
 
 ▸ **parseTransport**(transport: *`string`*): [Transport](../interfaces/_util_.transport.md)
 
-*Defined in [util.ts:61](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L61)*
+*Defined in [util.ts:78](https://github.com/mbullington/yellowstone/blob/ac27865/lib/util.ts#L78)*
 
 **Parameters:**
 
@@ -108,7 +112,7 @@ ___
 
 ▸ **randInclusive**(min: *`number`*, max: *`number`*): `number`
 
-*Defined in [util.ts:82](https://github.com/mbullington/yellowstone/blob/c6fe1af/lib/util.ts#L82)*
+*Defined in [util.ts:99](https://github.com/mbullington/yellowstone/blob/ac27865/lib/util.ts#L99)*
 
 **Parameters:**
 

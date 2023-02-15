@@ -41,7 +41,7 @@ class RTSPClient extends events_1.EventEmitter {
         this.rtspPacket = new Buffer("");
         this.rtspPacketPointer = 0;
         // Used in #_emptyReceiverReport.
-        this.clientSSRC = util_1.generateSSRC();
+        this.clientSSRC = (0, util_1.generateSSRC)();
         this.tcpSocket = new net.Socket();
         this.setupResult = [];
         this.username = username;
@@ -97,7 +97,7 @@ class RTSPClient extends events_1.EventEmitter {
         keepAlive: true,
         connection: "udp",
     }) {
-        const { hostname, port } = url_1.parse((this._url = url));
+        const { hostname, port } = (0, url_1.parse)((this._url = url));
         if (!hostname) {
             throw new Error("URL parsing error in connect method.");
         }
@@ -206,13 +206,13 @@ class RTSPClient extends events_1.EventEmitter {
                     const rtpPort = rtpChannel;
                     const rtpReceiver = dgram.createSocket("udp4");
                     rtpReceiver.on("message", (buf, remote) => {
-                        const packet = util_1.parseRTPPacket(buf);
+                        const packet = (0, util_1.parseRTPPacket)(buf);
                         this.emit("data", rtpPort, packet.payload, packet);
                     });
                     const rtcpPort = rtcpChannel;
                     const rtcpReceiver = dgram.createSocket("udp4");
                     rtcpReceiver.on("message", (buf, remote) => {
-                        const packet = util_1.parseRTCPPacket(buf);
+                        const packet = (0, util_1.parseRTCPPacket)(buf);
                         this.emit("controlData", rtcpPort, packet);
                         const receiver_report = this._emptyReceiverReport();
                         this._sendUDPData(remote.address, remote.port, receiver_report);
@@ -254,7 +254,7 @@ class RTSPClient extends events_1.EventEmitter {
                 if (!headers.Transport) {
                     throw new Error("No Transport header on SETUP; RTSP server is broken (sanity check)");
                 }
-                const transport = util_1.parseTransport(headers.Transport);
+                const transport = (0, util_1.parseTransport)(headers.Transport);
                 if (transport.protocol !== "RTP/AVP/TCP" &&
                     transport.protocol !== "RTP/AVP") {
                     throw new Error("Only RTSP servers supporting RTP/AVP(unicast) or RTP/ACP/TCP are supported at this time.");
@@ -354,9 +354,9 @@ class RTSPClient extends events_1.EventEmitter {
                         let authString = "";
                         if (type === "Digest") {
                             // Digest Authentication
-                            const ha1 = util_1.getMD5Hash(`${this.username}:${realm}:${this.password}`);
-                            const ha2 = util_1.getMD5Hash(`${requestName}:${this._url}`);
-                            const ha3 = util_1.getMD5Hash(`${ha1}:${nonce}:${ha2}`);
+                            const ha1 = (0, util_1.getMD5Hash)(`${this.username}:${realm}:${this.password}`);
+                            const ha2 = (0, util_1.getMD5Hash)(`${requestName}:${this._url}`);
+                            const ha3 = (0, util_1.getMD5Hash)(`${ha1}:${nonce}:${ha2}`);
                             authString = `Digest username="${this.username}",realm="${realm}",nonce="${nonce}",uri="${this._url}",response="${ha3}"`;
                         }
                         else if (type === "Basic") {
@@ -502,12 +502,12 @@ class RTSPClient extends events_1.EventEmitter {
                     const packetChannel = this.messageBytes[1];
                     if ((packetChannel & 0x01) === 0) {
                         // even number
-                        const packet = util_1.parseRTPPacket(this.rtspPacket);
+                        const packet = (0, util_1.parseRTPPacket)(this.rtspPacket);
                         this.emit("data", packetChannel, packet.payload, packet);
                     }
                     if ((packetChannel & 0x01) === 1) {
                         // odd number
-                        const packet = util_1.parseRTCPPacket(this.rtspPacket);
+                        const packet = (0, util_1.parseRTCPPacket)(this.rtspPacket);
                         this.emit("controlData", packetChannel, packet);
                         const receiver_report = this._emptyReceiverReport();
                         this._sendInterleavedData(packetChannel, receiver_report);

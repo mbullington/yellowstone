@@ -15,7 +15,6 @@ function parseRTPPacket(buffer) {
     const num_csrc_identifiers = (buffer[0] & 0x0F);
     const payload = buffer.slice((num_csrc_identifiers * 4) + (hasExtensions ? 16 : 12)); // includes padding
     const length = payload.length;
-    const dataLength = payload.length - paddingLength;
     return {
         id: buffer.readUInt16BE(2),
         timestamp: buffer.readUInt32BE(4),
@@ -26,7 +25,6 @@ function parseRTPPacket(buffer) {
         payload,
         length,
         paddingLength,
-        dataLength
     };
 }
 exports.parseRTPPacket = parseRTPPacket;
@@ -42,7 +40,7 @@ function parseRTCPPacket(buffer) {
 exports.parseRTCPPacket = parseRTCPPacket;
 // utility function for using crypto library
 function getMD5Hash(str) {
-    const md5 = crypto_1.createHash("md5");
+    const md5 = (0, crypto_1.createHash)("md5");
     md5.update(str);
     return md5.digest("hex");
 }
