@@ -1,3 +1,11 @@
+# v3.0.4
+
+**New features**:
+Output H265 streams to a .265 file
+Fix RTCP parsing bug
+Add NAT hole punching (experimental)
+Upgrade NPM modules used
+
 # v3.0.3
 
 **Bug fixes**:
