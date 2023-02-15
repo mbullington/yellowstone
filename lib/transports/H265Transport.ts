@@ -25,21 +25,19 @@ export default class H265Transport {
 
   rtpPackets: Buffer[] = [];
 
-  _headerWritten = false;
-
   constructor(client: RTSPClient, stream: Writable, details: Details) {
     this.client = client;
     this.stream = stream;
 
+    // process 'fmtp' (which is optional in the SDP)
+    this.processConnectionDetails(details);
+
     client.on("data", (channel, data, packet) => {
       if (channel == details.rtpChannel) {
-        if (this._headerWritten) {
-          this.processRTPPacket(packet);
-        }
+        this.processRTPPacket(packet);
       }
     });
 
-    this.processConnectionDetails(details);
   }
 
   processConnectionDetails(details: Details): void {
@@ -63,8 +61,6 @@ export default class H265Transport {
     this.stream.write(sps);
     this.stream.write(H265_HEADER);
     this.stream.write(pps);
-
-    this._headerWritten = true;
   };
 
   processRTPPacket(packet: RTPPacket): void {
