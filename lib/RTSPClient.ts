@@ -298,6 +298,8 @@ export default class RTSPClient extends EventEmitter {
         let setupRes;
         let rtpChannel;
         let rtcpChannel;
+        let rtpReceiver: dgram.Socket|null = null; // UDP mode init value
+        let rtcpReceiver: dgram.Socket|null = null; // UDP mode init value
 
         if (connection === "udp") {
           // Create a pair of UDP listeners, even numbered port for RTP
@@ -308,7 +310,7 @@ export default class RTSPClient extends EventEmitter {
           this._nextFreeUDPPort += 2;
 
           const rtpPort = rtpChannel;
-          const rtpReceiver = dgram.createSocket("udp4");
+          rtpReceiver = dgram.createSocket("udp4");
 
           rtpReceiver.on("message", (buf, remote) => {
             const packet = parseRTPPacket(buf);
@@ -316,7 +318,7 @@ export default class RTSPClient extends EventEmitter {
           });
 
           const rtcpPort = rtcpChannel;
-          const rtcpReceiver = dgram.createSocket("udp4");
+          rtcpReceiver = dgram.createSocket("udp4");
 
           rtcpReceiver.on("message", (buf, remote) => {
             const packet = parseRTCPPacket(buf);
@@ -329,11 +331,11 @@ export default class RTSPClient extends EventEmitter {
           // Block until both UDP sockets are open.
 
           await new Promise((resolve) => {
-            rtpReceiver.bind(rtpPort, () => resolve({}));
+            rtpReceiver?.bind(rtpPort, () => resolve({}));
           });
 
           await new Promise((resolve) => {
-            rtcpReceiver.bind(rtcpPort, () => resolve({}));
+            rtcpReceiver?.bind(rtcpPort, () => resolve({}));
           });
 
           const setupHeader = {
@@ -384,6 +386,16 @@ export default class RTSPClient extends EventEmitter {
           throw new Error(
             "Only RTSP servers supporting RTP/AVP(unicast) or RTP/ACP/TCP are supported at this time."
           );
+        }
+
+        // Patch from zoolyka (Zoltan Hajdu).
+        // Try to open a hole in the NAT router (to allow incoming UDP packets)
+        // by send a UDP packet for RTP and RTCP to the remote RTSP server.
+        // Note, Roger did not have a router that needed this so the feature is untested.
+        // May be better to change the RTCP message to a Receiver Report, leaving the RTP message as zero bytes
+        if (connection === "udp" && transport && rtpReceiver && rtcpReceiver) {
+          rtpReceiver.send(Buffer.from(''), Number(transport.parameters["server_port"].split("-")[0]), hostname);
+          rtcpReceiver.send(Buffer.from(''), Number(transport.parameters["server_port"].split("-")[1]), hostname);
         }
 
         if (headers.Unsupported) {
