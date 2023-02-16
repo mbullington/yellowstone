@@ -18,8 +18,33 @@ const RTP_AVP = "RTP/AVP";
 const STATUS_OK = 200;
 const STATUS_UNAUTH = 401;
 
+// The WWW_AUTH is of the format
+//      TOKEN key=value
+//      TOKEN key1=value1,key2=value2
+//      TOKEN key1="value1",key2=value2
+
+// RegEx reminder ? = Zero or One item
+//                * = Zero or More items
+//                + = 1 or More items
+//                \s is whitespace. But we need to 'escape the slash', hence \\s (or put the regex in / / characters)
+//                ?= is a lookahead
+
+// The RegEx has two 'Groups'
+//      
+// Group 1 (finding the Key)
+//    Look for one or more characters (a..z or A..Z)
+//    then look for whitespace
+//    then look for 'equals'
+//    then look for whitespace
+//    then look for an optional Quote character
+//
+// Group 2 (finding the Value) -
+//    Look for EITHER 'look backwards for a Quote', some characters, 'lookahead for a Quote'
+//                 OR some characters until (by looking ahead) you can see that another key comes next. The lookahead is 'optinal whitespace' 'comma' 'optional whitespace' 'chars' 'optinal whitespace' 'equals'
+//                 OR some characters followed by 'optinal whitespace'
+
 const WWW_AUTH = "WWW-Authenticate";
-const WWW_AUTH_REGEX = new RegExp('([a-zA-Z]+)\s*=\s*"?((?<=").*?(?=")|.*?(?=,?\s*[a-zA-Z]+\s*\=)|.+[^=])', "g");
+const WWW_AUTH_REGEX = new RegExp('([a-zA-Z]+)\\s*=\\s*"?((?<=").*?(?=")|.*?(?=\\s*,?\\s*[a-zA-Z]+\\s*=)|.+[^\\s])', "g");
 
 enum ReadStates {
   SEARCHING,
