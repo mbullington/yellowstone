@@ -16,7 +16,7 @@ interface Details {
   mediaSource: transform.MediaDescription
   rtpChannel: number,
   rtcpChannel: number
-};
+}
 
 export default class H265Transport {
   client: RTSPClient;
@@ -61,7 +61,7 @@ export default class H265Transport {
     this.stream.write(sps);
     this.stream.write(H265_HEADER);
     this.stream.write(pps);
-  };
+  }
 
   processRTPPacket(packet: RTPPacket): void {
     // Accumatate RTP packets

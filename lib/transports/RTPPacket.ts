@@ -5,7 +5,7 @@ import { Buffer } from "buffer";
 
 function toUnsigned(val: number): number {
     return ((val >>> 1) * 2 + (val & 1));
-};
+}
 
 class RTPPacket {
     _bufpkt: Buffer;
