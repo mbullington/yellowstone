@@ -148,7 +148,7 @@ Object.defineProperty(RTPPacket.prototype, 'payload', {
 })
 Object.defineProperty(RTPPacket.prototype, 'packet', {
     get: function () { return this._bufpkt; },
-    set: function (val) { }
+    //set: function (val) { }
 })
 
 export default RTPPacket;

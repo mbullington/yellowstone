@@ -7,6 +7,7 @@ import {
   parseRTPPacket,
   parseRTCPPacket,
   getMD5Hash,
+  Transport,
   parseTransport,
   generateSSRC,
 } from "./util";
@@ -69,10 +70,10 @@ type Headers = {
 type Detail = {
   codec: string;
   mediaSource: any;
-  transport: any;
+  transport: Transport;
   isH264: boolean; // legacy API
-  rtpChannel: any;
-  rtcpChannel: any;
+  rtpChannel: number;
+  rtcpChannel: number;
 };
 
 export default class RTSPClient extends EventEmitter {
@@ -91,8 +92,8 @@ export default class RTSPClient extends EventEmitter {
   // Example: 'SessionId'[';timeout=seconds']
   _session?: string;
   _keepAliveID?: NodeJS.Timeout;
-  _nextFreeInterleavedChannel: number = 0;
-  _nextFreeUDPPort: number = 5000;
+  _nextFreeInterleavedChannel = 0;
+  _nextFreeUDPPort = 5000;
 
   readState: ReadStates = ReadStates.SEARCHING;
 
@@ -103,15 +104,15 @@ export default class RTSPClient extends EventEmitter {
   // Used for parsing RTSP responses,
 
   // Content-Length header in the RTSP message.
-  rtspContentLength: number = 0;
-  rtspStatusLine: string = "";
+  rtspContentLength = 0;
+  rtspStatusLine = "";
   rtspHeaders: Headers = {};
 
   // Used for parsing RTP/RTCP responses.
 
-  rtspPacketLength: number = 0;
+  rtspPacketLength = 0;
   rtspPacket: Buffer = new Buffer("");
-  rtspPacketPointer: number = 0;
+  rtspPacketPointer = 0;
 
   // Used in #_emptyReceiverReport.
   clientSSRC = generateSSRC();
@@ -661,7 +662,7 @@ export default class RTSPClient extends EventEmitter {
     return;
   }
 
-  async close(isImmediate: boolean = false) {
+  async close(isImmediate = false) {
     if (!this._client) {
       return this;
     }

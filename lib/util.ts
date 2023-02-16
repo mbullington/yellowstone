@@ -85,7 +85,7 @@ export function getMD5Hash(str: string): string {
   return md5.digest("hex");
 }
 
-interface Transport {
+export interface Transport {
   protocol: string;
   parameters: { [key: string]: string };
 }
@@ -130,9 +130,8 @@ export class BitStream {
   // not very efficient on memory
 
   // Constructor
-  constructor() {
-  }
-
+  // constructor() {}
+  
   // Functions
   AddValue(value: number, num_bits: number): void {
     // Add each bit to the List
