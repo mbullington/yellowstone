@@ -70,7 +70,7 @@ class RTPPacket {
         }
     }
 
-    public get type() { return (this._bufpkt[1] & 0x7F); };
+    public get type() { return (this._bufpkt[1] & 0x7F); }
     public set type(val) {
         val = toUnsigned(val);
         if (val <= 127) {
@@ -79,7 +79,7 @@ class RTPPacket {
         }
     }
 
-    public get seq() { return (this._bufpkt[2] << 8 | this._bufpkt[3]); };
+    public get seq() { return (this._bufpkt[2] << 8 | this._bufpkt[3]); }
     public set seq(val) {
         val = toUnsigned(val);
         if (val <= 65535) {
@@ -88,7 +88,7 @@ class RTPPacket {
         }
     }
 
-    public get time() { return (this._bufpkt[4] << 24 | this._bufpkt[5] << 16 | this._bufpkt[6] << 8 | this._bufpkt[7]); };
+    public get time() { return (this._bufpkt[4] << 24 | this._bufpkt[5] << 16 | this._bufpkt[6] << 8 | this._bufpkt[7]); }
     public set time(val) {
         val = toUnsigned(val);
         if (val <= 4294967295) {
@@ -99,7 +99,7 @@ class RTPPacket {
         }
     }
 
-    public get source() { return (this._bufpkt[8] << 24 | this._bufpkt[9] << 16 | this._bufpkt[10] << 8 | this._bufpkt[11]); };
+    public get source() { return (this._bufpkt[8] << 24 | this._bufpkt[9] << 16 | this._bufpkt[10] << 8 | this._bufpkt[11]); }
     public set source(val) {
         val = toUnsigned(val);
         if (val <= 4294967295) {
@@ -111,7 +111,7 @@ class RTPPacket {
     }
 
     // Gets/Sets the payload of an existing RTP packet (without any RTP Headers)
-    public get payload() { return (this._bufpkt.slice(12, this._bufpkt.length)); };
+    public get payload() { return (this._bufpkt.slice(12, this._bufpkt.length)); }
     public set payload(val) {
         if (Buffer.isBuffer(val)) {
             const newsize = 12 + val.length;
@@ -127,7 +127,7 @@ class RTPPacket {
     }
 
     // gets/sets the RTP Header and RTP Payload
-    public get packet() { return this._bufpkt; };
+    public get packet() { return this._bufpkt; }
     public set packet(val) {
         this._bufpkt = val;
     }
