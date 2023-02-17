@@ -12,10 +12,9 @@ const { exit } = require("process");
 
 // User-specified details here.
 //const url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4"
-const url = "rtsp://192.168.26.145/onvif-media/media.amp?profile=profile_1_h265&sessiontimeout=60&streamtype=unicast"
 const filename = "bigbuckbunny";
-const username = "onvifuser";
-const password = "PASS99pass";
+const username = "";
+const password = "";
 
 // Step 1: Create an RTSPClient instance
 const client = new RTSPClient(username, password);
@@ -24,8 +23,8 @@ const client = new RTSPClient(username, password);
 //
 // "keepAlive" option is set to true by default
 // "connection" option is set to "udp" by default. 
-client.connect(url, { connection: "udp" })
-  .then((detailsArray) => {
+client.connect(url, { connection: "tcp" })
+  .then(async (detailsArray) => {
     console.log("Connected");
 
     if (detailsArray.length == 0) {
@@ -59,7 +58,9 @@ client.connect(url, { connection: "udp" })
     }
 
     // Step 5: Start streaming!
-    client.play();
+    await client.play();
+    console.log("Play sent");
+
   })
   .catch(e => console.log(e));
 
