@@ -1,6 +1,10 @@
 /// <reference types="node" />
+/// <reference types="node" />
+/// <reference types="node" />
 import * as net from "net";
 import { EventEmitter } from "events";
+import { Transport } from "./util";
+import * as transform from "sdp-transform";
 declare enum ReadStates {
     SEARCHING = 0,
     READING_RTSP_HEADER = 1,
@@ -8,8 +12,8 @@ declare enum ReadStates {
     READING_RAW_PACKET_SIZE = 3,
     READING_RAW_PACKET = 4
 }
-declare type Connection = "udp" | "tcp";
-declare type Headers = {
+type Connection = "udp" | "tcp";
+type Headers = {
     [key: string]: string | number | undefined;
     Session?: string;
     Location?: string;
@@ -18,13 +22,18 @@ declare type Headers = {
     Transport?: string;
     Unsupported?: string;
 };
-declare type Detail = {
+type Detail = {
     codec: string;
-    mediaSource: any;
-    transport: any;
+    mediaSource: ({
+        type: string;
+        port: number;
+        protocol: string;
+        payloads?: string | undefined;
+    } & transform.MediaDescription);
+    transport: Transport['parameters'];
     isH264: boolean;
-    rtpChannel: any;
-    rtcpChannel: any;
+    rtpChannel: number;
+    rtcpChannel: number;
 };
 export default class RTSPClient extends EventEmitter {
     username: string;
@@ -33,6 +42,7 @@ export default class RTSPClient extends EventEmitter {
         [key: string]: string;
     };
     isConnected: boolean;
+    closed: boolean;
     _url?: string;
     _client?: net.Socket;
     _cSeq: number;
@@ -51,7 +61,7 @@ export default class RTSPClient extends EventEmitter {
     rtspPacketPointer: number;
     clientSSRC: number;
     tcpSocket: net.Socket;
-    setupResult: Array<any>;
+    setupResult: Array<Detail>;
     constructor(username: string, password: string, headers?: {
         [key: string]: string;
     });
@@ -65,10 +75,10 @@ export default class RTSPClient extends EventEmitter {
         mediaHeaders?: string[];
     } | void>;
     respond(status: string, headersParam?: Headers): void;
-    play(): Promise<this>;
-    pause(): Promise<this>;
+    play(): Promise<void>;
+    pause(): Promise<void>;
     sendAudioBackChannel(audioChunk: Buffer): Promise<void>;
-    close(isImmediate?: boolean): Promise<this>;
+    close(isImmediate?: boolean): Promise<void>;
     _onData(data: Buffer): void;
     _sendInterleavedData(channel: number, buffer: Buffer): void;
     _sendUDPData(host: string, port: number, buffer: Buffer): void;

@@ -18,7 +18,7 @@ export interface RTCPPacket {
 }
 export declare function parseRTCPPacket(buffer: Buffer): RTCPPacket;
 export declare function getMD5Hash(str: string): string;
-interface Transport {
+export interface Transport {
     protocol: string;
     parameters: {
         [key: string]: string;
@@ -29,10 +29,8 @@ export declare function randInclusive(min: number, max: number): number;
 export declare function generateSSRC(): number;
 export declare class BitStream {
     data: number[];
-    constructor();
     AddValue(value: number, num_bits: number): void;
     AddHexString(hex_string: string): void;
     Read(num_bits: number): number;
     ToArray(): Buffer;
 }
-export {};

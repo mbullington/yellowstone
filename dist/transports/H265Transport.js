@@ -6,22 +6,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const transform = require("sdp-transform");
 // .h265 file header
 const H265_HEADER = Buffer.from([0x00, 0x00, 0x00, 0x01]);
-;
 class H265Transport {
     constructor(client, stream, details) {
         this.has_donl = false;
         this.rtpPackets = [];
-        this._headerWritten = false;
         this.client = client;
         this.stream = stream;
+        // process 'fmtp' (which is optional in the SDP)
+        this.processConnectionDetails(details);
         client.on("data", (channel, data, packet) => {
             if (channel == details.rtpChannel) {
-                if (this._headerWritten) {
-                    this.processRTPPacket(packet);
-                }
+                this.processRTPPacket(packet);
             }
         });
-        this.processConnectionDetails(details);
     }
     processConnectionDetails(details) {
         // Extract the VPS, SPS and PPS from the MediaSource part of the SDP.
@@ -41,9 +38,7 @@ class H265Transport {
         this.stream.write(sps);
         this.stream.write(H265_HEADER);
         this.stream.write(pps);
-        this._headerWritten = true;
     }
-    ;
     processRTPPacket(packet) {
         // Accumatate RTP packets
         this.rtpPackets.push(packet.payload);

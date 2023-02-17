@@ -1,4 +1,5 @@
 /// <reference types="node" />
+/// <reference types="node" />
 import RTSPClient from "../RTSPClient";
 import { RTPPacket } from "../util";
 import * as transform from "sdp-transform";
@@ -14,7 +15,6 @@ export default class H265Transport {
     stream: Writable;
     has_donl: boolean;
     rtpPackets: Buffer[];
-    _headerWritten: boolean;
     constructor(client: RTSPClient, stream: Writable, details: Details);
     processConnectionDetails(details: Details): void;
     processRTPPacket(packet: RTPPacket): void;

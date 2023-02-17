@@ -49,6 +49,7 @@ class AACTransport {
         const rtp_payload = packet.payload;
         let ptr = 0;
         const audio_data = [];
+        // eslint-disable-next-line no-constant-condition
         while (true) {
             if (ptr + 4 > rtp_payload.length)
                 break; // 2 bytes for AU Header Length, 2 bytes of AU Header payload

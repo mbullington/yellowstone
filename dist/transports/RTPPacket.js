@@ -6,9 +6,8 @@ const buffer_1 = require("buffer");
 function toUnsigned(val) {
     return ((val >>> 1) * 2 + (val & 1));
 }
-;
 class RTPPacket {
-    constructor(bufpayload) {
+    constructor(bufpayload, hasHeader = false) {
         /* See RFC3550 for more details: http://www.ietf.org/rfc/rfc3550.txt
         V = 2, // version. always 2 for this RFC (2 bits)
         P = 0, // padding. not supported yet, so always 0 (1 bit)
@@ -23,7 +22,7 @@ class RTPPacket {
         //DP = 0, // header extension, 'Defined By Profile'. not supported yet (16 bits)
         //EL = 0; // header extension length. not supported yet (16 bits)
         */
-        if (bufpayload.length > 512) {
+        if (hasHeader && bufpayload.length >= 12) {
             // full packet (generally an incoming packet straight from the socket)
             this._bufpkt = bufpayload;
             /*V = (bufpkt[0] >>> 6 & 0x03);
@@ -67,37 +66,28 @@ class RTPPacket {
             this._bufpkt[11] = 1;
             bufpayload.copy(this._bufpkt, 12, 0); // append payload data
         }
-        this.type = 0;
-        this.seq = 0;
-        this.time = 0;
-        this.source = 0;
-        this.payload = buffer_1.Buffer.from([]);
-        this.packet = buffer_1.Buffer.from([]);
     }
-}
-Object.defineProperty(RTPPacket.prototype, 'type', {
-    get: function () { return (this._bufpkt[1] & 0x7F); },
-    set: function (val) {
+    get type() { return (this._bufpkt[1] & 0x7F); }
+    ;
+    set type(val) {
         val = toUnsigned(val);
         if (val <= 127) {
             this._bufpkt[1] -= (this._bufpkt[1] & 0x7F);
             this._bufpkt[1] |= val;
         }
     }
-});
-Object.defineProperty(RTPPacket.prototype, 'seq', {
-    get: function () { return (this._bufpkt[2] << 8 | this._bufpkt[3]); },
-    set: function (val) {
+    get seq() { return (this._bufpkt[2] << 8 | this._bufpkt[3]); }
+    ;
+    set seq(val) {
         val = toUnsigned(val);
         if (val <= 65535) {
             this._bufpkt[2] = (val >>> 8);
             this._bufpkt[3] = (val & 0xFF);
         }
     }
-});
-Object.defineProperty(RTPPacket.prototype, 'time', {
-    get: function () { return (this._bufpkt[4] << 24 | this._bufpkt[5] << 16 | this._bufpkt[6] << 8 | this._bufpkt[7]); },
-    set: function (val) {
+    get time() { return (this._bufpkt[4] << 24 | this._bufpkt[5] << 16 | this._bufpkt[6] << 8 | this._bufpkt[7]); }
+    ;
+    set time(val) {
         val = toUnsigned(val);
         if (val <= 4294967295) {
             this._bufpkt[4] = (val >>> 24);
@@ -106,10 +96,9 @@ Object.defineProperty(RTPPacket.prototype, 'time', {
             this._bufpkt[7] = (val & 0xFF);
         }
     }
-});
-Object.defineProperty(RTPPacket.prototype, 'source', {
-    get: function () { return (this._bufpkt[8] << 24 | this._bufpkt[9] << 16 | this._bufpkt[10] << 8 | this._bufpkt[11]); },
-    set: function (val) {
+    get source() { return (this._bufpkt[8] << 24 | this._bufpkt[9] << 16 | this._bufpkt[10] << 8 | this._bufpkt[11]); }
+    ;
+    set source(val) {
         val = toUnsigned(val);
         if (val <= 4294967295) {
             this._bufpkt[8] = (val >>> 24);
@@ -118,26 +107,28 @@ Object.defineProperty(RTPPacket.prototype, 'source', {
             this._bufpkt[11] = (val & 0xFF);
         }
     }
-});
-Object.defineProperty(RTPPacket.prototype, 'payload', {
-    get: function () { return (this._bufpkt.slice(12, this._bufpkt.length)); },
-    set: function (val) {
-        if (buffer_1.Buffer.isBuffer(val) && val.length <= 512) {
+    // Gets/Sets the payload of an existing RTP packet (without any RTP Headers)
+    get payload() { return (this._bufpkt.slice(12, this._bufpkt.length)); }
+    ;
+    set payload(val) {
+        if (buffer_1.Buffer.isBuffer(val)) {
             const newsize = 12 + val.length;
             if (this._bufpkt.length == newsize)
                 val.copy(this._bufpkt, 12, 0);
             else {
                 const newbuf = new buffer_1.Buffer(newsize);
-                this._bufpkt.copy(newbuf, 0, 0, 12);
+                this._bufpkt.copy(newbuf, 0, 0, 12); // copy the RTP header
                 val.copy(newbuf, 12, 0);
                 this._bufpkt = newbuf;
             }
         }
     }
-});
-Object.defineProperty(RTPPacket.prototype, 'packet', {
-    get: function () { return this._bufpkt; },
-    set: function (val) { }
-});
+    // gets/sets the RTP Header and RTP Payload
+    get packet() { return this._bufpkt; }
+    ;
+    set packet(val) {
+        this._bufpkt = val;
+    }
+}
 exports.default = RTPPacket;
 //# sourceMappingURL=RTPPacket.js.map

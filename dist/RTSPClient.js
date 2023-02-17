@@ -10,8 +10,30 @@ const RTPPacket_1 = require("./transports/RTPPacket");
 const RTP_AVP = "RTP/AVP";
 const STATUS_OK = 200;
 const STATUS_UNAUTH = 401;
+// The WWW_AUTH is of the format
+//      TOKEN key=value
+//      TOKEN key1=value1,key2=value2
+//      TOKEN key1="value1",key2=value2
+// RegEx reminder ? = Zero or One item
+//                * = Zero or More items
+//                + = 1 or More items
+//                \s is whitespace. But we need to 'escape the slash', hence \\s (or put the regex in / / characters)
+//                ?= is a lookahead
+// The RegEx has two 'Groups'
+//      
+// Group 1 (finding the Key)
+//    Look for one or more characters (a..z or A..Z)
+//    then look for whitespace
+//    then look for 'equals'
+//    then look for whitespace
+//    then look for an optional Quote character
+//
+// Group 2 (finding the Value) -
+//    Look for EITHER 'look backwards for a Quote', some characters, 'lookahead for a Quote'
+//                 OR some characters until (by looking ahead) you can see that another key comes next. The lookahead is 'optinal whitespace' 'comma' 'optional whitespace' 'chars' 'optinal whitespace' 'equals'
+//                 OR some characters followed by 'optinal whitespace'
 const WWW_AUTH = "WWW-Authenticate";
-const WWW_AUTH_REGEX = new RegExp('([a-zA-Z]+)\s*=\s*"?((?<=").*?(?=")|.*?(?=,?\s*[a-zA-Z]+\s*\=)|.+[^=])', "g");
+const WWW_AUTH_REGEX = new RegExp('([a-zA-Z]+)\\s*=\\s*"?((?<=").*?(?=")|.*?(?=\\s*,?\\s*[a-zA-Z]+\\s*=)|.+[^\\s])', "g");
 var ReadStates;
 (function (ReadStates) {
     ReadStates[ReadStates["SEARCHING"] = 0] = "SEARCHING";
@@ -24,6 +46,7 @@ class RTSPClient extends events_1.EventEmitter {
     constructor(username, password, headers) {
         super();
         this.isConnected = false;
+        this.closed = false;
         this._cSeq = 0;
         this._nextFreeInterleavedChannel = 0;
         this._nextFreeUDPPort = 5000;
@@ -58,7 +81,6 @@ class RTSPClient extends events_1.EventEmitter {
     _netConnect(hostname, port) {
         return new Promise((resolve, reject) => {
             // Set after listeners defined.
-            let client;
             const errorListener = (err) => {
                 client.removeListener("error", errorListener);
                 reject(err);
@@ -80,7 +102,7 @@ class RTSPClient extends events_1.EventEmitter {
                     this.connect(headers.Location);
                 }
             };
-            client = net.connect(port, hostname, () => {
+            const client = net.connect(port, hostname, () => {
                 this.isConnected = true;
                 this._client = client;
                 client.removeListener("error", errorListener);
@@ -197,6 +219,8 @@ class RTSPClient extends events_1.EventEmitter {
                 let setupRes;
                 let rtpChannel;
                 let rtcpChannel;
+                let rtpReceiver = null; // UDP mode init value
+                let rtcpReceiver = null; // UDP mode init value
                 if (connection === "udp") {
                     // Create a pair of UDP listeners, even numbered port for RTP
                     // and odd numbered port for RTCP
@@ -204,13 +228,13 @@ class RTSPClient extends events_1.EventEmitter {
                     rtcpChannel = this._nextFreeUDPPort + 1;
                     this._nextFreeUDPPort += 2;
                     const rtpPort = rtpChannel;
-                    const rtpReceiver = dgram.createSocket("udp4");
+                    rtpReceiver = dgram.createSocket("udp4");
                     rtpReceiver.on("message", (buf, remote) => {
                         const packet = (0, util_1.parseRTPPacket)(buf);
                         this.emit("data", rtpPort, packet.payload, packet);
                     });
                     const rtcpPort = rtcpChannel;
-                    const rtcpReceiver = dgram.createSocket("udp4");
+                    rtcpReceiver = dgram.createSocket("udp4");
                     rtcpReceiver.on("message", (buf, remote) => {
                         const packet = (0, util_1.parseRTCPPacket)(buf);
                         this.emit("controlData", rtcpPort, packet);
@@ -219,10 +243,10 @@ class RTSPClient extends events_1.EventEmitter {
                     });
                     // Block until both UDP sockets are open.
                     await new Promise((resolve) => {
-                        rtpReceiver.bind(rtpPort, () => resolve({}));
+                        rtpReceiver === null || rtpReceiver === void 0 ? void 0 : rtpReceiver.bind(rtpPort, () => resolve({}));
                     });
                     await new Promise((resolve) => {
-                        rtcpReceiver.bind(rtcpPort, () => resolve({}));
+                        rtcpReceiver === null || rtcpReceiver === void 0 ? void 0 : rtcpReceiver.bind(rtcpPort, () => resolve({}));
                     });
                     const setupHeader = {
                         Transport: `RTP/AVP;unicast;client_port=${rtpPort}-${rtcpPort}`,
@@ -258,6 +282,15 @@ class RTSPClient extends events_1.EventEmitter {
                 if (transport.protocol !== "RTP/AVP/TCP" &&
                     transport.protocol !== "RTP/AVP") {
                     throw new Error("Only RTSP servers supporting RTP/AVP(unicast) or RTP/ACP/TCP are supported at this time.");
+                }
+                // Patch from zoolyka (Zoltan Hajdu).
+                // Try to open a hole in the NAT router (to allow incoming UDP packets)
+                // by send a UDP packet for RTP and RTCP to the remote RTSP server.
+                // Note, Roger did not have a router that needed this so the feature is untested.
+                // May be better to change the RTCP message to a Receiver Report, leaving the RTP message as zero bytes
+                if (connection === "udp" && transport && rtpReceiver && rtcpReceiver) {
+                    rtpReceiver.send(Buffer.from(''), Number(transport.parameters["server_port"].split("-")[0]), hostname);
+                    rtcpReceiver.send(Buffer.from(''), Number(transport.parameters["server_port"].split("-")[1]), hostname);
                 }
                 if (headers.Unsupported) {
                     this._unsupportedExtensions = headers.Unsupported.split(",");
@@ -319,7 +352,7 @@ class RTSPClient extends events_1.EventEmitter {
                 this.removeListener("response", responseHandler);
                 const statusCode = parseInt(responseName.split(" ")[1]);
                 if (statusCode === STATUS_OK) {
-                    if (!!mediaHeaders.length) {
+                    if (mediaHeaders.length > 0) {
                         resolve({
                             headers: resHeaders,
                             mediaHeaders,
@@ -396,14 +429,12 @@ class RTSPClient extends events_1.EventEmitter {
             throw new Error("Client is not connected.");
         }
         await this.request("PLAY", { Session: this._session });
-        return this; // Is this a bug? async functions need to return a Promise
     }
     async pause() {
         if (!this.isConnected) {
             throw new Error("Client is not connected.");
         }
         await this.request("PAUSE", { Session: this._session });
-        return this; // Is this a bug? async functions need to return a Promise
     }
     async sendAudioBackChannel(audioChunk) {
         let rtp, buf;
@@ -434,9 +465,8 @@ class RTSPClient extends events_1.EventEmitter {
             |1 Byte     |1 Byte            |2 Bytes    |
             */
             channelInterleaved = channelInterleaved.split('-')[0];
-            channelInterleaved = Buffer.from([channelInterleaved]);
-            let interleavedHeader = Buffer.from([0x24]); // set động
-            interleavedHeader = Buffer.concat([interleavedHeader, channelInterleaved]);
+            let interleavedHeader = Buffer.from([0x24]); // set '$'
+            interleavedHeader = Buffer.concat([interleavedHeader, Buffer.from([channelInterleaved])]);
             interleavedHeader = Buffer.concat([interleavedHeader, bufferLength]);
             const dataToSend = Buffer.concat([interleavedHeader, rtp.packet]);
             await this._socketWrite(this.tcpSocket, dataToSend);
@@ -444,8 +474,11 @@ class RTSPClient extends events_1.EventEmitter {
         return;
     }
     async close(isImmediate = false) {
+        if (this.closed)
+            return;
+        this.closed = true;
         if (!this._client) {
-            return this;
+            return;
         }
         if (!isImmediate) {
             await this.request("TEARDOWN", {
@@ -460,7 +493,6 @@ class RTSPClient extends events_1.EventEmitter {
         }
         this.isConnected = false;
         this._cSeq = 0;
-        return this;
     }
     _onData(data) {
         let index = 0;
@@ -605,7 +637,7 @@ class RTSPClient extends events_1.EventEmitter {
         this._client.write(data);
     }
     _sendUDPData(host, port, buffer) {
-        let udp = dgram.createSocket("udp4");
+        const udp = dgram.createSocket("udp4");
         udp.send(buffer, 0, buffer.length, port, host, (err, bytes) => {
             // TODO: Don't ignore errors.
             udp.close();
@@ -636,7 +668,7 @@ class RTSPClient extends events_1.EventEmitter {
                         reject(error);
                     }
                     else {
-                        resolve(null);
+                        resolve(undefined);
                     }
                 });
             }, 20);

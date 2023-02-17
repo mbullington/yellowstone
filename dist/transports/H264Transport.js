@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const transform = require("sdp-transform");
 // .h264 file header
 const H264_HEADER = Buffer.from([0x00, 0x00, 0x00, 0x01]);
-;
 class H264Transport {
     constructor(client, stream, details) {
         this.rtpPackets = [];
@@ -40,7 +39,6 @@ class H264Transport {
         this.stream.write(pps);
         this._headerWritten = true;
     }
-    ;
     processRTPPacket(packet) {
         // Accumatate RTP packets
         this.rtpPackets.push(packet.payload);

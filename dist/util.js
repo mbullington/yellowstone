@@ -29,8 +29,21 @@ function parseRTPPacket(buffer) {
 }
 exports.parseRTPPacket = parseRTPPacket;
 function parseRTCPPacket(buffer) {
+    // Packet Types
+    // SR         Sender Report                200
+    // RR         Receiver Report              201
+    // SDES       Source Description           202
+    // BYE        Goodbye                      203
+    // APP        Application-Defined          204
+    // RTPFB      Generic RTP feedback         205
+    // PSFB       Payload-specific feedback    206
+    // XR         RTCP Extension               207
     const packetType = buffer[1];
-    const timestamp = buffer.readUInt32BE(16);
+    let timestamp = 0;
+    // Parse the 200 - SR - Sender Report payload
+    if (packetType == 200) {
+        timestamp = buffer.readUInt32BE(16);
+    }
     return {
         timestamp,
         packetType,
@@ -72,14 +85,15 @@ function generateSSRC() {
     return randInclusive(1, 0xffffffff);
 }
 exports.generateSSRC = generateSSRC;
-// BitStream classsea by 2018 Roger Hardiman, RJH Technical Consultancy Ltd
+// BitStream classes by 2018 Roger Hardiman, RJH Technical Consultancy Ltd
 // Write to a bitstream and read back as an array
 class BitStream {
-    // not very efficienet on memory
-    // Constructor
     constructor() {
         this.data = []; // Array only stores 0 or 1 (one 'bit' per buffer item)
     }
+    // not very efficient on memory
+    // Constructor
+    // constructor() {}
     // Functions
     AddValue(value, num_bits) {
         // Add each bit to the List
