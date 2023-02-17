@@ -69,8 +69,13 @@ type Headers = {
 
 type Detail = {
   codec: string;
-  mediaSource: any;
-  transport: Transport;
+  mediaSource: ({ // cannot work out how to pull this type in
+                type: string;
+                port: number;
+                protocol: string;
+                payloads?: string | undefined;
+                } & transform.MediaDescription); // get Type from the interface
+  transport: Transport['parameters']; // get Type from the interface
   isH264: boolean; // legacy API
   rtpChannel: number;
   rtcpChannel: number;
@@ -82,6 +87,7 @@ export default class RTSPClient extends EventEmitter {
   headers: { [key: string]: string };
 
   isConnected = false;
+  closed = false;
 
   // These are all set in #connect or #_netConnect.
 
@@ -118,7 +124,7 @@ export default class RTSPClient extends EventEmitter {
   clientSSRC = generateSSRC();
 
   tcpSocket: net.Socket = new net.Socket();
-  setupResult: Array<any> = [];
+  setupResult: Array<Detail> = [];
   constructor(
     username: string,
     password: string,
@@ -144,7 +150,6 @@ export default class RTSPClient extends EventEmitter {
   _netConnect(hostname: string, port: number): Promise<this> {
     return new Promise((resolve, reject) => {
       // Set after listeners defined.
-      let client: net.Socket;
 
       const errorListener = (err: any) => {
         client.removeListener("error", errorListener);
@@ -173,7 +178,7 @@ export default class RTSPClient extends EventEmitter {
         }
       };
 
-      client = net.connect(port, hostname, () => {
+      const client = net.connect(port, hostname, () => {
         this.isConnected = true;
         this._client = client;
 
@@ -199,7 +204,7 @@ export default class RTSPClient extends EventEmitter {
         keepAlive: true,
         connection: "udp",
       }
-  ) {
+  ): Promise<Detail[]> {
     const { hostname, port } = urlParse((this._url = url));
     if (!hostname) {
       throw new Error("URL parsing error in connect method.");
@@ -510,7 +515,7 @@ export default class RTSPClient extends EventEmitter {
         const statusCode = parseInt(responseName.split(" ")[1]);
 
         if (statusCode === STATUS_OK) {
-          if (!!mediaHeaders.length) {
+          if (mediaHeaders.length > 0) {
             resolve({
               headers: resHeaders,
               mediaHeaders,
@@ -585,7 +590,7 @@ export default class RTSPClient extends EventEmitter {
     });
   }
 
-  respond(status: string, headersParam: Headers = {}) {
+  respond(status: string, headersParam: Headers = {}): void {
     if (!this._client) {
       return;
     }
@@ -606,25 +611,23 @@ export default class RTSPClient extends EventEmitter {
     this._client.write(`${res}\r\n`);
   }
 
-  async play() {
+  async play(): Promise<void> {
     if (!this.isConnected) {
       throw new Error("Client is not connected.");
     }
 
     await this.request("PLAY", { Session: this._session });
-    return this; // Is this a bug? async functions need to return a Promise
   }
 
-  async pause() {
+  async pause(): Promise<void> {
     if (!this.isConnected) {
       throw new Error("Client is not connected.");
     }
 
     await this.request("PAUSE", { Session: this._session });
-    return this; // Is this a bug? async functions need to return a Promise
   }
 
-  async sendAudioBackChannel(audioChunk: Buffer) {
+  async sendAudioBackChannel(audioChunk: Buffer): Promise<void> {
     let rtp, buf;
     const bufSize = 160;
     while (audioChunk.length > 0) {
@@ -652,9 +655,8 @@ export default class RTSPClient extends EventEmitter {
       |1 Byte     |1 Byte            |2 Bytes    |
       */
       channelInterleaved = channelInterleaved.split('-')[0];
-      channelInterleaved = Buffer.from([channelInterleaved]);
-      let interleavedHeader = Buffer.from([0x24]);// set động
-      interleavedHeader = Buffer.concat([interleavedHeader, channelInterleaved]);
+      let interleavedHeader = Buffer.from([0x24]);// set '$'
+      interleavedHeader = Buffer.concat([interleavedHeader, Buffer.from([channelInterleaved])]);
       interleavedHeader = Buffer.concat([interleavedHeader, bufferLength]);
       const dataToSend = Buffer.concat([interleavedHeader, rtp.packet]);
       await this._socketWrite(this.tcpSocket, dataToSend);
@@ -662,11 +664,14 @@ export default class RTSPClient extends EventEmitter {
     return;
   }
 
-  async close(isImmediate = false) {
-    if (!this._client) {
-      return this;
-    }
+  async close(isImmediate = false): Promise<void> {
+    if (this.closed) return;
+    this.closed = true;
 
+    if (!this._client) {
+      return;
+    }
+    
     if (!isImmediate) {
       await this.request("TEARDOWN", {
         Session: this._session,
@@ -683,8 +688,6 @@ export default class RTSPClient extends EventEmitter {
 
     this.isConnected = false;
     this._cSeq = 0;
-
-    return this;
   }
 
   _onData(data: Buffer): void {
@@ -847,7 +850,7 @@ export default class RTSPClient extends EventEmitter {
     } // end while
   }
 
-  _sendInterleavedData(channel: number, buffer: Buffer) {
+  _sendInterleavedData(channel: number, buffer: Buffer): void {
     if (!this._client) {
       return;
     }
@@ -866,7 +869,7 @@ export default class RTSPClient extends EventEmitter {
   }
 
   _sendUDPData(host: string, port: number, buffer: Buffer): void {
-    let udp = dgram.createSocket("udp4");
+    const udp = dgram.createSocket("udp4");
     udp.send(buffer, 0, buffer.length, port, host, (err, bytes) => {
       // TODO: Don't ignore errors.
       udp.close();
