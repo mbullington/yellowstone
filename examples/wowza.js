@@ -12,9 +12,14 @@ const { exit } = require("process");
 
 // User-specified details here.
 //const url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4"
-const filename = "bigbuckbunny";
+//const url = "rtsp://zephyr.rtsp.stream/movie?streamKey=ddeb34302a9148df691e0c6b1cac9cfc"
+const url = "rtsp://zephyr.rtsp.stream/pattern?streamKey=38c2051ddb4b2a72d02a7db4fe89418c"
+
+
+const filename = "output";
 const username = "";
 const password = "";
+const durationSeconds = 5; // duration of streaming (0 = always stream)
 
 // Step 1: Create an RTSPClient instance
 const client = new RTSPClient(username, password);
@@ -61,9 +66,23 @@ client.connect(url, { connection: "tcp" })
     await client.play();
     console.log("Play sent");
 
+    // Optional - Terminate the RTSP connection after N Seconds
+    if (durationSeconds > 0) {
+      setTimeout(closeFunc, durationSeconds * 1000, "closing connection after " + durationSeconds + " seconds");
+    }
+    
+    
   })
   .catch(e => console.log(e));
 
+// Optional demo. Close the RTSP connection after 5 seconds
+async function closeFunc(msg ) {
+  console.log(`closing connection: ${msg}`);
+  client.removeAllListeners("data");
+  client.removeAllListeners("controlData");
+  await client.close();
+}
+  
 // The "data" event is fired for every RTP packet.
 client.on("data", (channel, data, packet) => {
   console.log("RTP:", "Channel=" + channel, "TYPE=" + packet.payloadType, "ID=" + packet.id, "TS=" + packet.timestamp, "M=" + packet.marker);

@@ -81,8 +81,8 @@ class RTSPClient extends events_1.EventEmitter {
     _netConnect(hostname, port) {
         return new Promise((resolve, reject) => {
             // Set after listeners defined.
-            const errorListener = (err) => {
-                client.removeListener("error", errorListener);
+            const connectionErrorListener = (err) => {
+                client.removeListener("error", connectionErrorListener);
                 reject(err);
             };
             const closeListener = () => {
@@ -105,12 +105,17 @@ class RTSPClient extends events_1.EventEmitter {
             const client = net.connect(port, hostname, () => {
                 this.isConnected = true;
                 this._client = client;
-                client.removeListener("error", errorListener);
+                // remove the error listener when establishing the TCP Socket (connecting)
+                client.removeListener("error", connectionErrorListener);
+                // add a new error listener to handle TCP socket read/write errors
+                client.on("error", (err) => {
+                    this.emit('log', 'socket error' + err, '');
+                });
                 this.on("response", responseListener);
                 resolve(this);
             });
             client.on("data", this._onData.bind(this));
-            client.on("error", errorListener);
+            client.on("error", connectionErrorListener); // handle "Connection Errors"
             client.on("close", closeListener);
             this.tcpSocket = client;
         });
@@ -324,6 +329,10 @@ class RTSPClient extends events_1.EventEmitter {
         if (!this._client) {
             return Promise.resolve();
         }
+        if (this.closed) {
+            this.emit("log", "Error - sending request to a closed socket", "");
+            return Promise.resolve();
+        }
         const id = ++this._cSeq;
         // mutable via string addition
         let req = `${requestName} ${url || this._url} RTSP/1.0\r\nCSeq: ${id}\r\n`;
@@ -339,7 +348,7 @@ class RTSPClient extends events_1.EventEmitter {
         // Make sure to add an empty line after the request.
         this._client.write(`${req}\r\n`);
         return new Promise((resolve, reject) => {
-            const responseHandler = (responseName, resHeaders, mediaHeaders) => {
+            const responseHandler = async (responseName, resHeaders, mediaHeaders) => {
                 const firstAnswer = String(resHeaders[""]) || "";
                 if (firstAnswer.indexOf("401") >= 0 && 'Authorization' in headers) {
                     // If the RTSP Command we sent included an Authorization and we have 401 error, then reject()
@@ -401,7 +410,7 @@ class RTSPClient extends events_1.EventEmitter {
                         Object.assign(headers, {
                             Authorization: authString,
                         });
-                        resolve(this.request(requestName, headers, url)); // Call this.request with Authorized request
+                        resolve(await this.request(requestName, headers, url)); // Call this.request with Authorized request
                         return;
                     }
                     reject(new Error(`Bad RTSP status code ${statusCode}!`));
@@ -476,7 +485,6 @@ class RTSPClient extends events_1.EventEmitter {
     async close(isImmediate = false) {
         if (this.closed)
             return;
-        this.closed = true;
         if (!this._client) {
             return;
         }
@@ -485,6 +493,9 @@ class RTSPClient extends events_1.EventEmitter {
                 Session: this._session,
             });
         }
+        // don't set 'this.closed' until after the TEARDOWN to give the RTSP server a chance to send the TEARDOWN Reply
+        this.closed = true;
+        // close the socket with end()
         this._client.end();
         this.removeAllListeners("response");
         if (this._keepAliveID != undefined) {
