@@ -164,6 +164,7 @@ export default class RTSPClient extends EventEmitter {
 
       const closeListener = () => {
         client.removeListener("close", closeListener);
+        this.emit("close");
         this.close(true);
       };
 
