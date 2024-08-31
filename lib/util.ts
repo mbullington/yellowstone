@@ -86,7 +86,7 @@ export function getMD5Hash(str: string): string {
 }
 
 export function getSHA256Hash(str: string): string {
-  const sha256 = createHash("sha-256");
+  const sha256 = createHash("sha256"); // use getHashes() to see what is supported
   sha256.update(str);
 
   return sha256.digest("hex");
