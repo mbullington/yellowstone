@@ -29,3 +29,7 @@ node_modules
 # Debug files
 debug
 .DS_Store
+
+# IDE settings
+.idea
+.vscode

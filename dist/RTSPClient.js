@@ -85,8 +85,14 @@ class RTSPClient extends events_1.EventEmitter {
                 client.removeListener("error", errorListener);
                 reject(err);
             };
+            const postConnectErrorListener = (err) => {
+                client.removeListener("error", postConnectErrorListener);
+                this.emit("error", err);
+                reject(err);
+            };
             const closeListener = () => {
                 client.removeListener("close", closeListener);
+                this.emit("close");
                 this.close(true);
             };
             const responseListener = (responseName, headers) => {
@@ -106,6 +112,7 @@ class RTSPClient extends events_1.EventEmitter {
                 this.isConnected = true;
                 this._client = client;
                 client.removeListener("error", errorListener);
+                client.on("error", postConnectErrorListener);
                 this.on("response", responseListener);
                 resolve(this);
             });
