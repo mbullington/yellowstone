@@ -85,6 +85,13 @@ export function getMD5Hash(str: string): string {
   return md5.digest("hex");
 }
 
+export function getSHA256Hash(str: string): string {
+  const sha256 = createHash("sha-256");
+  sha256.update(str);
+
+  return sha256.digest("hex");
+}
+
 export interface Transport {
   protocol: string;
   parameters: { [key: string]: string };

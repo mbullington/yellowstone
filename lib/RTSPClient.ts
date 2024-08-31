@@ -7,6 +7,7 @@ import {
   parseRTPPacket,
   parseRTCPPacket,
   getMD5Hash,
+  getSHA256Hash,
   Transport,
   parseTransport,
   generateSSRC,
@@ -535,6 +536,7 @@ export default class RTSPClient extends EventEmitter {
             // Get auth properties from WWW_AUTH header.
             let realm = "";
             let nonce = "";
+            let algorithm = "MD5"; // Default to MD5 if no algorthm is given. Milestone's RTSP server also supports SHA-256 for FIPS
 
             let match = WWW_AUTH_REGEX.exec(authHeader);
             while (match != null) {
@@ -548,6 +550,10 @@ export default class RTSPClient extends EventEmitter {
                 nonce = match[2];
               }
 
+              if (prop == "algorithm" && match[2]) {
+                algorithm = match[2];
+              }
+
               match = WWW_AUTH_REGEX.exec(authHeader);
             }
 
@@ -557,13 +563,20 @@ export default class RTSPClient extends EventEmitter {
             if (type === "Digest") {
               // Digest Authentication
 
-              const ha1 = getMD5Hash(
+              // Select Hash Function, default to MD5
+              const HashFunction = (algorithm == "SHA-256" ? getSHA256Hash : getMD5Hash);
+
+              const ha1 = HashFunction(
                 `${this.username}:${realm}:${this.password}`
               );
-              const ha2 = getMD5Hash(`${requestName}:${this._url}`);
-              const ha3 = getMD5Hash(`${ha1}:${nonce}:${ha2}`);
+              const ha2 = HashFunction(`${requestName}:${this._url}`);
+              const ha3 = HashFunction(`${ha1}:${nonce}:${ha2}`);
 
-              authString = `Digest username="${this.username}",realm="${realm}",nonce="${nonce}",uri="${this._url}",response="${ha3}"`;
+              // Some RTSP servers to not accept "algorithm=NNN" in the authString and reject the authentication. So only add algorithm=ZZZZ when not using MD5
+              if (algorithm == "MD5")
+                authString = `Digest username="${this.username}",realm="${realm}",nonce="${nonce}",uri="${this._url}",response="${ha3}"`;
+              else
+                authString = `Digest username="${this.username}",realm="${realm}",nonce="${nonce}",algorithm=${algorithm},uri="${this._url}",response="${ha3}"`;
             } else if (type === "Basic") {
               // Basic Authentication
               // https://xkcd.com/538/
