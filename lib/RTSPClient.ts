@@ -1,4 +1,9 @@
 import * as net from "net";
+import * as tls from "tls";
+
+// Union of net.Socket and tls.TLSSocket
+type SocketUnion = net.Socket | tls.TLSSocket;
+
 import * as dgram from "dgram";
 import { parse as urlParse } from "url";
 import { EventEmitter } from "events";
@@ -93,7 +98,7 @@ export default class RTSPClient extends EventEmitter {
   // These are all set in #connect or #_netConnect.
 
   _url?: string;
-  _client?: net.Socket;
+  _client?: SocketUnion;
   _cSeq = 0;
   _unsupportedExtensions?: string[];
   // Example: 'SessionId'[';timeout=seconds']
@@ -124,7 +129,7 @@ export default class RTSPClient extends EventEmitter {
   // Used in #_emptyReceiverReport.
   clientSSRC = generateSSRC();
 
-  tcpSocket: net.Socket = new net.Socket();
+  tcpSocket: SocketUnion = new net.Socket();
   setupResult: Array<Detail> = [];
   constructor(
     username: string,
@@ -148,7 +153,7 @@ export default class RTSPClient extends EventEmitter {
   //
   // Handles receiving data & closing port, called during
   // #connect.
-  _netConnect(hostname: string, port: number): Promise<this> {
+  _netConnect(hostname: string, port: number, secure: boolean = false): Promise<this> {
     return new Promise((resolve, reject) => {
       // Set after listeners defined.
 
@@ -179,15 +184,34 @@ export default class RTSPClient extends EventEmitter {
         }
       };
 
-      const client = net.connect(port, hostname, () => {
-        this.isConnected = true;
-        this._client = client;
+      // rtsp or rtsps(with tls)
+      let client: SocketUnion;
+      if (secure == false) {
+        client = net.connect(port, hostname, () => {
+          this.isConnected = true;
+          this._client = client;
 
-        client.removeListener("error", errorListener);
+          client.removeListener("error", errorListener);
 
-        this.on("response", responseListener);
-        resolve(this);
-      });
+          this.on("response", responseListener);
+          resolve(this);
+        });
+      }
+      else {
+        const options: tls.ConnectionOptions = {
+          rejectUnauthorized: false
+        };
+        client = tls.connect(port, hostname, options, () => {
+          console.log("TLS Connection");
+          this.isConnected = true;
+          this._client = client;
+
+          client.removeListener("error", errorListener);
+
+          this.on("response", responseListener);
+          resolve(this);
+        });
+      }
 
       client.on("data", this._onData.bind(this));
       client.on("error", errorListener);
@@ -201,9 +225,11 @@ export default class RTSPClient extends EventEmitter {
     {
       keepAlive = true,
       connection = "udp",
-    }: { keepAlive: boolean; connection?: Connection } = {
+      secure = false,
+    }: { keepAlive: boolean; connection?: Connection, secure: boolean } = {
         keepAlive: true,
         connection: "udp",
+        secure: false
       }
   ): Promise<Detail[]> {
     const { hostname, port } = urlParse((this._url = url));
@@ -213,7 +239,7 @@ export default class RTSPClient extends EventEmitter {
 
     const details: Detail[] = [];
 
-    await this._netConnect(hostname, parseInt(port || "554"));
+    await this._netConnect(hostname, parseInt(port || "554"), secure);
     await this.request("OPTIONS");
 
     const describeRes = await this.request("DESCRIBE", {
@@ -225,7 +251,7 @@ export default class RTSPClient extends EventEmitter {
       );
     }
 
-    // For now, only RTP/AVP is supported.
+    // For now, only RTP/AVP is supported. (Some RTSPS servers use RTP/SAVP)
     const { media } = transform.parse(describeRes.mediaHeaders.join("\r\n"));
 
     // Loop over the Media Streams in the SDP looking for Video or Audio
@@ -416,7 +442,7 @@ export default class RTSPClient extends EventEmitter {
           transport.protocol !== "RTP/AVP"
         ) {
           throw new Error(
-            "Only RTSP servers supporting RTP/AVP(unicast) or RTP/ACP/TCP are supported at this time."
+            "Only RTSP servers supporting RTP/AVP(unicast) or RTP/AVP/TCP are supported at this time."
           );
         }
 
@@ -908,7 +934,7 @@ export default class RTSPClient extends EventEmitter {
     return report;
   }
 
-  async _socketWrite(socket: net.Socket, data: Buffer): Promise<any> {
+  async _socketWrite(socket: SocketUnion, data: Buffer): Promise<any> {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         socket.write(data, (error: any) => {

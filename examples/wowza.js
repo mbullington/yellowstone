@@ -5,6 +5,13 @@
 //
 // Yellowstone is written in TypeScript. This example uses Javascript and
 // the typescript compiled files in the ./dist folder
+//
+//
+// Note on RTSPS (TLS) connection
+// Test Bosch IP Camera with "RTSPS" will stream "rtp over rtsp" in a Secure RTSPS connection
+// Text Axis IP Camera with "RTSPS" wants to encrypt the RTP packets (SRTP) which this library does not currently support and uses RTP/SAVP instead of RTP/AVP
+
+// Used to connect to Wowza Demo URL but they have taken it away, and the replacement URL on their web site does not work.
 
 const { RTSPClient, H264Transport, H265Transport, AACTransport } = require("../dist");
 const fs = require("fs");
@@ -12,9 +19,11 @@ const { exit } = require("process");
 
 // User-specified details here.
 //const url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4"
-const filename = "bigbuckbunny";
+//const url = "rtsp://807e9439d5ca.entrypoint.cloud.wowza.com:1935/app-rC94792j/068b9c9a_stream2"
+const url = "rtsp://192.168.26.204:554/rtsp_tunnel?p=0&h26x=4&aon=1&aud=1&vcd=2" // Bosch IP Camera. Port 9554 for "RTSPS". Set username and password.
 const username = "";
 const password = "";
+const filename = "outfile"
 
 // Step 1: Create an RTSPClient instance
 const client = new RTSPClient(username, password);
@@ -22,8 +31,9 @@ const client = new RTSPClient(username, password);
 // Step 2: Connect to a specified URL using the client instance.
 //
 // "keepAlive" option is set to true by default
-// "connection" option is set to "udp" by default. 
-client.connect(url, { connection: "tcp" })
+// "connection" option is set to "udp" by default and defines the method the RTP media packets are set to Yellowstone. Options are "udp" or "tcp" (where RTP media packets are sent down the RTSP connection)
+// "secure" option is set to true when connecting with TLS to the RTSP Server (eg for RTSPS)
+client.connect(url, { connection: "tcp", secure: false })
   .then(async (detailsArray) => {
     console.log("Connected");
 
