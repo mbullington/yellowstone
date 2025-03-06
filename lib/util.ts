@@ -13,6 +13,9 @@ export interface RTPPacket {
   paddingLength: number;
 
   payloadType: number;
+
+  // Additional information added to the Packet
+  wallclockTime?: Date;
 }
 
 export function parseRTPPacket(buffer: Buffer): RTPPacket {
@@ -44,11 +47,24 @@ export function parseRTPPacket(buffer: Buffer): RTPPacket {
   };
 }
 
-export interface RTCPPacket {
-  timestamp: number;
-  packetType: number;
+export interface SenderReport {
+  ntpTimestampMSW: number;
+  ntpTimestampLSW: number;
+  rtpTimestamp: number;
+  senderPacketCount: number;
+  senderOctetCount: number;
+}
 
+export interface RTCPPacket {
   buffer: Buffer;
+  version: number;
+  padding: number;
+  receptionReportCount: number;
+  packetType: number;
+  length: number;
+  ssrc: number;
+
+  senderReport?: SenderReport;
 }
 
 export function parseRTCPPacket(buffer: Buffer): RTCPPacket {
@@ -62,19 +78,35 @@ export function parseRTCPPacket(buffer: Buffer): RTCPPacket {
   // RTPFB      Generic RTP feedback         205
   // PSFB       Payload-specific feedback    206
   // XR         RTCP Extension               207
+  const version = (buffer[0] >> 6);
+  const padding = (buffer[0] >> 5) & 0x01;
+  const receptionReportCount = (buffer[0]) & 0x1F;
   const packetType = buffer[1];
-  let timestamp = 0;
+  const length = buffer[2] << 8 + buffer[3]; // The length in 32 bit words (not the length in bytes)
+  const ssrc = buffer[4] << 24 + buffer[5] << 16 + buffer[6] << 8 + buffer[7];
 
-  // Parse the 200 - SR - Sender Report payload
+  let result: RTCPPacket = {
+    buffer,
+    version,
+    padding,
+    length,
+    ssrc,
+    receptionReportCount,
+    packetType};
+
   if (packetType == 200) {
-    timestamp = buffer.readUInt32BE(16);
+    let senderReport: SenderReport = {
+      ntpTimestampMSW: buffer.readUInt32BE(8),
+      ntpTimestampLSW: buffer.readUInt32BE(12),
+      rtpTimestamp: buffer.readUInt32BE(16),
+      senderPacketCount: buffer.readUInt32BE(20),
+      senderOctetCount: buffer.readUInt32BE(24)
+    };
+
+    result.senderReport = senderReport;
   }
 
-  return {
-    timestamp,
-    packetType,
-    buffer
-  };
+  return result;
 }
 
 // utility function for using crypto library

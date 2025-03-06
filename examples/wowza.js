@@ -76,12 +76,12 @@ client.connect(url, { connection: "tcp", secure: false })
 
 // The "data" event is fired for every RTP packet.
 client.on("data", (channel, data, packet) => {
-  console.log("RTP:", "Channel=" + channel, "TYPE=" + packet.payloadType, "ID=" + packet.id, "TS=" + packet.timestamp, "M=" + packet.marker);
+  console.log("RTP:", "Channel=" + channel, "TYPE=" + packet.payloadType, "ID=" + packet.id, "TS=" + packet.timestamp, "M=" + packet.marker, (packet.wallclockTime == undefined ? "Time=Unknown" : "Time="+packet.wallclockTime.toISOString()));
 });
 
 // The "controlData" event is fired for every RTCP packet.
 client.on("controlData", (channel, rtcpPacket) => {
-  console.log("RTCP:", "Channel=" + channel, "TS=" + rtcpPacket.timestamp, "PT=" + rtcpPacket.packetType);
+  console.log("RTCP:", "Channel=" + channel, "PT=" + rtcpPacket.packetType);
 });
 
 // The "log" event allows you to optionally log any output from the library.

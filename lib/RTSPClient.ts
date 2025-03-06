@@ -73,6 +73,7 @@ type Headers = {
   Unsupported?: string;
 };
 
+// Details for each Session within the RTSP Stream (eg video session, audio session, metadata session)
 type Detail = {
   codec: string;
   mediaSource: ({ // cannot work out how to pull this type in
@@ -85,6 +86,11 @@ type Detail = {
   isH264: boolean; // legacy API
   rtpChannel: number;
   rtcpChannel: number;
+
+  // Cache any optional RTCP Sender Report values (used to calculate Wall Clock Time)
+  sr_ntpMSW?: number;
+  sr_ntpLSW?: number;
+  sr_rtptimestamp?: number;
 };
 
 export default class RTSPClient extends EventEmitter {
@@ -354,8 +360,8 @@ export default class RTSPClient extends EventEmitter {
         // either 'udp' RTP/RTCP packets
         // or with 'tcp' RTP/TCP packets which are interleaved into the TCP based RTSP socket
         let setupRes;
-        let rtpChannel;
-        let rtcpChannel;
+        let rtpChannel: number;
+        let rtcpChannel: number;
         let rtpReceiver: dgram.Socket|null = null; // UDP mode init value
         let rtcpReceiver: dgram.Socket|null = null; // UDP mode init value
 
@@ -371,7 +377,12 @@ export default class RTSPClient extends EventEmitter {
           rtpReceiver = dgram.createSocket("udp4");
 
           rtpReceiver.on("message", (buf, remote) => {
-            const packet = parseRTPPacket(buf);
+            let packet = parseRTPPacket(buf);
+
+            // Add wall clock time
+            const detail = this.setupResult.find(item => item.rtpChannel == rtpChannel);
+            if (detail != undefined) packet.wallclockTime = this.GetWallClockTime(packet, detail);
+
             this.emit("data", rtpPort, packet.payload, packet);
           });
 
@@ -380,6 +391,17 @@ export default class RTSPClient extends EventEmitter {
 
           rtcpReceiver.on("message", (buf, remote) => {
             const packet = parseRTCPPacket(buf);
+
+            // If this is a Sender Report, cache the NTP Wall Clock data
+            if (packet.packetType == 200 && packet.senderReport != undefined) {
+              let detail = this.setupResult.find(item => item.rtcpChannel == rtcpChannel);
+              if (detail != undefined) {
+                detail.sr_ntpMSW = packet.senderReport.ntpTimestampMSW;
+                detail.sr_ntpLSW = packet.senderReport.ntpTimestampLSW;
+                detail.sr_rtptimestamp = packet.senderReport.rtpTimestamp;
+              }
+            }
+
             this.emit("controlData", rtcpPort, packet);
 
             const receiver_report = this._emptyReceiverReport();
@@ -774,13 +796,30 @@ export default class RTSPClient extends EventEmitter {
           const packetChannel = this.messageBytes[1];
           if ((packetChannel & 0x01) === 0) {
             // even number
-            const packet = parseRTPPacket(this.rtspPacket);
+            let packet = parseRTPPacket(this.rtspPacket);
+
+            // Get the Session Detail
+            const detail = this.setupResult.find(item => item.rtpChannel == packetChannel);
+            if (detail != undefined) packet.wallclockTime = this.GetWallClockTime(packet, detail);
+
             this.emit("data", packetChannel, packet.payload, packet);
           }
           if ((packetChannel & 0x01) === 1) {
             // odd number
             const packet = parseRTCPPacket(this.rtspPacket);
+
+            // If this is a Sender Report, cache the NTP Wall Clock data
+            if (packet.packetType == 200 && packet.senderReport != undefined) {
+              let detail = this.setupResult.find(item => item.rtcpChannel == packetChannel);
+              if (detail != undefined) {
+                detail.sr_ntpMSW = packet.senderReport.ntpTimestampMSW;
+                detail.sr_ntpLSW = packet.senderReport.ntpTimestampLSW;
+                detail.sr_rtptimestamp = packet.senderReport.rtpTimestamp;
+              }
+            }
+            
             this.emit("controlData", packetChannel, packet);
+
             const receiver_report = this._emptyReceiverReport();
             this._sendInterleavedData(packetChannel, receiver_report);
           }
@@ -947,6 +986,26 @@ export default class RTSPClient extends EventEmitter {
       }, 20);
     })
   }
+
+  ntpBaseDate_ms = new Date("1900/1/1").getTime();
+
+  // Note we have had a RTP Packet in Yellowstone for many years, but the Audio Backchennal code added another object also called RTPPacket
+  GetWallClockTime(packet: import("c:/Users/roger/source/yellowstone/lib/util").RTPPacket, detail: Detail): Date | undefined {
+
+  // Add Wall Clock Time
+  if (detail.sr_ntpMSW != undefined && detail.sr_ntpLSW != undefined && detail.sr_rtptimestamp != undefined && detail.mediaSource.rtp[0].rate != undefined) {
+    let refTimestampSecs = detail.sr_rtptimestamp / detail.mediaSource.rtp[0].rate; // H264 is 90 kHz clock rate
+    let packetTimestampSecs = packet.timestamp / detail.mediaSource.rtp[0].rate; // eg 90kHz
+    let packetTimestampDeltaSecs = packetTimestampSecs - refTimestampSecs;
+    let refTimestamp = new Date(this.ntpBaseDate_ms + (detail.sr_ntpMSW * 1000) + ((detail.sr_ntpLSW/Math.pow(2,32))*1000));
+    let wallclockTime = new Date(refTimestamp.getTime() + (packetTimestampDeltaSecs*1000));
+    return wallclockTime;
+  }
+
+  // Could not generate a Wall Clock Time
+    return undefined;
+  }
+
 }
 
 export { RTPPacket, RTCPPacket } from "./util";
