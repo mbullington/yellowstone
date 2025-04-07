@@ -29,9 +29,14 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Wowza Example",
-            "program": "${workspaceFolder}/examples/wowza.js",
+            "name": "Demo Example",
+            "program": "${workspaceFolder}/examples/demo.js",
             "preLaunchTask": "tsc: build - tsconfig.json",
+            "args": [
+                "-u","myusername",
+                "-p","mypassword",
+                "rtsp://8.8.8.8/stream1"
+            ],
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"
             ]

@@ -16,14 +16,29 @@
 const { RTSPClient, H264Transport, H265Transport, AACTransport } = require("../dist");
 const fs = require("fs");
 const { exit } = require("process");
+const { program } = require("commander");
 
-// User-specified details here.
-//const url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4"
-//const url = "rtsp://807e9439d5ca.entrypoint.cloud.wowza.com:1935/app-rC94792j/068b9c9a_stream2"
-const url = "rtsp://192.168.26.204:554/rtsp_tunnel?p=0&h26x=4&aon=1&aud=1&vcd=2" // Bosch IP Camera. Port 9554 for "RTSPS". Set username and password.
-const username = "";
-const password = "";
+program.name("demo");
+program.description("Yellowstone RTSP Client Test Software");
+program.option('-u, --username <value>', 'Optional RTSP Username');
+program.option('-p, --password <value>', 'Optional RTSP Password');
+program.option('-o, --outfile <value>', 'Optional Output File with no File Extension for captured H264/H265/AAC');
+
+program.argument('<rtsp url eg rtsp://1.2.3.4/stream1>');
+
+program.parse(process.argv);
+const options = program.opts();
+
+// Will automatically exit if the Argument (the RTSL URL) is missing
+const url = program.args[0];
+let username = "";
+let password = "";
+if ('username' in options) username = options.username;
+if ('password' in options) password = options.password;
+
 const filename = "outfile"
+
+console.log("Connecting to " + url);
 
 // Step 1: Create an RTSPClient instance
 const client = new RTSPClient(username, password);
@@ -72,7 +87,12 @@ client.connect(url, { connection: "tcp", secure: false })
     console.log("Play sent");
 
   })
-  .catch(e => console.log(e));
+  .catch(e => {
+      console.log(e);
+      client.removeAllListeners();
+      client.close(true); // true = don't send a TEARDOWN
+    }
+  );
 
 // The "data" event is fired for every RTP packet.
 client.on("data", (channel, data, packet) => {
