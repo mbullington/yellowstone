@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BitStream = exports.generateSSRC = exports.randInclusive = exports.parseTransport = exports.getMD5Hash = exports.parseRTCPPacket = exports.parseRTPPacket = void 0;
+exports.BitStream = exports.generateSSRC = exports.randInclusive = exports.parseTransport = exports.getSHA256Hash = exports.getMD5Hash = exports.parseRTCPPacket = exports.parseRTPPacket = void 0;
 const crypto_1 = require("crypto");
 function parseRTPPacket(buffer) {
     const padding = (buffer[0] >> 5) & 0x01;
@@ -38,17 +38,32 @@ function parseRTCPPacket(buffer) {
     // RTPFB      Generic RTP feedback         205
     // PSFB       Payload-specific feedback    206
     // XR         RTCP Extension               207
+    const version = (buffer[0] >> 6);
+    const padding = (buffer[0] >> 5) & 0x01;
+    const receptionReportCount = (buffer[0]) & 0x1F;
     const packetType = buffer[1];
-    let timestamp = 0;
-    // Parse the 200 - SR - Sender Report payload
-    if (packetType == 200) {
-        timestamp = buffer.readUInt32BE(16);
-    }
-    return {
-        timestamp,
-        packetType,
-        buffer
+    const length = buffer[2] << 8 + buffer[3]; // The length in 32 bit words (not the length in bytes)
+    const ssrc = buffer[4] << 24 + buffer[5] << 16 + buffer[6] << 8 + buffer[7];
+    let result = {
+        buffer,
+        version,
+        padding,
+        length,
+        ssrc,
+        receptionReportCount,
+        packetType
     };
+    if (packetType == 200) {
+        let senderReport = {
+            ntpTimestampMSW: buffer.readUInt32BE(8),
+            ntpTimestampLSW: buffer.readUInt32BE(12),
+            rtpTimestamp: buffer.readUInt32BE(16),
+            senderPacketCount: buffer.readUInt32BE(20),
+            senderOctetCount: buffer.readUInt32BE(24)
+        };
+        result.senderReport = senderReport;
+    }
+    return result;
 }
 exports.parseRTCPPacket = parseRTCPPacket;
 // utility function for using crypto library
@@ -58,6 +73,12 @@ function getMD5Hash(str) {
     return md5.digest("hex");
 }
 exports.getMD5Hash = getMD5Hash;
+function getSHA256Hash(str) {
+    const sha256 = (0, crypto_1.createHash)("sha256"); // use getHashes() to see what is supported
+    sha256.update(str);
+    return sha256.digest("hex");
+}
+exports.getSHA256Hash = getSHA256Hash;
 function parseTransport(transport) {
     const parameters = {};
     const parts = transport.split(";");

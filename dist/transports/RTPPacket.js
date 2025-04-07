@@ -38,7 +38,7 @@ class RTPPacket {
         }
         else {
             // just payload data (for outgoing/sending)
-            this._bufpkt = new buffer_1.Buffer(12 + bufpayload.length); // V..SSRC + payload
+            this._bufpkt = buffer_1.Buffer.alloc(12 + bufpayload.length); // V..SSRC + payload
             /*bufpkt[0] = (V << 6 | P << 5 | X << 4 | CC);
             bufpkt[1] = (M << 7 | PT);
             bufpkt[2] = (SN >>> 8)
@@ -68,7 +68,6 @@ class RTPPacket {
         }
     }
     get type() { return (this._bufpkt[1] & 0x7F); }
-    ;
     set type(val) {
         val = toUnsigned(val);
         if (val <= 127) {
@@ -77,7 +76,6 @@ class RTPPacket {
         }
     }
     get seq() { return (this._bufpkt[2] << 8 | this._bufpkt[3]); }
-    ;
     set seq(val) {
         val = toUnsigned(val);
         if (val <= 65535) {
@@ -86,7 +84,6 @@ class RTPPacket {
         }
     }
     get time() { return (this._bufpkt[4] << 24 | this._bufpkt[5] << 16 | this._bufpkt[6] << 8 | this._bufpkt[7]); }
-    ;
     set time(val) {
         val = toUnsigned(val);
         if (val <= 4294967295) {
@@ -97,7 +94,6 @@ class RTPPacket {
         }
     }
     get source() { return (this._bufpkt[8] << 24 | this._bufpkt[9] << 16 | this._bufpkt[10] << 8 | this._bufpkt[11]); }
-    ;
     set source(val) {
         val = toUnsigned(val);
         if (val <= 4294967295) {
@@ -109,14 +105,13 @@ class RTPPacket {
     }
     // Gets/Sets the payload of an existing RTP packet (without any RTP Headers)
     get payload() { return (this._bufpkt.slice(12, this._bufpkt.length)); }
-    ;
     set payload(val) {
         if (buffer_1.Buffer.isBuffer(val)) {
             const newsize = 12 + val.length;
             if (this._bufpkt.length == newsize)
                 val.copy(this._bufpkt, 12, 0);
             else {
-                const newbuf = new buffer_1.Buffer(newsize);
+                const newbuf = buffer_1.Buffer.alloc(newsize);
                 this._bufpkt.copy(newbuf, 0, 0, 12); // copy the RTP header
                 val.copy(newbuf, 12, 0);
                 this._bufpkt = newbuf;
@@ -125,7 +120,6 @@ class RTPPacket {
     }
     // gets/sets the RTP Header and RTP Payload
     get packet() { return this._bufpkt; }
-    ;
     set packet(val) {
         this._bufpkt = val;
     }
