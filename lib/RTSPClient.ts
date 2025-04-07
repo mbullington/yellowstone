@@ -8,6 +8,8 @@ import * as dgram from "dgram";
 import { parse as urlParse } from "url";
 import { EventEmitter } from "events";
 
+import * as util from "./util";
+
 import {
   parseRTPPacket,
   parseRTCPPacket,
@@ -990,7 +992,7 @@ export default class RTSPClient extends EventEmitter {
   ntpBaseDate_ms = new Date("1900/1/1").getTime();
 
   // Note we have had a RTP Packet in Yellowstone for many years, but the Audio Backchennal code added another object also called RTPPacket
-  GetWallClockTime(packet: import("c:/Users/roger/source/yellowstone/lib/util").RTPPacket, detail: Detail): Date | undefined {
+  GetWallClockTime(packet: util.RTPPacket, detail: Detail): Date | undefined {
 
   // Add Wall Clock Time
   if (detail.sr_ntpMSW != undefined && detail.sr_ntpLSW != undefined && detail.sr_rtptimestamp != undefined && detail.mediaSource.rtp[0].rate != undefined) {
