@@ -53,8 +53,8 @@ export default class H264Transport {
     const splitSpropParameterSets = fmtpConfig['sprop-parameter-sets'].toString().split(',');
     const sps_base64 = splitSpropParameterSets[0];
     const pps_base64 = splitSpropParameterSets[1];
-    const sps = new Buffer(sps_base64, "base64");
-    const pps = new Buffer(pps_base64, "base64");
+    const sps = Buffer.from(sps_base64, "base64");
+    const pps = Buffer.from(pps_base64, "base64");
 
     this.stream.write(H264_HEADER);
     this.stream.write(sps);
