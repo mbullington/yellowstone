@@ -1,3 +1,16 @@
+# Next Release
+
+**New features**:
+Output AV1 streams to a .obu file that 'ffplay' can replay. Tested with MediaMTX with ffmpeg sending AV1 via RTSP to MediaMTX
+Remove wowza demo. They no longer host an online RTSP server we can use
+Add new examples/demo where the URL, username and password can be passed on the Command Line
+Show Wall Clock Time for RTP packets after the RTCP Sender Report is received
+Initial RTSPS support, tested with Bosch CCTV Cameras. (did not work with Axis CCTV Cameras that want to use SRTP)
+Add support for SHA256 hash (in addition to existing MD5)
+
+**Bug fixes**:
+Fix parsing of H265 with no 'fmtp' in the SDP
+
 # v3.0.4
 
 **New features**:
