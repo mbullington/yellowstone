@@ -29,9 +29,9 @@ class H265Transport {
             return;
         }
         const fmtpConfig = transform.parseParams(fmtp.config);
-        const vps = new Buffer(fmtpConfig['sprop-vps'].toString(), "base64");
-        const sps = new Buffer(fmtpConfig['sprop-sps'].toString(), "base64");
-        const pps = new Buffer(fmtpConfig['sprop-pps'].toString(), "base64");
+        const vps = Buffer.from(fmtpConfig['sprop-vps'].toString(), "base64");
+        const sps = Buffer.from(fmtpConfig['sprop-sps'].toString(), "base64");
+        const pps = Buffer.from(fmtpConfig['sprop-pps'].toString(), "base64");
         this.stream.write(H265_HEADER);
         this.stream.write(vps);
         this.stream.write(H265_HEADER);

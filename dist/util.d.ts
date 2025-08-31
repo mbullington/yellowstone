@@ -9,15 +9,29 @@ export interface RTPPacket {
     length: number;
     paddingLength: number;
     payloadType: number;
+    wallclockTime?: Date;
 }
 export declare function parseRTPPacket(buffer: Buffer): RTPPacket;
+export interface SenderReport {
+    ntpTimestampMSW: number;
+    ntpTimestampLSW: number;
+    rtpTimestamp: number;
+    senderPacketCount: number;
+    senderOctetCount: number;
+}
 export interface RTCPPacket {
-    timestamp: number;
-    packetType: number;
     buffer: Buffer;
+    version: number;
+    padding: number;
+    receptionReportCount: number;
+    packetType: number;
+    length: number;
+    ssrc: number;
+    senderReport?: SenderReport;
 }
 export declare function parseRTCPPacket(buffer: Buffer): RTCPPacket;
 export declare function getMD5Hash(str: string): string;
+export declare function getSHA256Hash(str: string): string;
 export interface Transport {
     protocol: string;
     parameters: {

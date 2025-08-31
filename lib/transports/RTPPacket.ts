@@ -40,7 +40,7 @@ class RTPPacket {
             // bufpkt[12..bufpkg.length-1] == payload data
         } else {
             // just payload data (for outgoing/sending)
-            this._bufpkt = new Buffer(12 + bufpayload.length); // V..SSRC + payload
+            this._bufpkt = Buffer.alloc(12 + bufpayload.length); // V..SSRC + payload
             /*bufpkt[0] = (V << 6 | P << 5 | X << 4 | CC);
             bufpkt[1] = (M << 7 | PT);
             bufpkt[2] = (SN >>> 8)
@@ -118,7 +118,7 @@ class RTPPacket {
             if (this._bufpkt.length == newsize)
                 val.copy(this._bufpkt, 12, 0);
             else {
-                const newbuf = new Buffer(newsize);
+                const newbuf = Buffer.alloc(newsize);
                 this._bufpkt.copy(newbuf, 0, 0, 12); // copy the RTP header
                 val.copy(newbuf, 12, 0);
                 this._bufpkt = newbuf;

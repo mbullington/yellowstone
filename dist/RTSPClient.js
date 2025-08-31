@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const net = require("net");
+const tls = require("tls");
 const dgram = require("dgram");
 const url_1 = require("url");
 const events_1 = require("events");
@@ -61,12 +62,13 @@ class RTSPClient extends events_1.EventEmitter {
         this.rtspHeaders = {};
         // Used for parsing RTP/RTCP responses.
         this.rtspPacketLength = 0;
-        this.rtspPacket = new Buffer("");
+        this.rtspPacket = Buffer.from("");
         this.rtspPacketPointer = 0;
         // Used in #_emptyReceiverReport.
         this.clientSSRC = (0, util_1.generateSSRC)();
         this.tcpSocket = new net.Socket();
         this.setupResult = [];
+        this.ntpBaseDate_ms = new Date("1900/1/1").getTime();
         this.username = username;
         this.password = password;
         this.headers = Object.assign(Object.assign({}, (headers || {})), { "User-Agent": "yellowstone/3.x" });
@@ -78,7 +80,7 @@ class RTSPClient extends events_1.EventEmitter {
     //
     // Handles receiving data & closing port, called during
     // #connect.
-    _netConnect(hostname, port) {
+    _netConnect(hostname, port, secure = false) {
         return new Promise((resolve, reject) => {
             // Set after listeners defined.
             const errorListener = (err) => {
@@ -108,30 +110,50 @@ class RTSPClient extends events_1.EventEmitter {
                     this.connect(headers.Location);
                 }
             };
-            const client = net.connect(port, hostname, () => {
-                this.isConnected = true;
-                this._client = client;
-                client.removeListener("error", errorListener);
-                client.on("error", postConnectErrorListener);
-                this.on("response", responseListener);
-                resolve(this);
-            });
+            // rtsp or rtsps(with tls)
+            let client;
+            if (secure == false) {
+                client = net.connect(port, hostname, () => {
+                    this.isConnected = true;
+                    this._client = client;
+                    client.removeListener("error", errorListener);
+                    client.on("error", postConnectErrorListener);
+                    this.on("response", responseListener);
+                    resolve(this);
+                });
+            }
+            else {
+                const options = {
+                    rejectUnauthorized: false
+                };
+                client = tls.connect(port, hostname, options, () => {
+                    console.log("TLS Connection");
+                    this.isConnected = true;
+                    this._client = client;
+                    client.removeListener("error", errorListener);
+                    client.on("error", postConnectErrorListener);
+                    this.on("response", responseListener);
+                    resolve(this);
+                });
+            }
+
             client.on("data", this._onData.bind(this));
             client.on("error", errorListener);
             client.on("close", closeListener);
             this.tcpSocket = client;
         });
     }
-    async connect(url, { keepAlive = true, connection = "udp", } = {
+    async connect(url, { keepAlive = true, connection = "udp", secure = false, } = {
         keepAlive: true,
         connection: "udp",
+        secure: false
     }) {
         const { hostname, port } = (0, url_1.parse)((this._url = url));
         if (!hostname) {
             throw new Error("URL parsing error in connect method.");
         }
         const details = [];
-        await this._netConnect(hostname, parseInt(port || "554"));
+        await this._netConnect(hostname, parseInt(port || "554"), secure);
         await this.request("OPTIONS");
         const describeRes = await this.request("DESCRIBE", {
             Accept: "application/sdp",
@@ -139,7 +161,7 @@ class RTSPClient extends events_1.EventEmitter {
         if (!describeRes || !describeRes.mediaHeaders) {
             throw new Error("No media headers on DESCRIBE; RTSP server is broken (sanity check)");
         }
-        // For now, only RTP/AVP is supported.
+        // For now, only RTP/AVP is supported. (Some RTSPS servers use RTP/SAVP)
         const { media } = transform.parse(describeRes.mediaHeaders.join("\r\n"));
         // Loop over the Media Streams in the SDP looking for Video or Audio
         // In theory the SDP can contain multiple Video and Audio Streams. We only want one of each type
@@ -237,13 +259,26 @@ class RTSPClient extends events_1.EventEmitter {
                     const rtpPort = rtpChannel;
                     rtpReceiver = dgram.createSocket("udp4");
                     rtpReceiver.on("message", (buf, remote) => {
-                        const packet = (0, util_1.parseRTPPacket)(buf);
+                        let packet = (0, util_1.parseRTPPacket)(buf);
+                        // Add wall clock time
+                        const detail = this.setupResult.find(item => item.rtpChannel == rtpChannel);
+                        if (detail != undefined)
+                            packet.wallclockTime = this.GetWallClockTime(packet, detail);
                         this.emit("data", rtpPort, packet.payload, packet);
                     });
                     const rtcpPort = rtcpChannel;
                     rtcpReceiver = dgram.createSocket("udp4");
                     rtcpReceiver.on("message", (buf, remote) => {
                         const packet = (0, util_1.parseRTCPPacket)(buf);
+                        // If this is a Sender Report, cache the NTP Wall Clock data
+                        if (packet.packetType == 200 && packet.senderReport != undefined) {
+                            let detail = this.setupResult.find(item => item.rtcpChannel == rtcpChannel);
+                            if (detail != undefined) {
+                                detail.sr_ntpMSW = packet.senderReport.ntpTimestampMSW;
+                                detail.sr_ntpLSW = packet.senderReport.ntpTimestampLSW;
+                                detail.sr_rtptimestamp = packet.senderReport.rtpTimestamp;
+                            }
+                        }
                         this.emit("controlData", rtcpPort, packet);
                         const receiver_report = this._emptyReceiverReport();
                         this._sendUDPData(remote.address, remote.port, receiver_report);
@@ -288,7 +323,7 @@ class RTSPClient extends events_1.EventEmitter {
                 const transport = (0, util_1.parseTransport)(headers.Transport);
                 if (transport.protocol !== "RTP/AVP/TCP" &&
                     transport.protocol !== "RTP/AVP") {
-                    throw new Error("Only RTSP servers supporting RTP/AVP(unicast) or RTP/ACP/TCP are supported at this time.");
+                    throw new Error("Only RTSP servers supporting RTP/AVP(unicast) or RTP/AVP/TCP are supported at this time.");
                 }
                 // Patch from zoolyka (Zoltan Hajdu).
                 // Try to open a hole in the NAT router (to allow incoming UDP packets)
@@ -379,6 +414,7 @@ class RTSPClient extends events_1.EventEmitter {
                         // Get auth properties from WWW_AUTH header.
                         let realm = "";
                         let nonce = "";
+                        let algorithm = "MD5"; // Default to MD5 if no algorthm is given. Milestone's RTSP server also supports SHA-256 for FIPS
                         let match = WWW_AUTH_REGEX.exec(authHeader);
                         while (match != null) {
                             const prop = match[1];
@@ -388,21 +424,30 @@ class RTSPClient extends events_1.EventEmitter {
                             if (prop == "nonce" && match[2]) {
                                 nonce = match[2];
                             }
+                            if (prop == "algorithm" && match[2]) {
+                                algorithm = match[2];
+                            }
                             match = WWW_AUTH_REGEX.exec(authHeader);
                         }
                         // mutable, corresponds to Authorization header
                         let authString = "";
                         if (type === "Digest") {
                             // Digest Authentication
-                            const ha1 = (0, util_1.getMD5Hash)(`${this.username}:${realm}:${this.password}`);
-                            const ha2 = (0, util_1.getMD5Hash)(`${requestName}:${this._url}`);
-                            const ha3 = (0, util_1.getMD5Hash)(`${ha1}:${nonce}:${ha2}`);
-                            authString = `Digest username="${this.username}",realm="${realm}",nonce="${nonce}",uri="${this._url}",response="${ha3}"`;
+                            // Select Hash Function, default to MD5
+                            const HashFunction = (algorithm == "SHA-256" ? util_1.getSHA256Hash : util_1.getMD5Hash);
+                            const ha1 = HashFunction(`${this.username}:${realm}:${this.password}`);
+                            const ha2 = HashFunction(`${requestName}:${this._url}`);
+                            const ha3 = HashFunction(`${ha1}:${nonce}:${ha2}`);
+                            // Some RTSP servers to not accept "algorithm=NNN" in the authString and reject the authentication. So only add algorithm=ZZZZ when not using MD5
+                            if (algorithm == "MD5")
+                                authString = `Digest username="${this.username}",realm="${realm}",nonce="${nonce}",uri="${this._url}",response="${ha3}"`;
+                            else
+                                authString = `Digest username="${this.username}",realm="${realm}",nonce="${nonce}",algorithm=${algorithm},uri="${this._url}",response="${ha3}"`;
                         }
                         else if (type === "Basic") {
                             // Basic Authentication
                             // https://xkcd.com/538/
-                            const b64 = new Buffer(`${this.username}:${this.password}`).toString("base64");
+                            const b64 = Buffer.from(`${this.username}:${this.password}`).toString("base64");
                             authString = `Basic ${b64}`;
                         }
                         Object.assign(headers, {
@@ -525,7 +570,7 @@ class RTSPClient extends events_1.EventEmitter {
                     this.rtspPacketLength =
                         (this.messageBytes[2] << 8) + this.messageBytes[3];
                     if (this.rtspPacketLength > 0) {
-                        this.rtspPacket = new Buffer(this.rtspPacketLength);
+                        this.rtspPacket = Buffer.alloc(this.rtspPacketLength);
                         this.rtspPacketPointer = 0;
                         this.readState = ReadStates.READING_RAW_PACKET;
                     }
@@ -541,12 +586,25 @@ class RTSPClient extends events_1.EventEmitter {
                     const packetChannel = this.messageBytes[1];
                     if ((packetChannel & 0x01) === 0) {
                         // even number
-                        const packet = (0, util_1.parseRTPPacket)(this.rtspPacket);
+                        let packet = (0, util_1.parseRTPPacket)(this.rtspPacket);
+                        // Get the Session Detail
+                        const detail = this.setupResult.find(item => item.rtpChannel == packetChannel);
+                        if (detail != undefined)
+                            packet.wallclockTime = this.GetWallClockTime(packet, detail);
                         this.emit("data", packetChannel, packet.payload, packet);
                     }
                     if ((packetChannel & 0x01) === 1) {
                         // odd number
                         const packet = (0, util_1.parseRTCPPacket)(this.rtspPacket);
+                        // If this is a Sender Report, cache the NTP Wall Clock data
+                        if (packet.packetType == 200 && packet.senderReport != undefined) {
+                            let detail = this.setupResult.find(item => item.rtcpChannel == packetChannel);
+                            if (detail != undefined) {
+                                detail.sr_ntpMSW = packet.senderReport.ntpTimestampMSW;
+                                detail.sr_ntpLSW = packet.senderReport.ntpTimestampLSW;
+                                detail.sr_rtptimestamp = packet.senderReport.rtpTimestamp;
+                            }
+                        }
                         this.emit("controlData", packetChannel, packet);
                         const receiver_report = this._emptyReceiverReport();
                         this._sendInterleavedData(packetChannel, receiver_report);
@@ -635,7 +693,7 @@ class RTSPClient extends events_1.EventEmitter {
         }
         const req = `${buffer.length} bytes of interleaved data on channel ${channel}`;
         this.emit("log", req, "C->S");
-        const header = new Buffer(4);
+        const header = Buffer.alloc(4);
         header[0] = 0x24; // ascii $
         header[1] = channel;
         header[2] = (buffer.length >> 8) & 0xff;
@@ -651,7 +709,7 @@ class RTSPClient extends events_1.EventEmitter {
         });
     }
     _emptyReceiverReport() {
-        const report = new Buffer(8);
+        const report = Buffer.alloc(8);
         const version = 2;
         const paddingBit = 0;
         const reportCount = 0; // an empty report
@@ -680,6 +738,20 @@ class RTSPClient extends events_1.EventEmitter {
                 });
             }, 20);
         });
+    }
+    // Note we have had a RTP Packet in Yellowstone for many years, but the Audio Backchennal code added another object also called RTPPacket
+    GetWallClockTime(packet, detail) {
+        // Add Wall Clock Time
+        if (detail.sr_ntpMSW != undefined && detail.sr_ntpLSW != undefined && detail.sr_rtptimestamp != undefined && detail.mediaSource.rtp[0].rate != undefined) {
+            let refTimestampSecs = detail.sr_rtptimestamp / detail.mediaSource.rtp[0].rate; // H264 is 90 kHz clock rate
+            let packetTimestampSecs = packet.timestamp / detail.mediaSource.rtp[0].rate; // eg 90kHz
+            let packetTimestampDeltaSecs = packetTimestampSecs - refTimestampSecs;
+            let refTimestamp = new Date(this.ntpBaseDate_ms + (detail.sr_ntpMSW * 1000) + ((detail.sr_ntpLSW / Math.pow(2, 32)) * 1000));
+            let wallclockTime = new Date(refTimestamp.getTime() + (packetTimestampDeltaSecs * 1000));
+            return wallclockTime;
+        }
+        // Could not generate a Wall Clock Time
+        return undefined;
     }
 }
 exports.default = RTSPClient;

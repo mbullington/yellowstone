@@ -30,18 +30,20 @@ Yellowstone was co-developed by Michael Bullington and Roger Hardiman.
 
 ## Examples
 
-An example of most API features can be found at [examples/wowza.js](examples/wowza.js), which will create
-a file named bigbuckbunny.264 in the project's root directory. To test this file with a
-video player, you either need a video player that supports raw H264 frames, or wrap it
-in a container like MP4.
-You can play the video with
-```ffplay bigbuckbunny.264```
+An example of most API features can be found at [examples/demo.js](examples/demo.js), which will
+connect to a RTSP Stream and dump H264, H265 and AAC contents to a file.
+For example
+```node examples\demo.js rtsp://myhostname/stream1```
+```node examples\demo.js -u username -p password rtsp://myhostname/stream1```
+
+To testthe output file with a video player you can use FFMPEG's ffplay command
+```ffplay outfile.264```
 
 While yellowstone is /**not**/ dependent on ffmpeg, converting the file to an .mp4 can be easily
 accomplished with the following command.
 
 ```sh
-ffmpeg -f h264 -i bigbuckbunny.264 -vcodec copy bigbuckbunny.mp4
+ffmpeg -f h264 -i outfile.264 -vcodec copy outfile.mp4
 ```
 
 
