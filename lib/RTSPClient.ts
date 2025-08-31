@@ -305,6 +305,19 @@ export default class RTSPClient extends EventEmitter {
         }
       }
 
+      if (
+        mediaSource.type === "video" &&
+        mediaSource.protocol === RTP_AVP &&
+        mediaSource.rtp[0].codec === "AV1"
+      ) {
+        this.emit("log", "AV1 Video Stream Found in SDP", "");
+        if (hasVideo == false) {
+          needSetup = true;
+          hasVideo = true;
+          codec = "AV1";
+        }
+      }
+
 
       if (
         mediaSource.type === "audio" &&
@@ -492,7 +505,7 @@ export default class RTSPClient extends EventEmitter {
           codec,
           mediaSource,
           transport: transport.parameters,
-          isH264: codec === "H264",
+          isH264: codec === "H264", // legacy API
           rtpChannel,
           rtcpChannel,
         };
