@@ -170,8 +170,15 @@ export default class RTSPClient extends EventEmitter {
         reject(err);
       };
 
+      const postConnectErrorListener = (err: any) => {
+        client.removeListener("error", postConnectErrorListener);
+        this.emit("error", err);
+        reject(err);
+      };
+
       const closeListener = () => {
         client.removeListener("close", closeListener);
+        this.emit("close");
         this.close(true);
       };
 
@@ -200,6 +207,7 @@ export default class RTSPClient extends EventEmitter {
           this._client = client;
 
           client.removeListener("error", errorListener);
+          client.on("error", postConnectErrorListener);
 
           this.on("response", responseListener);
           resolve(this);
@@ -734,7 +742,7 @@ export default class RTSPClient extends EventEmitter {
     if (!this._client) {
       return;
     }
-    
+
     if (!isImmediate) {
       await this.request("TEARDOWN", {
         Session: this._session,
