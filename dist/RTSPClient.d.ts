@@ -17,6 +17,12 @@ declare enum ReadStates {
     READING_RAW_PACKET = 4
 }
 type Connection = "udp" | "tcp";
+type AuthOptions = {
+    type: "Digest" | "Basic";
+    realm?: string;
+    nonce?: string;
+    algorithm?: "MD5" | "SHA-256";
+};
 type Headers = {
     [key: string]: string | number | undefined;
     Session?: string;
@@ -54,6 +60,7 @@ export default class RTSPClient extends EventEmitter {
     _client?: SocketUnion;
     _cSeq: number;
     _unsupportedExtensions?: string[];
+    _authOpions?: AuthOptions;
     _session?: string;
     _keepAliveID?: NodeJS.Timeout;
     _nextFreeInterleavedChannel: number;
@@ -92,6 +99,7 @@ export default class RTSPClient extends EventEmitter {
     _sendUDPData(host: string, port: number, buffer: Buffer): void;
     _emptyReceiverReport(): Buffer;
     _socketWrite(socket: SocketUnion, data: Buffer): Promise<any>;
+    private _generateAuthString;
     ntpBaseDate_ms: number;
     GetWallClockTime(packet: util.RTPPacket, detail: Detail): Date | undefined;
 }
