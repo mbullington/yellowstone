@@ -13,7 +13,7 @@
 
 // Used to connect to Wowza Demo URL but they have taken it away, and the replacement URL on their web site does not work.
 
-const { RTSPClient, H264Transport, H265Transport, AACTransport } = require("../dist");
+const { RTSPClient, H264Transport, H265Transport, AV1Transport, AACTransport } = require("../dist");
 const fs = require("fs");
 const { exit } = require("process");
 const { program } = require("commander");
@@ -22,7 +22,7 @@ program.name("demo");
 program.description("Yellowstone RTSP Client Test Software");
 program.option('-u, --username <value>', 'Optional RTSP Username');
 program.option('-p, --password <value>', 'Optional RTSP Password');
-program.option('-o, --outfile <value>', 'Optional Output File with no File Extension for captured H264/H265/AAC');
+program.option('-o, --outfile <value>', 'Optional Output File with no File Extension for captured H264/H265/AV1/AAC');
 
 program.argument('<rtsp url eg rtsp://1.2.3.4/stream1>');
 
@@ -73,6 +73,12 @@ client.connect(url, { connection: "tcp", secure: false })
         // Step 4: Create H265Transport passing in the client, file, and details
         // This class subscribes to the client 'data' event, looking for the video payload
         const h265 = new H265Transport(client, videoFile, details);
+      }
+      if (details.codec == "AV1") {
+        const videoFile = fs.createWriteStream(filename + '.obu');
+        // Step 4: Create AV1Transport passing in the client, file, and details
+        // This class subscribes to the client 'data' event, looking for the video payload
+        const av1 = new AV1Transport(client, videoFile, details);
       }
       if (details.codec == "AAC") {
         const audioFile = fs.createWriteStream(filename + '.aac');
