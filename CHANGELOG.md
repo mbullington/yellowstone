@@ -1,7 +1,14 @@
 # Next Release
 
+# v3.0.6 - 13th Oct 2025
+
 **New features**:
-Output AV1 streams to a .obu file that 'ffplay' can replay. Tested with MediaMTX with ffmpeg sending AV1 via RTSP to MediaMTX
+AV1 servers can use RTP/AVPF to indicate they support Feedback so a viewer could request a Keyframe via RTCP
+
+# v3.0.5 - 2nd May 2025
+
+**New features**:
+Output AV1 streams to a .obu file that 'ffplay' can replay. Tested with MediaMTX with ffmpeg-current sending AV1 via RTSP to MediaMTX
 Remove wowza demo. They no longer host an online RTSP server we can use
 Add new examples/demo where the URL, username and password can be passed on the Command Line
 Show Wall Clock Time for RTP packets after the RTCP Sender Report is received
