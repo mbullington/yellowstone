@@ -162,16 +162,16 @@ export default class RTSPClient extends EventEmitter {
   //
   // Handles receiving data & closing port, called during
   // #connect.
-  _netConnect(hostname: string, port: number, secure: boolean = false): Promise<this> {
+  _netConnect(hostname: string, port: number, secure = false): Promise<this> {
     return new Promise((resolve, reject) => {
       // Set after listeners defined.
 
-      const errorListener = (err: any) => {
+      const errorListener = (err: Error) => {
         client.removeListener("error", errorListener);
         reject(err);
       };
 
-      const postConnectErrorListener = (err: any) => {
+      const postConnectErrorListener = (err: Error) => {
         client.removeListener("error", postConnectErrorListener);
         this.emit("error", err);
         reject(err);
@@ -400,8 +400,8 @@ export default class RTSPClient extends EventEmitter {
           const rtpPort = rtpChannel;
           rtpReceiver = dgram.createSocket("udp4");
 
-          rtpReceiver.on("message", (buf, remote) => {
-            let packet = parseRTPPacket(buf);
+          rtpReceiver.on("message", (buf) => {
+            const packet = parseRTPPacket(buf);
 
             // Add wall clock time
             const detail = this.setupResult.find(item => item.rtpChannel == rtpChannel);
@@ -418,7 +418,7 @@ export default class RTSPClient extends EventEmitter {
 
             // If this is a Sender Report, cache the NTP Wall Clock data
             if (packet.packetType == 200 && packet.senderReport != undefined) {
-              let detail = this.setupResult.find(item => item.rtcpChannel == rtcpChannel);
+              const detail = this.setupResult.find(item => item.rtcpChannel == rtcpChannel);
               if (detail != undefined) {
                 detail.sr_ntpMSW = packet.senderReport.ntpTimestampMSW;
                 detail.sr_ntpLSW = packet.senderReport.ntpTimestampLSW;
@@ -820,7 +820,7 @@ export default class RTSPClient extends EventEmitter {
           const packetChannel = this.messageBytes[1];
           if ((packetChannel & 0x01) === 0) {
             // even number
-            let packet = parseRTPPacket(this.rtspPacket);
+            const packet = parseRTPPacket(this.rtspPacket);
 
             // Get the Session Detail
             const detail = this.setupResult.find(item => item.rtpChannel == packetChannel);
@@ -834,7 +834,7 @@ export default class RTSPClient extends EventEmitter {
 
             // If this is a Sender Report, cache the NTP Wall Clock data
             if (packet.packetType == 200 && packet.senderReport != undefined) {
-              let detail = this.setupResult.find(item => item.rtcpChannel == packetChannel);
+              const detail = this.setupResult.find(item => item.rtcpChannel == packetChannel);
               if (detail != undefined) {
                 detail.sr_ntpMSW = packet.senderReport.ntpTimestampMSW;
                 detail.sr_ntpLSW = packet.senderReport.ntpTimestampLSW;
@@ -972,7 +972,7 @@ export default class RTSPClient extends EventEmitter {
 
   _sendUDPData(host: string, port: number, buffer: Buffer): void {
     const udp = dgram.createSocket("udp4");
-    udp.send(buffer, 0, buffer.length, port, host, (err, bytes) => {
+    udp.send(buffer, 0, buffer.length, port, host, (_err, _bytes) => {
       // TODO: Don't ignore errors.
       udp.close();
     });
@@ -997,10 +997,10 @@ export default class RTSPClient extends EventEmitter {
     return report;
   }
 
-  async _socketWrite(socket: SocketUnion, data: Buffer): Promise<any> {
+  async _socketWrite(socket: SocketUnion, data: Buffer): Promise<void> {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        socket.write(data, (error: any) => {
+        socket.write(data, (error: Error | null) => {
           if (error) {
             reject(error);
           } else {
@@ -1018,11 +1018,11 @@ export default class RTSPClient extends EventEmitter {
 
   // Add Wall Clock Time
   if (detail.sr_ntpMSW != undefined && detail.sr_ntpLSW != undefined && detail.sr_rtptimestamp != undefined && detail.mediaSource.rtp[0].rate != undefined) {
-    let refTimestampSecs = detail.sr_rtptimestamp / detail.mediaSource.rtp[0].rate; // H264 is 90 kHz clock rate
-    let packetTimestampSecs = packet.timestamp / detail.mediaSource.rtp[0].rate; // eg 90kHz
-    let packetTimestampDeltaSecs = packetTimestampSecs - refTimestampSecs;
-    let refTimestamp = new Date(this.ntpBaseDate_ms + (detail.sr_ntpMSW * 1000) + ((detail.sr_ntpLSW/Math.pow(2,32))*1000));
-    let wallclockTime = new Date(refTimestamp.getTime() + (packetTimestampDeltaSecs*1000));
+    const refTimestampSecs = detail.sr_rtptimestamp / detail.mediaSource.rtp[0].rate; // H264 is 90 kHz clock rate
+    const packetTimestampSecs = packet.timestamp / detail.mediaSource.rtp[0].rate; // eg 90kHz
+    const packetTimestampDeltaSecs = packetTimestampSecs - refTimestampSecs;
+    const refTimestamp = new Date(this.ntpBaseDate_ms + (detail.sr_ntpMSW * 1000) + ((detail.sr_ntpLSW/Math.pow(2,32))*1000));
+    const wallclockTime = new Date(refTimestamp.getTime() + (packetTimestampDeltaSecs*1000));
     return wallclockTime;
   }
 
