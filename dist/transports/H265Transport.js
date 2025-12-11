@@ -65,10 +65,10 @@ class H265Transport {
               */
             const packet = rtpPackets[i];
             const payload_header = (packet[0] << 8) | (packet[1]);
-            const payload_header_f_bit = (payload_header >> 15) & 0x01;
+            const _payload_header_f_bit = (payload_header >> 15) & 0x01;
             const payload_header_type = (payload_header >> 9) & 0x3F;
-            const payload_header_layer_id = (payload_header >> 3) & 0x3F;
-            const payload_header_tid = payload_header & 0x7;
+            const _payload_header_layer_id = (payload_header >> 3) & 0x3F;
+            const _payload_header_tid = payload_header & 0x7;
             // There are three ways to Packetize NAL units into RTP Packets
             //  Single NAL Unit Packet
             //  Aggregation Packet (payload_header_type = 48)
