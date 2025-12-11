@@ -59,7 +59,7 @@ class AACTransport {
             ptr += 2;
             // Examine the AU Header. Get the size of the AAC data
             const aac_frame_size = ((rtp_payload[ptr] << 8) + (rtp_payload[ptr + 1] << 0)) >> 3; // 13 bits
-            const aac_index_delta = rtp_payload[ptr + 1] & 0x03; // 3 bits
+            const _aac_index_delta = rtp_payload[ptr + 1] & 0x03; // 3 bits
             ptr += au_headers_length;
             // extract the AAC block
             if (ptr + aac_frame_size > rtp_payload.length)

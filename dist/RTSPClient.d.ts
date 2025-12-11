@@ -50,14 +50,14 @@ export default class RTSPClient extends EventEmitter {
     };
     isConnected: boolean;
     closed: boolean;
-    _url?: string;
-    _client?: SocketUnion;
-    _cSeq: number;
-    _unsupportedExtensions?: string[];
-    _session?: string;
-    _keepAliveID?: NodeJS.Timeout;
-    _nextFreeInterleavedChannel: number;
-    _nextFreeUDPPort: number;
+    private url?;
+    private client?;
+    private cSeq;
+    private unsupportedExtensions?;
+    protected session?: string;
+    private keepAliveID?;
+    private nextFreeInterleavedChannel;
+    private nextFreeUDPPort;
     readState: ReadStates;
     messageBytes: number[];
     rtspContentLength: number;
@@ -72,7 +72,7 @@ export default class RTSPClient extends EventEmitter {
     constructor(username: string, password: string, headers?: {
         [key: string]: string;
     });
-    _netConnect(hostname: string, port: number, secure?: boolean): Promise<this>;
+    private netConnect;
     connect(url: string, { keepAlive, connection, secure, }?: {
         keepAlive: boolean;
         connection?: Connection;
@@ -87,11 +87,11 @@ export default class RTSPClient extends EventEmitter {
     pause(): Promise<void>;
     sendAudioBackChannel(audioChunk: Buffer): Promise<void>;
     close(isImmediate?: boolean): Promise<void>;
-    _onData(data: Buffer): void;
-    _sendInterleavedData(channel: number, buffer: Buffer): void;
-    _sendUDPData(host: string, port: number, buffer: Buffer): void;
-    _emptyReceiverReport(): Buffer;
-    _socketWrite(socket: SocketUnion, data: Buffer): Promise<any>;
+    private onData;
+    private sendInterleavedData;
+    private sendUDPData;
+    private emptyReceiverReport;
+    private socketWrite;
     ntpBaseDate_ms: number;
     GetWallClockTime(packet: util.RTPPacket, detail: Detail): Date | undefined;
 }

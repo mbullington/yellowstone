@@ -84,7 +84,7 @@ class H264Transport {
                 // Parse Fragmentation Unit Header
                 const fu_header_s = (packet[1] >> 7) & 0x01; // start marker
                 const fu_header_e = (packet[1] >> 6) & 0x01; // end marker
-                const fu_header_r = (packet[1] >> 5) & 0x01; // reserved. should be 0
+                const _fu_header_r = (packet[1] >> 5) & 0x01; // reserved. should be 0
                 const fu_header_type = (packet[1] >> 0) & 0x1F; // Original NAL unit header
                 // Check Start and End flags
                 if (fu_header_s == 1 && fu_header_e == 0) { // Start of Fragment}
