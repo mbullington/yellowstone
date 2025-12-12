@@ -91,7 +91,7 @@ export default class RTSPClient extends EventEmitter {
     _sendInterleavedData(channel: number, buffer: Buffer): void;
     _sendUDPData(host: string, port: number, buffer: Buffer): void;
     _emptyReceiverReport(): Buffer;
-    _socketWrite(socket: SocketUnion, data: Buffer): Promise<any>;
+    _socketWrite(socket: SocketUnion, data: Buffer): Promise<void>;
     ntpBaseDate_ms: number;
     GetWallClockTime(packet: util.RTPPacket, detail: Detail): Date | undefined;
 }

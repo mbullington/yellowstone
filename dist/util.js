@@ -44,7 +44,7 @@ function parseRTCPPacket(buffer) {
     const packetType = buffer[1];
     const length = buffer[2] << 8 + buffer[3]; // The length in 32 bit words (not the length in bytes)
     const ssrc = buffer[4] << 24 + buffer[5] << 16 + buffer[6] << 8 + buffer[7];
-    let result = {
+    const result = {
         buffer,
         version,
         padding,
@@ -54,7 +54,7 @@ function parseRTCPPacket(buffer) {
         packetType
     };
     if (packetType == 200) {
-        let senderReport = {
+        const senderReport = {
             ntpTimestampMSW: buffer.readUInt32BE(8),
             ntpTimestampLSW: buffer.readUInt32BE(12),
             rtpTimestamp: buffer.readUInt32BE(16),

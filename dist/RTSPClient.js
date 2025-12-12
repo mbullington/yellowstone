@@ -9,6 +9,7 @@ const util_1 = require("./util");
 const transform = require("sdp-transform");
 const RTPPacket_1 = require("./transports/RTPPacket");
 const RTP_AVP = "RTP/AVP";
+const RTP_AVPF = "RTP/AVPF"; // Used by AV1. This is RTP with Feedback (via RTCP) to request Keyframes via RTCP
 const STATUS_OK = 200;
 const STATUS_UNAUTH = 401;
 // The WWW_AUTH is of the format
@@ -131,12 +132,10 @@ class RTSPClient extends events_1.EventEmitter {
                     this.isConnected = true;
                     this._client = client;
                     client.removeListener("error", errorListener);
-                    client.on("error", postConnectErrorListener);
                     this.on("response", responseListener);
                     resolve(this);
                 });
             }
-
             client.on("data", this._onData.bind(this));
             client.on("error", errorListener);
             client.on("close", closeListener);
@@ -161,7 +160,7 @@ class RTSPClient extends events_1.EventEmitter {
         if (!describeRes || !describeRes.mediaHeaders) {
             throw new Error("No media headers on DESCRIBE; RTSP server is broken (sanity check)");
         }
-        // For now, only RTP/AVP is supported. (Some RTSPS servers use RTP/SAVP)
+        // For now, only RTP/AVP and RTP/AVPF are supported. (Some RTSPS servers use RTP/SAVP)
         const { media } = transform.parse(describeRes.mediaHeaders.join("\r\n"));
         // Loop over the Media Streams in the SDP looking for Video or Audio
         // In theory the SDP can contain multiple Video and Audio Streams. We only want one of each type
@@ -195,6 +194,16 @@ class RTSPClient extends events_1.EventEmitter {
                     needSetup = true;
                     hasVideo = true;
                     codec = "H265";
+                }
+            }
+            if (mediaSource.type === "video" &&
+                (mediaSource.protocol === RTP_AVP || mediaSource.protocol === RTP_AVPF) &&
+                mediaSource.rtp[0].codec === "AV1") {
+                this.emit("log", "AV1 Video Stream Found in SDP", "");
+                if (hasVideo == false) {
+                    needSetup = true;
+                    hasVideo = true;
+                    codec = "AV1";
                 }
             }
             if (mediaSource.type === "audio" &&
@@ -258,8 +267,8 @@ class RTSPClient extends events_1.EventEmitter {
                     this._nextFreeUDPPort += 2;
                     const rtpPort = rtpChannel;
                     rtpReceiver = dgram.createSocket("udp4");
-                    rtpReceiver.on("message", (buf, remote) => {
-                        let packet = (0, util_1.parseRTPPacket)(buf);
+                    rtpReceiver.on("message", (buf) => {
+                        const packet = (0, util_1.parseRTPPacket)(buf);
                         // Add wall clock time
                         const detail = this.setupResult.find(item => item.rtpChannel == rtpChannel);
                         if (detail != undefined)
@@ -272,7 +281,7 @@ class RTSPClient extends events_1.EventEmitter {
                         const packet = (0, util_1.parseRTCPPacket)(buf);
                         // If this is a Sender Report, cache the NTP Wall Clock data
                         if (packet.packetType == 200 && packet.senderReport != undefined) {
-                            let detail = this.setupResult.find(item => item.rtcpChannel == rtcpChannel);
+                            const detail = this.setupResult.find(item => item.rtcpChannel == rtcpChannel);
                             if (detail != undefined) {
                                 detail.sr_ntpMSW = packet.senderReport.ntpTimestampMSW;
                                 detail.sr_ntpLSW = packet.senderReport.ntpTimestampLSW;
@@ -586,7 +595,7 @@ class RTSPClient extends events_1.EventEmitter {
                     const packetChannel = this.messageBytes[1];
                     if ((packetChannel & 0x01) === 0) {
                         // even number
-                        let packet = (0, util_1.parseRTPPacket)(this.rtspPacket);
+                        const packet = (0, util_1.parseRTPPacket)(this.rtspPacket);
                         // Get the Session Detail
                         const detail = this.setupResult.find(item => item.rtpChannel == packetChannel);
                         if (detail != undefined)
@@ -598,7 +607,7 @@ class RTSPClient extends events_1.EventEmitter {
                         const packet = (0, util_1.parseRTCPPacket)(this.rtspPacket);
                         // If this is a Sender Report, cache the NTP Wall Clock data
                         if (packet.packetType == 200 && packet.senderReport != undefined) {
-                            let detail = this.setupResult.find(item => item.rtcpChannel == packetChannel);
+                            const detail = this.setupResult.find(item => item.rtcpChannel == packetChannel);
                             if (detail != undefined) {
                                 detail.sr_ntpMSW = packet.senderReport.ntpTimestampMSW;
                                 detail.sr_ntpLSW = packet.senderReport.ntpTimestampLSW;
@@ -703,7 +712,7 @@ class RTSPClient extends events_1.EventEmitter {
     }
     _sendUDPData(host, port, buffer) {
         const udp = dgram.createSocket("udp4");
-        udp.send(buffer, 0, buffer.length, port, host, (err, bytes) => {
+        udp.send(buffer, 0, buffer.length, port, host, (_err, _bytes) => {
             // TODO: Don't ignore errors.
             udp.close();
         });
@@ -743,11 +752,11 @@ class RTSPClient extends events_1.EventEmitter {
     GetWallClockTime(packet, detail) {
         // Add Wall Clock Time
         if (detail.sr_ntpMSW != undefined && detail.sr_ntpLSW != undefined && detail.sr_rtptimestamp != undefined && detail.mediaSource.rtp[0].rate != undefined) {
-            let refTimestampSecs = detail.sr_rtptimestamp / detail.mediaSource.rtp[0].rate; // H264 is 90 kHz clock rate
-            let packetTimestampSecs = packet.timestamp / detail.mediaSource.rtp[0].rate; // eg 90kHz
-            let packetTimestampDeltaSecs = packetTimestampSecs - refTimestampSecs;
-            let refTimestamp = new Date(this.ntpBaseDate_ms + (detail.sr_ntpMSW * 1000) + ((detail.sr_ntpLSW / Math.pow(2, 32)) * 1000));
-            let wallclockTime = new Date(refTimestamp.getTime() + (packetTimestampDeltaSecs * 1000));
+            const refTimestampSecs = detail.sr_rtptimestamp / detail.mediaSource.rtp[0].rate; // H264 is 90 kHz clock rate
+            const packetTimestampSecs = packet.timestamp / detail.mediaSource.rtp[0].rate; // eg 90kHz
+            const packetTimestampDeltaSecs = packetTimestampSecs - refTimestampSecs;
+            const refTimestamp = new Date(this.ntpBaseDate_ms + (detail.sr_ntpMSW * 1000) + ((detail.sr_ntpLSW / Math.pow(2, 32)) * 1000));
+            const wallclockTime = new Date(refTimestamp.getTime() + (packetTimestampDeltaSecs * 1000));
             return wallclockTime;
         }
         // Could not generate a Wall Clock Time

@@ -22,7 +22,7 @@ export default class ONVIFClient extends RTSPClient {
   }
 
   async playReverse(from?: Date, to?: Date) {
-    const obj: any = {
+    const obj: Record<string, string | undefined> = {
       Session: this._session,
       'Rate-Control': 'no',
       Scale: '-1.0'
