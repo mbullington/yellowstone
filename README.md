@@ -13,7 +13,7 @@ npm install yellowstone --save
 
 Yellowstone is a library to receive video, andio and metadata from RTSP/RTP sources including Wowza, MediaMTX and IP Cameras. The library can parse some common video and audio transport formats and delivers the (often compressed) video and audio data to the library user, or writes it to a file. The library does not include codec decoders.
 
-Yellowstone was co-developed by Michael Bullington and Roger Hardiman.
+Yellowstone is co-developed by Michael Bullington and Roger Hardiman.
 
 ## Current Features
 
@@ -22,6 +22,7 @@ Yellowstone was co-developed by Michael Bullington and Roger Hardiman.
   * Pause, Play, and Teardown (Close)
 - H264/AVC transport parsing (and writing video to a .264 file)
 - H265/HEVC transport parsing (and writing video to a .265 file)
+- H266/VVC transport parsing (and writing video to a .266 file)
 - AV1 transport parsing (and writing video to a .obu file)
 - AAC transport paring (and writing audio to an .aac file)
 - ONVIF Metadata parsing (and writing to an output file)

@@ -316,6 +316,19 @@ export default class RTSPClient extends EventEmitter {
 
       if (
         mediaSource.type === "video" &&
+        mediaSource.protocol === RTP_AVP &&
+        mediaSource.rtp[0].codec === "H266"
+      ) {
+        this.emit("log", "H266 Video Stream Found in SDP", "");
+        if (hasVideo == false) {
+          needSetup = true;
+          hasVideo = true;
+          codec = "H266";
+        }
+      }
+
+      if (
+        mediaSource.type === "video" &&
         (mediaSource.protocol === RTP_AVP || mediaSource.protocol === RTP_AVPF) &&
         mediaSource.rtp[0].codec === "AV1"
       ) {
@@ -326,7 +339,6 @@ export default class RTSPClient extends EventEmitter {
           codec = "AV1";
         }
       }
-
 
       if (
         mediaSource.type === "audio" &&

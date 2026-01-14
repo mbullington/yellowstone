@@ -1,10 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RTSPClient = exports.ONVIFClient = exports.ONVIFMetadataTransport = exports.AACTransport = exports.H265Transport = exports.H264Transport = void 0;
+exports.RTSPClient = exports.ONVIFClient = exports.ONVIFMetadataTransport = exports.AACTransport = exports.AV1Transport = exports.H266Transport = exports.H265Transport = exports.H264Transport = void 0;
 const H264Transport_1 = require("./transports/H264Transport");
 exports.H264Transport = H264Transport_1.default;
 const H265Transport_1 = require("./transports/H265Transport");
 exports.H265Transport = H265Transport_1.default;
+const H266Transport_1 = require("./transports/H266Transport");
+exports.H266Transport = H266Transport_1.default;
+const AV1Transport_1 = require("./transports/AV1Transport");
+exports.AV1Transport = AV1Transport_1.default;
 const AACTransport_1 = require("./transports/AACTransport");
 exports.AACTransport = AACTransport_1.default;
 const ONVIFMetadataTransport_1 = require("./transports/ONVIFMetadataTransport");
