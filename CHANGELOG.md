@@ -1,5 +1,9 @@
 # Next Release
 
+# 3.0.7 - 13th January 2027
+Add H266 (VVC) support with output to a .266 file.
+Tested with https://github.com/jimm98y/SharpRealTimeStreaming which uses the SharpRTSP Library
+
 # v3.0.6 - 13th Oct 2025
 
 **New features**:
