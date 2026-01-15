@@ -23,6 +23,7 @@ program.description("Yellowstone RTSP Client Test Software");
 program.option('-u, --username <value>', 'Optional RTSP Username');
 program.option('-p, --password <value>', 'Optional RTSP Password');
 program.option('-o, --outfile <value>', 'Optional Output File with no File Extension for captured H264/H265/AV1/AAC');
+program.option('-t, --transport <value>', 'Optional RTP Transport - UDP or TCP');
 
 program.argument('<rtsp url eg rtsp://1.2.3.4/stream1>');
 
@@ -36,7 +37,10 @@ let password = "";
 if ('username' in options) username = options.username;
 if ('password' in options) password = options.password;
 
-const filename = "outfile"
+let transport = "tcp";
+if ('transport' in options) transport = options.transport.toString().toLowerCase();
+
+  const filename = "outfile"
 
 console.log("Connecting to " + url);
 
@@ -48,7 +52,7 @@ const client = new RTSPClient(username, password);
 // "keepAlive" option is set to true by default
 // "connection" option is set to "udp" by default and defines the method the RTP media packets are set to Yellowstone. Options are "udp" or "tcp" (where RTP media packets are sent down the RTSP connection)
 // "secure" option is set to true when connecting with TLS to the RTSP Server (eg for RTSPS)
-client.connect(url, { connection: "tcp", secure: false })
+client.connect(url, { connection: transport, secure: false })
   .then(async (detailsArray) => {
     console.log("Connected");
 
