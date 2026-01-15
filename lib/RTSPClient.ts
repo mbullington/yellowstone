@@ -23,6 +23,7 @@ import {
 import * as transform from "sdp-transform";
 import RTPPacket from "./transports/RTPPacket";
 const RTP_AVP = "RTP/AVP";
+const RTP_AVPF = "RTP/AVPF"; // Used by AV1. This is RTP with Feedback (via RTCP) to request Keyframes via RTCP
 
 const STATUS_OK = 200;
 const STATUS_UNAUTH = 401;
@@ -178,8 +179,15 @@ export default class RTSPClient extends EventEmitter {
         reject(err);
       };
 
+      const postConnectErrorListener = (err: any) => {
+        client.removeListener("error", postConnectErrorListener);
+        this.emit("error", err);
+        reject(err);
+      };
+
       const closeListener = () => {
         client.removeListener("close", closeListener);
+        this.emit("close");
         this.close(true);
       };
 
@@ -208,6 +216,7 @@ export default class RTSPClient extends EventEmitter {
           this._client = client;
 
           client.removeListener("error", errorListener);
+          client.on("error", postConnectErrorListener);
 
           this.on("response", responseListener);
           resolve(this);
@@ -267,7 +276,7 @@ export default class RTSPClient extends EventEmitter {
       );
     }
 
-    // For now, only RTP/AVP is supported. (Some RTSPS servers use RTP/SAVP)
+    // For now, only RTP/AVP and RTP/AVPF are supported. (Some RTSPS servers use RTP/SAVP)
     const { media } = transform.parse(describeRes.mediaHeaders.join("\r\n"));
 
     // Loop over the Media Streams in the SDP looking for Video or Audio
@@ -313,6 +322,31 @@ export default class RTSPClient extends EventEmitter {
         }
       }
 
+      if (
+        mediaSource.type === "video" &&
+        mediaSource.protocol === RTP_AVP &&
+        mediaSource.rtp[0].codec === "H266"
+      ) {
+        this.emit("log", "H266 Video Stream Found in SDP", "");
+        if (hasVideo == false) {
+          needSetup = true;
+          hasVideo = true;
+          codec = "H266";
+        }
+      }
+
+      if (
+        mediaSource.type === "video" &&
+        (mediaSource.protocol === RTP_AVP || mediaSource.protocol === RTP_AVPF) &&
+        mediaSource.rtp[0].codec === "AV1"
+      ) {
+        this.emit("log", "AV1 Video Stream Found in SDP", "");
+        if (hasVideo == false) {
+          needSetup = true;
+          hasVideo = true;
+          codec = "AV1";
+        }
+      }
 
       if (
         mediaSource.type === "audio" &&
@@ -500,7 +534,7 @@ export default class RTSPClient extends EventEmitter {
           codec,
           mediaSource,
           transport: transport.parameters,
-          isH264: codec === "H264",
+          isH264: codec === "H264", // legacy API
           rtpChannel,
           rtcpChannel,
         };
@@ -719,7 +753,7 @@ export default class RTSPClient extends EventEmitter {
     if (!this._client) {
       return;
     }
-    
+
     if (!isImmediate) {
       await this.request("TEARDOWN", {
         Session: this._session,
