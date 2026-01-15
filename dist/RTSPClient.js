@@ -385,10 +385,18 @@ class RTSPClient extends events_1.EventEmitter {
         if (!this._client) {
             return Promise.resolve();
         }
+        if (!url) {
+            url = this._url;
+        }
         const id = ++this._cSeq;
         // mutable via string addition
-        let req = `${requestName} ${url || this._url} RTSP/1.0\r\nCSeq: ${id}\r\n`;
+        let req = `${requestName} ${url} RTSP/1.0\r\nCSeq: ${id}\r\n`;
         const headers = Object.assign(Object.assign({}, this.headers), headersParam);
+        if (this._authOpions) {
+            Object.assign(headers, {
+                Authorization: this._generateAuthString(requestName, url),
+            });
+        }
         // NOTE:
         // If we cache the Authenitcation Type (Direct or Basic) then we could
         // re-compute an Authorization Header here and include in the RTSP Command
@@ -429,50 +437,27 @@ class RTSPClient extends events_1.EventEmitter {
                     const authHeader = resHeaders[WWW_AUTH];
                     // We have status code unauthenticated.
                     if (statusCode === STATUS_UNAUTH && authHeader) {
-                        const type = authHeader.split(" ")[0];
+                        this._authOpions = {
+                            type: authHeader.split(" ")[0],
+                            algorithm: "MD5", // Default to MD5 if no algorthm is given. Milestone's RTSP server also supports SHA-256 for FIPS
+                        };
                         // Get auth properties from WWW_AUTH header.
-                        let realm = "";
-                        let nonce = "";
-                        let algorithm = "MD5"; // Default to MD5 if no algorthm is given. Milestone's RTSP server also supports SHA-256 for FIPS
                         let match = WWW_AUTH_REGEX.exec(authHeader);
                         while (match != null) {
                             const prop = match[1];
                             if (prop == "realm" && match[2]) {
-                                realm = match[2];
+                                this._authOpions.realm = match[2];
                             }
                             if (prop == "nonce" && match[2]) {
-                                nonce = match[2];
+                                this._authOpions.nonce = match[2];
                             }
                             if (prop == "algorithm" && match[2]) {
-                                algorithm = match[2];
+                                this._authOpions.algorithm = match[2];
                             }
                             match = WWW_AUTH_REGEX.exec(authHeader);
                         }
-                        // mutable, corresponds to Authorization header
-                        let authString = "";
-                        if (type === "Digest") {
-                            // Digest Authentication
-                            // Select Hash Function, default to MD5
-                            const HashFunction = (algorithm == "SHA-256" ? util_1.getSHA256Hash : util_1.getMD5Hash);
-                            const ha1 = HashFunction(`${this.username}:${realm}:${this.password}`);
-                            const ha2 = HashFunction(`${requestName}:${this._url}`);
-                            const ha3 = HashFunction(`${ha1}:${nonce}:${ha2}`);
-                            // Some RTSP servers to not accept "algorithm=NNN" in the authString and reject the authentication. So only add algorithm=ZZZZ when not using MD5
-                            if (algorithm == "MD5")
-                                authString = `Digest username="${this.username}",realm="${realm}",nonce="${nonce}",uri="${this._url}",response="${ha3}"`;
-                            else
-                                authString = `Digest username="${this.username}",realm="${realm}",nonce="${nonce}",algorithm=${algorithm},uri="${this._url}",response="${ha3}"`;
-                        }
-                        else if (type === "Basic") {
-                            // Basic Authentication
-                            // https://xkcd.com/538/
-                            const b64 = Buffer.from(`${this.username}:${this.password}`).toString("base64");
-                            authString = `Basic ${b64}`;
-                        }
-                        Object.assign(headers, {
-                            Authorization: authString,
-                        });
-                        resolve(this.request(requestName, headers, url)); // Call this.request with Authorized request
+                        // Repeat the request, now _authOptions will be detected and the Authorization header will be generated
+                        resolve(this.request(requestName, headers, url));
                         return;
                     }
                     reject(new Error(`Bad RTSP status code ${statusCode}!`));
@@ -757,6 +742,34 @@ class RTSPClient extends events_1.EventEmitter {
                 });
             }, 20);
         });
+    }
+    _generateAuthString(requestName, url) {
+        if (!url) {
+            url = this._url;
+        }
+        let authString = "";
+        if (!this._authOpions)
+            return "";
+        if (this._authOpions.type === "Digest") {
+            // Digest Authentication
+            // Select Hash Function, default to MD5
+            const HashFunction = (this._authOpions.algorithm == "SHA-256" ? util_1.getSHA256Hash : util_1.getMD5Hash);
+            const ha1 = HashFunction(`${this.username}:${this._authOpions.realm}:${this.password}`);
+            const ha2 = HashFunction(`${requestName}:${url}`);
+            const ha3 = HashFunction(`${ha1}:${this._authOpions.nonce}:${ha2}`);
+            // Some RTSP servers to not accept "algorithm=NNN" in the authString and reject the authentication. So only add algorithm=ZZZZ when not using MD5
+            if (this._authOpions.algorithm == "MD5")
+                authString = `Digest username="${this.username}",realm="${this._authOpions.realm}",nonce="${this._authOpions.nonce}",uri="${url}",response="${ha3}"`;
+            else
+                authString = `Digest username="${this.username}",realm="${this._authOpions.realm}",nonce="${this._authOpions.nonce}",algorithm=${this._authOpions.algorithm},uri="${url}",response="${ha3}"`;
+        }
+        else if (this._authOpions.type === "Basic") {
+            // Basic Authentication
+            // https://xkcd.com/538/
+            const b64 = Buffer.from(`${this.username}:${this.password}`).toString("base64");
+            authString = `Basic ${b64}`;
+        }
+        return authString;
     }
     // Note we have had a RTP Packet in Yellowstone for many years, but the Audio Backchennal code added another object also called RTPPacket
     GetWallClockTime(packet, detail) {
