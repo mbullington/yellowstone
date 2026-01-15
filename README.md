@@ -1,4 +1,4 @@
-yellowstone v3.0.6
+yellowstone v3.0.8
 ===
 
 [![NPM](https://img.shields.io/npm/v/yellowstone.svg)](https://www.npmjs.com/package/yellowstone)
