@@ -908,10 +908,30 @@ export default class RTSPClient extends EventEmitter {
               const key = line.substring(0, indexOf).trim();
               const data = line.substring(indexOf + 1).trim();
 
-              this.rtspHeaders[key] =
-                key != "Session" && data.match(/^[0-9]+$/)
+              if (key == "Session") this.rtspHeaders[key] = data;
+
+              else if (key == "WWW-Authenticate") {
+                // Handle multiple WWW-Authenticate entries and pick the 'best'
+                // We prefer 'Digest' over 'Basic'
+                // We preger 'Digest SHAxxx' over 'Digest MD5' or 'Digest with no algorithm (defaults to MD5) (STILL TODO)
+                if (key in this.rtspHeaders) {
+                  console.log("Duplicate WWW-Authenticate keys")
+                  if (data.startsWith("Digest") && this.rtspHeaders[key]?.startsWith("Basic")) {
+                    this.rtspHeaders[key] = data; // Replace Basic with Digest
+                  }
+                  console.log("Keeping WWW-Authenticate: " + this.rtspHeaders[key]);
+                } else {
+                  this.rtspHeaders[key] = data;
+                }
+              }
+
+              else {
+                // Store the result as either a String type or a Number type
+                this.rtspHeaders[key] =
+                data.match(/^[0-9]+$/)
                   ? parseInt(data, 10)
                   : data;
+              }
 
               // workaround for buggy Hipcam RealServer/V1.0 camera which returns Content-length and not Content-Length
               if (key.toLowerCase() == "content-length") {
