@@ -496,11 +496,15 @@ export default class RTSPClient extends EventEmitter {
 
         const transport = parseTransport(headers.Transport);
         if (
+          // TCP
           transport.protocol !== "RTP/AVP/TCP" &&
-          transport.protocol !== "RTP/AVP"
+          // UDP
+          transport.protocol !== "RTP/AVP" &&
+          // UDP
+          transport.protocol !== "RTP/AVP/UDP" // Panasonic cameras send this
         ) {
           throw new Error(
-            "Only RTSP servers supporting RTP/AVP(unicast) or RTP/AVP/TCP are supported at this time."
+            "Only RTSP servers supporting RTP/AVP or RTP/AVP/UDP or RTP/AVP/TCP are supported at this time."
           );
         }
 
