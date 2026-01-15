@@ -1,4 +1,6 @@
 /// <reference types="node" />
+/// <reference types="node" />
+import { Buffer } from "buffer";
 declare class RTPPacket {
     private _bufpkt;
     constructor(bufpayload: Buffer, hasHeader?: boolean);
