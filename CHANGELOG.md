@@ -1,5 +1,11 @@
 # Next Release
 
+# 3.0.8 - 15th January 2027
+Add caching Digest Authentication code from Leone25 Enrico
+Fix bug causing an error with Panasonic Cameras returning RTP/AVP/UDP in SETUP
+Add -t to the example demo.js to pick the RTP transport (-t udp or -t tcp)
+Handle multiple WWW-Authenticate responses (which is valid) and pick Digest over Basic
+
 # 3.0.7 - 13th January 2027
 Add H266 (VVC) support with output to a .266 file.
 Tested with https://github.com/jimm98y/SharpRealTimeStreaming which uses the SharpRTSP Library

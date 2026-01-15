@@ -340,15 +340,9 @@ class RTSPClient extends events_1.EventEmitter {
                     throw new Error("No Transport header on SETUP; RTSP server is broken (sanity check)");
                 }
                 const transport = (0, util_1.parseTransport)(headers.Transport);
-                if (
-                // TCP
-                transport.protocol !== "RTP/AVP/TCP" &&
-                    // UDP
-                    transport.protocol !== "RTP/AVP" &&
-                    // UDP
-                    transport.protocol !== "RTP/AVP/UDP" // Panasonic cameras send this
-                ) {
-                    throw new Error("Only RTSP servers supporting RTP/AVP or RTP/AVP/UDP or RTP/AVP/TCP are supported at this time.");
+                if (transport.protocol !== "RTP/AVP/TCP" &&
+                    transport.protocol !== "RTP/AVP") {
+                    throw new Error("Only RTSP servers supporting RTP/AVP(unicast) or RTP/AVP/TCP are supported at this time.");
                 }
                 // Patch from zoolyka (Zoltan Hajdu).
                 // Try to open a hole in the NAT router (to allow incoming UDP packets)
@@ -402,6 +396,8 @@ class RTSPClient extends events_1.EventEmitter {
             Object.assign(headers, {
                 Authorization: this._generateAuthString(requestName, url),
             });
+            // TESTING - now mess up the cached auth info
+            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAA");
         }
         // NOTE:
         // If we cache the Authenitcation Type (Direct or Basic) then we could
@@ -459,6 +455,9 @@ class RTSPClient extends events_1.EventEmitter {
                             }
                             if (prop == "algorithm" && match[2]) {
                                 this._authOpions.algorithm = match[2];
+                            }
+                            if (prop == "qop" && match[2]) {
+                                this._authOpions.qop = match[2];
                             }
                             match = WWW_AUTH_REGEX.exec(authHeader);
                         }
@@ -650,35 +649,14 @@ class RTSPClient extends events_1.EventEmitter {
                     this.rtspStatusLine = lines[0];
                     this.rtspHeaders = {};
                     lines.forEach((line) => {
-                        var _a;
                         const indexOf = line.indexOf(":");
                         if (indexOf !== line.length - 1) {
                             const key = line.substring(0, indexOf).trim();
                             const data = line.substring(indexOf + 1).trim();
-                            if (key == "Session")
-                                this.rtspHeaders[key] = data;
-                            else if (key == "WWW-Authenticate") {
-                                // Handle multiple WWW-Authenticate entries and pick the 'best'
-                                // We prefer 'Digest' over 'Basic'
-                                // We preger 'Digest SHAxxx' over 'Digest MD5' or 'Digest with no algorithm (defaults to MD5) (STILL TODO)
-                                if (key in this.rtspHeaders) {
-                                    console.log("Duplicate WWW-Authenticate keys");
-                                    if (data.startsWith("Digest") && ((_a = this.rtspHeaders[key]) === null || _a === void 0 ? void 0 : _a.startsWith("Basic"))) {
-                                        this.rtspHeaders[key] = data; // Replace Basic with Digest
-                                    }
-                                    console.log("Keeping WWW-Authenticate: " + this.rtspHeaders[key]);
-                                }
-                                else {
-                                    this.rtspHeaders[key] = data;
-                                }
-                            }
-                            else {
-                                // Store the result as either a String type or a Number type
-                                this.rtspHeaders[key] =
-                                    data.match(/^[0-9]+$/)
-                                        ? parseInt(data, 10)
-                                        : data;
-                            }
+                            this.rtspHeaders[key] =
+                                key != "Session" && data.match(/^[0-9]+$/)
+                                    ? parseInt(data, 10)
+                                    : data;
                             // workaround for buggy Hipcam RealServer/V1.0 camera which returns Content-length and not Content-Length
                             if (key.toLowerCase() == "content-length") {
                                 this.rtspContentLength = parseInt(data, 10);
@@ -789,6 +767,8 @@ class RTSPClient extends events_1.EventEmitter {
                 authString = `Digest username="${this.username}",realm="${this._authOpions.realm}",nonce="${this._authOpions.nonce}",uri="${url}",response="${ha3}"`;
             else
                 authString = `Digest username="${this.username}",realm="${this._authOpions.realm}",nonce="${this._authOpions.nonce}",algorithm=${this._authOpions.algorithm},uri="${url}",response="${ha3}"`;
+            if (this._authOpions.qop != null)
+                authString += `, qop="${this._authOpions.qop}"`;
         }
         else if (this._authOpions.type === "Basic") {
             // Basic Authentication
@@ -814,4 +794,4 @@ class RTSPClient extends events_1.EventEmitter {
     }
 }
 exports.default = RTSPClient;
-//# sourceMappingURL=RTSPClient.js.map
+//# sourceMappingURL=RTSPClient%20copy.js.map
