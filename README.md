@@ -36,7 +36,7 @@ An example of most API features can be found at [examples/demo.js](examples/demo
 connect to a RTSP Stream and dump H264, H265, AV1 and AAC contents to a file.
 For example
 ```node examples\demo.js rtsp://myhostname/stream1```
-```node examples\demo.js -u username -p password rtsp://myhostname/stream1```
+```node examples\demo.js -u username -p password -t tcp rtsp://myhostname/stream1```
 
 To testthe output file with a video player you can use FFMPEG's ffplay command
 ```ffplay outfile.264```
