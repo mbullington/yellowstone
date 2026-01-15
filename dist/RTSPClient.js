@@ -8,6 +8,7 @@ const events_1 = require("events");
 const util_1 = require("./util");
 const transform = require("sdp-transform");
 const RTPPacket_1 = require("./transports/RTPPacket");
+const crypto_1 = require("crypto");
 const RTP_AVP = "RTP/AVP";
 const RTP_AVPF = "RTP/AVPF"; // Used by AV1. This is RTP with Feedback (via RTCP) to request Keyframes via RTCP
 const STATUS_OK = 200;
@@ -142,7 +143,7 @@ class RTSPClient extends events_1.EventEmitter {
             this.tcpSocket = client;
         });
     }
-    async connect(url, { keepAlive = true, connection = "udp", secure = false, } = {
+    async connect(url, { keepAlive, connection, secure } = {
         keepAlive: true,
         connection: "udp",
         secure: false
@@ -399,6 +400,8 @@ class RTSPClient extends events_1.EventEmitter {
         let req = `${requestName} ${url} RTSP/1.0\r\nCSeq: ${id}\r\n`;
         const headers = Object.assign(Object.assign({}, this.headers), headersParam);
         if (this._authOpions) {
+            if (this._authOpions.nc)
+                this._authOpions.nc++;
             Object.assign(headers, {
                 Authorization: this._generateAuthString(requestName, url),
             });
@@ -456,9 +459,13 @@ class RTSPClient extends events_1.EventEmitter {
                             }
                             if (prop == "nonce" && match[2]) {
                                 this._authOpions.nonce = match[2];
+                                this._authOpions.nc = 0;
                             }
                             if (prop == "algorithm" && match[2]) {
                                 this._authOpions.algorithm = match[2];
+                            }
+                            if (prop == "qop" && match[2]) {
+                                this._authOpions.qop = match[2];
                             }
                             match = WWW_AUTH_REGEX.exec(authHeader);
                         }
@@ -528,7 +535,7 @@ class RTSPClient extends events_1.EventEmitter {
             */
             channelInterleaved = channelInterleaved.split('-')[0];
             let interleavedHeader = Buffer.from([0x24]); // set '$'
-            interleavedHeader = Buffer.concat([interleavedHeader, Buffer.from([channelInterleaved])]);
+            interleavedHeader = Buffer.concat([interleavedHeader, Buffer.from([Number(channelInterleaved)])]);
             interleavedHeader = Buffer.concat([interleavedHeader, bufferLength]);
             const dataToSend = Buffer.concat([interleavedHeader, rtp.packet]);
             await this._socketWrite(this.tcpSocket, dataToSend);
@@ -770,7 +777,8 @@ class RTSPClient extends events_1.EventEmitter {
             }, 20);
         });
     }
-    _generateAuthString(requestName, url) {
+    _generateAuthString(requestName, url, body = "") {
+        var _a;
         if (!url) {
             url = this._url;
         }
@@ -781,14 +789,32 @@ class RTSPClient extends events_1.EventEmitter {
             // Digest Authentication
             // Select Hash Function, default to MD5
             const HashFunction = (this._authOpions.algorithm == "SHA-256" ? util_1.getSHA256Hash : util_1.getMD5Hash);
+            let cnonce, nc;
+            if (this._authOpions.qop) {
+                cnonce = (0, crypto_1.randomBytes)(8).toString("hex");
+                nc = ((_a = this._authOpions.nc) !== null && _a !== void 0 ? _a : 0).toString(16).padStart(8, "0");
+            }
             const ha1 = HashFunction(`${this.username}:${this._authOpions.realm}:${this.password}`);
-            const ha2 = HashFunction(`${requestName}:${url}`);
-            const ha3 = HashFunction(`${ha1}:${this._authOpions.nonce}:${ha2}`);
+            const ha2 = HashFunction(`${requestName}:${url}${this._authOpions.qop ? ":" + HashFunction(body) : ""}`);
+            const plainHa3 = [
+                ha1,
+                ...(this._authOpions.qop ? [
+                    nc,
+                    cnonce,
+                    this._authOpions.qop,
+                ] : []),
+                this._authOpions.nonce,
+                ha2
+            ].join(":");
+            const ha3 = HashFunction(plainHa3);
+            authString = `Digest username="${this.username}",realm="${this._authOpions.realm}",nonce="${this._authOpions.nonce}",uri="${url}"`;
             // Some RTSP servers to not accept "algorithm=NNN" in the authString and reject the authentication. So only add algorithm=ZZZZ when not using MD5
-            if (this._authOpions.algorithm == "MD5")
-                authString = `Digest username="${this.username}",realm="${this._authOpions.realm}",nonce="${this._authOpions.nonce}",uri="${url}",response="${ha3}"`;
-            else
-                authString = `Digest username="${this.username}",realm="${this._authOpions.realm}",nonce="${this._authOpions.nonce}",algorithm=${this._authOpions.algorithm},uri="${url}",response="${ha3}"`;
+            if (this._authOpions.algorithm != "MD5")
+                authString += `,algorithm=${this._authOpions.algorithm}`;
+            authString += `,response="${ha3}"`;
+            if (this._authOpions.qop) {
+                authString += `,qop=${this._authOpions.qop},nc=${nc},cnonce="${cnonce}"`;
+            }
         }
         else if (this._authOpions.type === "Basic") {
             // Basic Authentication

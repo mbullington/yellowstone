@@ -1,5 +1,6 @@
 /// <reference types="node" />
 /// <reference types="node" />
+/// <reference types="node" />
 import RTSPClient from "../RTSPClient";
 import { RTPPacket } from "../util";
 import * as transform from "sdp-transform";

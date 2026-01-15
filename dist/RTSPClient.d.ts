@@ -2,6 +2,8 @@
 /// <reference types="node" />
 /// <reference types="node" />
 /// <reference types="node" />
+/// <reference types="node" />
+/// <reference types="node" />
 import * as net from "net";
 import * as tls from "tls";
 type SocketUnion = net.Socket | tls.TLSSocket;
@@ -16,12 +18,19 @@ declare enum ReadStates {
     READING_RAW_PACKET_SIZE = 3,
     READING_RAW_PACKET = 4
 }
-type Connection = "udp" | "tcp";
+export type Connection = "udp" | "tcp";
+export type ConnectOptions = {
+    keepAlive: boolean;
+    connection?: Connection;
+    secure?: boolean;
+};
 type AuthOptions = {
     type: "Digest" | "Basic";
     realm?: string;
     nonce?: string;
     algorithm?: "MD5" | "SHA-256";
+    qop?: "auth" | "auth-int";
+    nc?: number;
 };
 type Headers = {
     [key: string]: string | number | undefined;
@@ -32,7 +41,7 @@ type Headers = {
     Transport?: string;
     Unsupported?: string;
 };
-type Detail = {
+export type Detail = {
     codec: string;
     mediaSource: ({
         type: string;
@@ -80,11 +89,7 @@ export default class RTSPClient extends EventEmitter {
         [key: string]: string;
     });
     _netConnect(hostname: string, port: number, secure?: boolean): Promise<this>;
-    connect(url: string, { keepAlive, connection, secure, }?: {
-        keepAlive: boolean;
-        connection?: Connection;
-        secure: boolean;
-    }): Promise<Detail[]>;
+    connect(url: string, { keepAlive, connection, secure }?: ConnectOptions): Promise<Detail[]>;
     request(requestName: string, headersParam?: Headers, url?: string): Promise<{
         headers: Headers;
         mediaHeaders?: string[];
