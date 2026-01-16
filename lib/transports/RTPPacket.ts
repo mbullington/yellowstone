@@ -8,7 +8,7 @@ function toUnsigned(val: number): number {
 }
 
 class RTPPacket {
-    private _bufpkt: Buffer; // holds the RTP header (12 bytes) AND the RTP packet payload
+    private bufpkt: Buffer; // holds the RTP header (12 bytes) AND the RTP packet payload
 
     constructor(bufpayload: Buffer, hasHeader = false) {
         /* See RFC3550 for more details: http://www.ietf.org/rfc/rfc3550.txt
@@ -27,7 +27,7 @@ class RTPPacket {
         */
         if (hasHeader && bufpayload.length >= 12) {
             // full packet (generally an incoming packet straight from the socket)
-            this._bufpkt = bufpayload;
+            this.bufpkt = bufpayload;
             /*V = (bufpkt[0] >>> 6 & 0x03);
             P = (bufpkt[0] >>> 5 & 0x01);
             X = (bufpkt[0] >>> 4 & 0x01);
@@ -40,7 +40,7 @@ class RTPPacket {
             // bufpkt[12..bufpkg.length-1] == payload data
         } else {
             // just payload data (for outgoing/sending)
-            this._bufpkt = Buffer.alloc(12 + bufpayload.length); // V..SSRC + payload
+            this.bufpkt = Buffer.alloc(12 + bufpayload.length); // V..SSRC + payload
             /*bufpkt[0] = (V << 6 | P << 5 | X << 4 | CC);
             bufpkt[1] = (M << 7 | PT);
             bufpkt[2] = (SN >>> 8)
@@ -53,83 +53,83 @@ class RTPPacket {
             bufpkt[9] = (SSRC >>> 16 & 0xFF);
             bufpkt[10] = (SSRC >>> 8 & 0xFF);
             bufpkt[11] = (SSRC & 0xFF);*/
-            this._bufpkt[0] = 0x80;
-            this._bufpkt[1] = 0;
+            this.bufpkt[0] = 0x80;
+            this.bufpkt[1] = 0;
             const SN = Math.floor(1000 * Math.random());
-            this._bufpkt[2] = (SN >>> 8)
-            this._bufpkt[3] = (SN & 0xFF);
-            this._bufpkt[4] = 0;
-            this._bufpkt[5] = 0;
-            this._bufpkt[6] = 0;
-            this._bufpkt[7] = 1;
-            this._bufpkt[8] = 0;
-            this._bufpkt[9] = 0;
-            this._bufpkt[10] = 0;
-            this._bufpkt[11] = 1;
-            bufpayload.copy(this._bufpkt, 12, 0); // append payload data
+            this.bufpkt[2] = (SN >>> 8)
+            this.bufpkt[3] = (SN & 0xFF);
+            this.bufpkt[4] = 0;
+            this.bufpkt[5] = 0;
+            this.bufpkt[6] = 0;
+            this.bufpkt[7] = 1;
+            this.bufpkt[8] = 0;
+            this.bufpkt[9] = 0;
+            this.bufpkt[10] = 0;
+            this.bufpkt[11] = 1;
+            bufpayload.copy(this.bufpkt, 12, 0); // append payload data
         }
     }
 
-    public get type() { return (this._bufpkt[1] & 0x7F); }
+    public get type() { return (this.bufpkt[1] & 0x7F); }
     public set type(val) {
         val = toUnsigned(val);
         if (val <= 127) {
-            this._bufpkt[1] -= (this._bufpkt[1] & 0x7F);
-            this._bufpkt[1] |= val;
+            this.bufpkt[1] -= (this.bufpkt[1] & 0x7F);
+            this.bufpkt[1] |= val;
         }
     }
 
-    public get seq() { return (this._bufpkt[2] << 8 | this._bufpkt[3]); }
+    public get seq() { return (this.bufpkt[2] << 8 | this.bufpkt[3]); }
     public set seq(val) {
         val = toUnsigned(val);
         if (val <= 65535) {
-            this._bufpkt[2] = (val >>> 8);
-            this._bufpkt[3] = (val & 0xFF);
+            this.bufpkt[2] = (val >>> 8);
+            this.bufpkt[3] = (val & 0xFF);
         }
     }
 
-    public get time() { return (this._bufpkt[4] << 24 | this._bufpkt[5] << 16 | this._bufpkt[6] << 8 | this._bufpkt[7]); }
+    public get time() { return (this.bufpkt[4] << 24 | this.bufpkt[5] << 16 | this.bufpkt[6] << 8 | this.bufpkt[7]); }
     public set time(val) {
         val = toUnsigned(val);
         if (val <= 4294967295) {
-            this._bufpkt[4] = (val >>> 24);
-            this._bufpkt[5] = (val >>> 16 & 0xFF);
-            this._bufpkt[6] = (val >>> 8 & 0xFF);
-            this._bufpkt[7] = (val & 0xFF);
+            this.bufpkt[4] = (val >>> 24);
+            this.bufpkt[5] = (val >>> 16 & 0xFF);
+            this.bufpkt[6] = (val >>> 8 & 0xFF);
+            this.bufpkt[7] = (val & 0xFF);
         }
     }
 
-    public get source() { return (this._bufpkt[8] << 24 | this._bufpkt[9] << 16 | this._bufpkt[10] << 8 | this._bufpkt[11]); }
+    public get source() { return (this.bufpkt[8] << 24 | this.bufpkt[9] << 16 | this.bufpkt[10] << 8 | this.bufpkt[11]); }
     public set source(val) {
         val = toUnsigned(val);
         if (val <= 4294967295) {
-            this._bufpkt[8] = (val >>> 24);
-            this._bufpkt[9] = (val >>> 16 & 0xFF);
-            this._bufpkt[10] = (val >>> 8 & 0xFF);
-            this._bufpkt[11] = (val & 0xFF);
+            this.bufpkt[8] = (val >>> 24);
+            this.bufpkt[9] = (val >>> 16 & 0xFF);
+            this.bufpkt[10] = (val >>> 8 & 0xFF);
+            this.bufpkt[11] = (val & 0xFF);
         }
     }
 
     // Gets/Sets the payload of an existing RTP packet (without any RTP Headers)
-    public get payload() { return (this._bufpkt.slice(12, this._bufpkt.length)); }
+    public get payload() { return (this.bufpkt.slice(12, this.bufpkt.length)); }
     public set payload(val) {
         if (Buffer.isBuffer(val)) {
             const newsize = 12 + val.length;
-            if (this._bufpkt.length == newsize)
-                val.copy(this._bufpkt, 12, 0);
+            if (this.bufpkt.length == newsize)
+                val.copy(this.bufpkt, 12, 0);
             else {
                 const newbuf = Buffer.alloc(newsize);
-                this._bufpkt.copy(newbuf, 0, 0, 12); // copy the RTP header
+                this.bufpkt.copy(newbuf, 0, 0, 12); // copy the RTP header
                 val.copy(newbuf, 12, 0);
-                this._bufpkt = newbuf;
+                this.bufpkt = newbuf;
             }
         }
     }
 
     // gets/sets the RTP Header and RTP Payload
-    public get packet() { return this._bufpkt; }
+    public get packet() { return this.bufpkt; }
     public set packet(val) {
-        this._bufpkt = val;
+        this.bufpkt = val;
     }
 }
 

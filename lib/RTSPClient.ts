@@ -104,17 +104,17 @@ export default class RTSPClient extends EventEmitter {
   isConnected = false;
   closed = false;
 
-  // These are all set in #connect or #_netConnect.
+  // These are all set in #connect or #netConnect.
 
-  _url?: string;
-  _client?: SocketUnion;
-  _cSeq = 0;
-  _unsupportedExtensions?: string[];
+  private url?: string;
+  private client?: SocketUnion;
+  private cSeq = 0;
+  private unsupportedExtensions?: string[];
   // Example: 'SessionId'[';timeout=seconds']
-  _session?: string;
-  _keepAliveID?: NodeJS.Timeout;
-  _nextFreeInterleavedChannel = 0;
-  _nextFreeUDPPort = 5000;
+  protected session?: string; // protected for ONVIFClient access
+  private keepAliveID?: NodeJS.Timeout;
+  private nextFreeInterleavedChannel = 0;
+  private nextFreeUDPPort = 5000;
 
   readState: ReadStates = ReadStates.SEARCHING;
 
@@ -135,7 +135,7 @@ export default class RTSPClient extends EventEmitter {
   rtspPacket = Buffer.from("");
   rtspPacketPointer = 0;
 
-  // Used in #_emptyReceiverReport.
+  // Used in emptyReceiverReport.
   clientSSRC = generateSSRC();
 
   tcpSocket: SocketUnion = new net.Socket();
@@ -162,7 +162,7 @@ export default class RTSPClient extends EventEmitter {
   //
   // Handles receiving data & closing port, called during
   // #connect.
-  _netConnect(hostname: string, port: number, secure = false): Promise<this> {
+  private netConnect(hostname: string, port: number, secure = false): Promise<this> {
     return new Promise((resolve, reject) => {
       // Set after listeners defined.
 
@@ -205,7 +205,7 @@ export default class RTSPClient extends EventEmitter {
       if (secure == false) {
         client = net.connect(port, hostname, () => {
           this.isConnected = true;
-          this._client = client;
+          this.client = client;
 
           client.removeListener("error", errorListener);
           client.on("error", postConnectErrorListener);
@@ -221,7 +221,7 @@ export default class RTSPClient extends EventEmitter {
         client = tls.connect(port, hostname, options, () => {
           console.log("TLS Connection");
           this.isConnected = true;
-          this._client = client;
+          this.client = client;
 
           client.removeListener("error", errorListener);
 
@@ -230,7 +230,7 @@ export default class RTSPClient extends EventEmitter {
         });
       }
 
-      client.on("data", this._onData.bind(this));
+      client.on("data", this.onData.bind(this));
       client.on("error", errorListener);
       client.on("close", closeListener);
       this.tcpSocket = client;
@@ -249,14 +249,14 @@ export default class RTSPClient extends EventEmitter {
         secure: false
       }
   ): Promise<Detail[]> {
-    const { hostname, port } = urlParse((this._url = url));
+    const { hostname, port } = urlParse((this.url = url));
     if (!hostname) {
       throw new Error("URL parsing error in connect method.");
     }
 
     const details: Detail[] = [];
 
-    await this._netConnect(hostname, parseInt(port || "554"), secure);
+    await this.netConnect(hostname, parseInt(port || "554"), secure);
     await this.request("OPTIONS");
 
     const describeRes = await this.request("DESCRIBE", {
@@ -376,7 +376,7 @@ export default class RTSPClient extends EventEmitter {
             streamurl = mediaSource.control;
           } else {
             // relative path
-            streamurl = this._url + "/" + mediaSource.control;
+            streamurl = this.url + "/" + mediaSource.control;
           }
         }
 
@@ -393,9 +393,9 @@ export default class RTSPClient extends EventEmitter {
           // Create a pair of UDP listeners, even numbered port for RTP
           // and odd numbered port for RTCP
 
-          rtpChannel = this._nextFreeUDPPort;
-          rtcpChannel = this._nextFreeUDPPort + 1;
-          this._nextFreeUDPPort += 2;
+          rtpChannel = this.nextFreeUDPPort;
+          rtcpChannel = this.nextFreeUDPPort + 1;
+          this.nextFreeUDPPort += 2;
 
           const rtpPort = rtpChannel;
           rtpReceiver = dgram.createSocket("udp4");
@@ -428,8 +428,8 @@ export default class RTSPClient extends EventEmitter {
 
             this.emit("controlData", rtcpPort, packet);
 
-            const receiver_report = this._emptyReceiverReport();
-            this._sendUDPData(remote.address, remote.port, receiver_report);
+            const receiver_report = this.emptyReceiverReport();
+            this.sendUDPData(remote.address, remote.port, receiver_report);
           });
 
           // Block until both UDP sockets are open.
@@ -445,22 +445,22 @@ export default class RTSPClient extends EventEmitter {
           const setupHeader = {
             Transport: `RTP/AVP;unicast;client_port=${rtpPort}-${rtcpPort}`,
           };
-          if (this._session)
-            Object.assign(setupHeader, { Session: this._session });
+          if (this.session)
+            Object.assign(setupHeader, { Session: this.session });
           setupRes = await this.request("SETUP", setupHeader, streamurl);
         } else if (connection === "tcp") {
           // channel 0, RTP
           // channel 1, RTCP
 
-          rtpChannel = this._nextFreeInterleavedChannel;
-          rtcpChannel = this._nextFreeInterleavedChannel + 1;
-          this._nextFreeInterleavedChannel += 2;
+          rtpChannel = this.nextFreeInterleavedChannel;
+          rtcpChannel = this.nextFreeInterleavedChannel + 1;
+          this.nextFreeInterleavedChannel += 2;
 
           const setupHeader = {
             Transport: `RTP/AVP/TCP;interleaved=${rtpChannel}-${rtcpChannel}`,
           };
-          if (this._session)
-            Object.assign(setupHeader, { Session: this._session }); // not used on first SETUP
+          if (this.session)
+            Object.assign(setupHeader, { Session: this.session }); // not used on first SETUP
           setupRes = await this.request("SETUP", setupHeader, streamurl);
         } else {
           throw new Error(
@@ -503,11 +503,11 @@ export default class RTSPClient extends EventEmitter {
         }
 
         if (headers.Unsupported) {
-          this._unsupportedExtensions = headers.Unsupported.split(",");
+          this.unsupportedExtensions = headers.Unsupported.split(",");
         }
 
         if (headers.Session) {
-          this._session = headers.Session.split(";")[0];
+          this.session = headers.Session.split(";")[0];
         }
 
         const detail: Detail = {
@@ -526,8 +526,8 @@ export default class RTSPClient extends EventEmitter {
     if (keepAlive) {
       // Start a Timer to send OPTIONS every 20 seconds to keep stream alive
       // using the Session ID
-      this._keepAliveID = setInterval(() => {
-        this.request("OPTIONS", { Session: this._session });
+      this.keepAliveID = setInterval(() => {
+        this.request("OPTIONS", { Session: this.session });
         //        this.request("OPTIONS");
       }, 20 * 1000);
     }
@@ -541,13 +541,13 @@ export default class RTSPClient extends EventEmitter {
     headersParam: Headers = {},
     url?: string
   ): Promise<{ headers: Headers; mediaHeaders?: string[] } | void> {
-    if (!this._client) {
+    if (!this.client) {
       return Promise.resolve();
     }
 
-    const id = ++this._cSeq;
+    const id = ++this.cSeq;
     // mutable via string addition
-    let req = `${requestName} ${url || this._url} RTSP/1.0\r\nCSeq: ${id}\r\n`;
+    let req = `${requestName} ${url || this.url} RTSP/1.0\r\nCSeq: ${id}\r\n`;
 
     const headers = {
       ...this.headers,
@@ -565,7 +565,7 @@ export default class RTSPClient extends EventEmitter {
 
     this.emit("log", req, "C->S");
     // Make sure to add an empty line after the request.
-    this._client.write(`${req}\r\n`);
+    this.client.write(`${req}\r\n`);
 
     return new Promise((resolve, reject) => {
       const responseHandler = (
@@ -641,14 +641,14 @@ export default class RTSPClient extends EventEmitter {
               const ha1 = HashFunction(
                 `${this.username}:${realm}:${this.password}`
               );
-              const ha2 = HashFunction(`${requestName}:${this._url}`);
+              const ha2 = HashFunction(`${requestName}:${this.url}`);
               const ha3 = HashFunction(`${ha1}:${nonce}:${ha2}`);
 
               // Some RTSP servers to not accept "algorithm=NNN" in the authString and reject the authentication. So only add algorithm=ZZZZ when not using MD5
               if (algorithm == "MD5")
-                authString = `Digest username="${this.username}",realm="${realm}",nonce="${nonce}",uri="${this._url}",response="${ha3}"`;
+                authString = `Digest username="${this.username}",realm="${realm}",nonce="${nonce}",uri="${this.url}",response="${ha3}"`;
               else
-                authString = `Digest username="${this.username}",realm="${realm}",nonce="${nonce}",algorithm=${algorithm},uri="${this._url}",response="${ha3}"`;
+                authString = `Digest username="${this.username}",realm="${realm}",nonce="${nonce}",algorithm=${algorithm},uri="${this.url}",response="${ha3}"`;
             } else if (type === "Basic") {
               // Basic Authentication
               // https://xkcd.com/538/
@@ -676,7 +676,7 @@ export default class RTSPClient extends EventEmitter {
   }
 
   respond(status: string, headersParam: Headers = {}): void {
-    if (!this._client) {
+    if (!this.client) {
       return;
     }
 
@@ -693,7 +693,7 @@ export default class RTSPClient extends EventEmitter {
       .join("");
 
     this.emit("log", res, "C->S");
-    this._client.write(`${res}\r\n`);
+    this.client.write(`${res}\r\n`);
   }
 
   async play(): Promise<void> {
@@ -701,7 +701,7 @@ export default class RTSPClient extends EventEmitter {
       throw new Error("Client is not connected.");
     }
 
-    await this.request("PLAY", { Session: this._session });
+    await this.request("PLAY", { Session: this.session });
   }
 
   async pause(): Promise<void> {
@@ -709,7 +709,7 @@ export default class RTSPClient extends EventEmitter {
       throw new Error("Client is not connected.");
     }
 
-    await this.request("PAUSE", { Session: this._session });
+    await this.request("PAUSE", { Session: this.session });
   }
 
   async sendAudioBackChannel(audioChunk: Buffer): Promise<void> {
@@ -744,7 +744,7 @@ export default class RTSPClient extends EventEmitter {
       interleavedHeader = Buffer.concat([interleavedHeader, Buffer.from([channelInterleaved])]);
       interleavedHeader = Buffer.concat([interleavedHeader, bufferLength]);
       const dataToSend = Buffer.concat([interleavedHeader, rtp.packet]);
-      await this._socketWrite(this.tcpSocket, dataToSend);
+      await this.socketWrite(this.tcpSocket, dataToSend);
     }
     return;
   }
@@ -753,29 +753,29 @@ export default class RTSPClient extends EventEmitter {
     if (this.closed) return;
     this.closed = true;
 
-    if (!this._client) {
+    if (!this.client) {
       return;
     }
 
     if (!isImmediate) {
       await this.request("TEARDOWN", {
-        Session: this._session,
+        Session: this.session,
       });
     }
 
-    this._client.end();
+    this.client.end();
     this.removeAllListeners("response");
 
-    if (this._keepAliveID != undefined) {
-      clearInterval(this._keepAliveID);
-      this._keepAliveID = undefined;
+    if (this.keepAliveID != undefined) {
+      clearInterval(this.keepAliveID);
+      this.keepAliveID = undefined;
     }
 
     this.isConnected = false;
-    this._cSeq = 0;
+    this.cSeq = 0;
   }
 
-  _onData(data: Buffer): void {
+  private onData(data: Buffer): void {
     let index = 0;
 
     // $
@@ -844,8 +844,8 @@ export default class RTSPClient extends EventEmitter {
             
             this.emit("controlData", packetChannel, packet);
 
-            const receiver_report = this._emptyReceiverReport();
-            this._sendInterleavedData(packetChannel, receiver_report);
+            const receiver_report = this.emptyReceiverReport();
+            this.sendInterleavedData(packetChannel, receiver_report);
           }
           this.readState = ReadStates.SEARCHING;
         }
@@ -952,8 +952,8 @@ export default class RTSPClient extends EventEmitter {
     } // end while
   }
 
-  _sendInterleavedData(channel: number, buffer: Buffer): void {
-    if (!this._client) {
+  private sendInterleavedData(channel: number, buffer: Buffer): void {
+    if (!this.client) {
       return;
     }
 
@@ -967,10 +967,10 @@ export default class RTSPClient extends EventEmitter {
     header[3] = (buffer.length >> 0) & 0xff;
 
     const data = Buffer.concat([header, buffer]);
-    this._client.write(data);
+    this.client.write(data);
   }
 
-  _sendUDPData(host: string, port: number, buffer: Buffer): void {
+  private sendUDPData(host: string, port: number, buffer: Buffer): void {
     const udp = dgram.createSocket("udp4");
     udp.send(buffer, 0, buffer.length, port, host, (_err, _bytes) => {
       // TODO: Don't ignore errors.
@@ -978,7 +978,7 @@ export default class RTSPClient extends EventEmitter {
     });
   }
 
-  _emptyReceiverReport(): Buffer {
+  private emptyReceiverReport(): Buffer {
     const report = Buffer.alloc(8);
     const version = 2;
     const paddingBit = 0;
@@ -997,7 +997,7 @@ export default class RTSPClient extends EventEmitter {
     return report;
   }
 
-  async _socketWrite(socket: SocketUnion, data: Buffer): Promise<void> {
+  private async socketWrite(socket: SocketUnion, data: Buffer): Promise<void> {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         socket.write(data, (error: Error | null) => {
