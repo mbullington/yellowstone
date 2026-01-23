@@ -1,4 +1,5 @@
 # Next Release
+Add SMPTE336M and STANAG 4609 KLV parsing and writing to a raw .klv data file. Testing by passing MPEGTS with KLV data into a recent version of MediaMTX that outputs KLV over RTSP
 
 # 3.0.8 - 15th January 2027
 Add caching Digest Authentication code from Leone25 Enrico

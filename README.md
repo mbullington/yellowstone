@@ -28,6 +28,7 @@ Yellowstone is co-developed by Michael Bullington and Roger Hardiman.
 - ONVIF Metadata parsing (and writing to an output file)
 - ONVIF extensions to RTSP
 - ONVIF Audio Backchannel, sending ALaw audio to an IP Camera
+- SMPTE336M KLV (STANAG 4609) KLV parsing (and writing to a .klv file)
 - Simple RTCP parsing
 
 ## Examples

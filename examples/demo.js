@@ -13,7 +13,7 @@
 
 // Used to connect to Wowza Demo URL but they have taken it away, and the replacement URL on their web site does not work.
 
-const { RTSPClient, H264Transport, H265Transport, H266Transport, AV1Transport, AACTransport } = require("../dist");
+const { RTSPClient, H264Transport, H265Transport, H266Transport, AV1Transport, AACTransport, SMPTE336MKLVTransport } = require("../dist");
 const fs = require("fs");
 const { exit } = require("process");
 const { program } = require("commander");
@@ -95,6 +95,12 @@ client.connect(url, { connection: transport, secure: false })
         // Add AAC Transport
         // This class subscribes to the client 'data' event, looking for the audio payload
         const aac = new AACTransport(client, audioFile, details);
+      }
+      if (details.codec == "SMPTE336M") {
+        const klvFile = fs.createWriteStream(filename + '.klv');
+        // Add KLV Transport
+        // This class subscribes to the client 'data' event, looking for the KLV payload
+        const klv = new SMPTE336MKLVTransport(client, klvFile, details);
       }
     }
 

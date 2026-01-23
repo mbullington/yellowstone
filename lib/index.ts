@@ -3,6 +3,7 @@ import H265Transport from "./transports/H265Transport";
 import H266Transport from "./transports/H266Transport";
 import AV1Transport from "./transports/AV1Transport";
 import AACTransport from "./transports/AACTransport";
+import SMPTE336MKLVTransport from "./transports/SMPTE336MKLVTransport";
 import ONVIFMetadataTransport from "./transports/ONVIFMetadataTransport";
 import ONVIFClient from "./ONVIFClient";
 import RTSPClient from "./RTSPClient";
@@ -14,6 +15,7 @@ export {
   H266Transport,
   AV1Transport,
   AACTransport,
+  SMPTE336MKLVTransport,
   ONVIFMetadataTransport,
   ONVIFClient,
   RTSPClient,
