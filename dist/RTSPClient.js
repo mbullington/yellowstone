@@ -248,6 +248,17 @@ class RTSPClient extends events_1.EventEmitter {
                     codec = "vnd.onvif.metadata";
                 }
             }
+            if (mediaSource.type === "application" &&
+                mediaSource.protocol === RTP_AVP &&
+                mediaSource.rtp[0].codec.toUpperCase() === "SMPTE336M" // MediaMTX sends in capitals. Looks like the RFC suggests lower case
+            ) {
+                this.emit("log", "SMPTE336M KLV Data Stream Found in SDP", "");
+                if (hasMetaData == false) {
+                    needSetup = true;
+                    hasMetaData = true;
+                    codec = "SMPTE336M";
+                }
+            }
             if (needSetup) {
                 let streamurl = "";
                 // The 'control' in the SDP can be a relative or absolute uri

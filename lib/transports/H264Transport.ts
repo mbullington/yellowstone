@@ -49,19 +49,35 @@ export default class H264Transport {
       return;
     }
   
+    // Normally the SDP includes the sprop-parameter-sets with the SPS and PPS data
+    // However for MPEGTS converted to RTSP with MediaMTX, there is no sprop-parameter-sets
     const fmtpConfig = transform.parseParams(fmtp.config);
-    const splitSpropParameterSets = fmtpConfig['sprop-parameter-sets'].toString().split(',');
-    const sps_base64 = splitSpropParameterSets[0];
-    const pps_base64 = splitSpropParameterSets[1];
-    const sps = Buffer.from(sps_base64, "base64");
-    const pps = Buffer.from(pps_base64, "base64");
+    if ('sprop-parameter-sets' in fmtpConfig) {
+      const splitSpropParameterSets = fmtpConfig['sprop-parameter-sets'].toString().split(',');
+      const sps_base64 = splitSpropParameterSets[0];
+      const pps_base64 = splitSpropParameterSets[1];
+      const sps = Buffer.from(sps_base64, "base64");
+      const pps = Buffer.from(pps_base64, "base64");
 
-    this.stream.write(H264_HEADER);
-    this.stream.write(sps);
-    this.stream.write(H264_HEADER);
-    this.stream.write(pps);
+      this.stream.write(H264_HEADER);
+      this.stream.write(sps);
+      this.stream.write(H264_HEADER);
+      this.stream.write(pps);
 
-    this._headerWritten = true;
+      this._headerWritten = true;
+    }
+    else
+    {
+      // Ideally MediaMTX would have parsed the MPEGTS stream, extracted the SPS and PPS and then
+      // placed it in the RTSP DESCRIBE SDP, but it does not do that.
+      // The correct method is to parse the RTP Payloads until we see the NAL type for SPS
+      // and the NAL type for PPS, then we can write them and set this._headerWritten to true
+
+      // But for now we will just set this._headerWritten to true and let NALS be written to disk
+      // before the first SPS and PPS data
+      this._headerWritten = true; // HACK - should be parsing the NALs for SPS and PPS
+    }
+
   }
 
   processRTPPacket(packet: RTPPacket): void {
